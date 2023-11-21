@@ -1,0 +1,10 @@
+FROM node:16 AS base
+COPY package.json .
+RUN npm i
+COPY . .
+RUN npm run build
+
+FROM base
+COPY --from=base build/ ./build/
+
+

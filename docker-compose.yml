@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+  lightbridge:
+    depends_on:
+      - lightbridge_db
+      - kms
+    image: bobanetwork/lightbridge:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile.prod
+    command: bash -c "node ./build/src/exec/run.js"
+    environment:
+      RPC_URL: "${RPC_URL:-https://replica.goerli.boba.network}"
+      # KMS setup (incl. defaults)
+      LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: "${LIGHTBRIDGE_AWS_KMS_ACCESS_KEY:-1}"
+      LIGHTBRIDGE_AWS_KMS_SECRET_KEY: "${LIGHTBRIDGE_AWS_KMS_SECRET_KEY:-2}"
+      LIGHTBRIDGE_AWS_KMS_KEY_ID: "${LIGHTBRIDGE_AWS_KMS_KEY_ID:-lb_disburser_pk}"
+      LIGHTBRIDGE_AWS_KMS_REGION: "${LIGHTBRIDGE_AWS_KMS_REGION:-us-east-1}"
+      LIGHTBRIDGE_AWS_KMS_ENDPOINT: "${LIGHTBRIDGE_AWS_KMS_ENDPOINT:-http://kms:8888/}"
+      LIGHTBRIDGE_POSTGRES_PASSWORD: "${LIGHTBRIDGE_DB_PASSWORD:-abcdef}"
+
+  lightbridge_db:
+    image: postgres
+    deploy:
+      replicas: 1
+    environment:
+      POSTGRES_PASSWORD: "${LIGHTBRIDGE_DB_PASSWORD:-abcdef}"
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+
+  #in no way should this be running in production
+  kms:
+    image: bobanetwork/local-kms:latest
+    environment:
+      PORT: "8888"
+      KMS_REGION: "us-east-1"
+    volumes:
+      - type: bind
+        source: ./test/kms-seed.yml
+        target: /init/seed.yaml # must be yaml, yml is not recognized
+    ports:
+      - 8888:8888

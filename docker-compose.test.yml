@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    command:
+      - "anvil --hardfork berlin" # use legacy tx to emulate boba network
+    environment:
+      - ANVIL_IP_ADDR=0.0.0.0
+    ports:
+      - "8545:8545"
+
+  lightbridge:
+    depends_on:
+      - lightbridge_db
+      - kms
+      - anvil
+    image: bobanetwork/lightbridge:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: bash -c "npm test"
+    environment:
+      RPC_URL: "http://anvil:8545"
+      # KMS setup (incl. defaults)
+      LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: "1"
+      LIGHTBRIDGE_AWS_KMS_SECRET_KEY: "2"
+      LIGHTBRIDGE_AWS_KMS_KEY_ID: "lb_disburser_pk"
+      LIGHTBRIDGE_AWS_KMS_REGION: "us-east-1"
+      LIGHTBRIDGE_AWS_KMS_ENDPOINT: "http://kms:8888/"
+      # DB
+      LIGHTBRIDGE_POSTGRES_PASSWORD: "abcdef"
+      LIGHTBRIDGE_POSTGRES_DB_HOST: "lightbridge_db" # always use local instance for tests
+  
+  lightbridge_db:
+    image: postgres
+    deploy:
+      replicas: 1
+    environment:
+      POSTGRES_PASSWORD: "abcdef"
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+
+  #in no way should this be running in production
+  kms:
+    image: bobanetwork/local-kms:latest
+    environment:
+      PORT: "8888"
+      KMS_REGION: "us-east-1"
+    volumes:
+      - type: bind
+        source: ./test/kms-seed.yml
+        target: /init/seed.yaml # must be yaml, yml is not recognized
+    ports:
+      - 8888:8888

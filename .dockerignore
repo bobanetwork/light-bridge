@@ -1,0 +1,8 @@
+node_modules
+cache
+.idea
+build
+nyc_output
+.git
+.env
+artifacts
