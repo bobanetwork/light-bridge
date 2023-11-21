@@ -796,7 +796,7 @@ describe('lightbridge', () => {
       const events = await teleportationService._getEvents(
         LightBridgeBNB,
         LightBridgeBNB.filters.AssetReceived(),
-        preBlockNumber,
+        preBlockNumber-1,
         blockNumber
       )
 
