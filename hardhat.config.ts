@@ -25,7 +25,7 @@ const config: HardhatUserConfig = {
   },
   solidity: '0.8.9',
   paths: {
-    sources: "./src/contracts",
+    sources: "./contracts",
     tests: "./test",
     cache: "./cache",
     artifacts: "./artifacts"

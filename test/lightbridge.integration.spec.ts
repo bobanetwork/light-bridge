@@ -1,32 +1,30 @@
-import {expect} from './setup'
+import { expect } from './setup'
 
 /* External Imports */
-import {ethers} from 'hardhat'
+import { ethers } from 'hardhat'
 import {
   BigNumber,
   Contract,
-  ContractFactory, providers,
+  ContractFactory,
+  providers,
   Signer,
   utils,
   Wallet,
 } from 'ethers'
-import {orderBy} from 'lodash'
+import { orderBy } from 'lodash'
 
 /* Imports: Artifacts */
-import LightBridgeJson from '../artifacts/src/contracts/LightBridge.sol/LightBridge.json'
-import L1ERC20Json from '../artifacts/src/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
+import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
+import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import {ChainInfo} from '../src'
+import { ChainInfo } from '../src'
 
 /* Imports: Core */
-import {LightBridgeService} from '../src'
-import {
-  AppDataSource,
-  historyDataRepository,
-} from '../src/data-source'
-import {Asset} from "../src";
-import dotenv from "dotenv";
+import { LightBridgeService } from '../src'
+import { AppDataSource, historyDataRepository } from '../src/data-source'
+import { Asset } from '../src'
+import dotenv from 'dotenv'
 
 dotenv.config()
 
@@ -52,13 +50,21 @@ describe('lightbridge', () => {
     await AppDataSource.initialize()
     await AppDataSource.synchronize(true) // drops database and recreates
 
-    providerUrl = process.env.RPC_URL ?? "http://anvil:8545"
+    providerUrl = process.env.RPC_URL ?? 'http://anvil:8545'
     provider = new providers.JsonRpcProvider(providerUrl)
-    console.warn("Using provider: ", providerUrl)
+    console.warn('Using provider: ', providerUrl)
     // must be the same as for AWS KMS (see kms-seed.yml)
-    signer = new Wallet(process.env.PRIVATE_KEY_1 ?? "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d", provider) // PK used by anvil (public anyway)
+    signer = new Wallet(
+      process.env.PRIVATE_KEY_1 ??
+        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+      provider
+    ) // PK used by anvil (public anyway)
     signerAddr = await signer.getAddress()
-    wallet1 = new Wallet(process.env.PRIVATE_KEY_2 ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80", provider) // PK used by anvil (public anyway)
+    wallet1 = new Wallet(
+      process.env.PRIVATE_KEY_2 ??
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      provider
+    ) // PK used by anvil (public anyway)
     address1 = wallet1.address
 
     await signer.sendTransaction({
@@ -149,7 +155,10 @@ describe('lightbridge', () => {
     selectedBobaChainsBnb = selectedBobaChains
   })
 
-  const startLightBridgeService = async (useBnb?: boolean, airdropEnabled?: boolean) => {
+  const startLightBridgeService = async (
+    useBnb?: boolean,
+    airdropEnabled?: boolean
+  ) => {
     const chainIdToUse = useBnb ? chainIdBobaBnb : chainId
 
     return new LightBridgeService({
@@ -169,13 +178,16 @@ describe('lightbridge', () => {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
         awsKmsSecretKey: process.env.LIGHTBRIDGE_AWS_KMS_SECRET_KEY ?? '2',
-        awsKmsKeyId: process.env.LIGHTBRIDGE_AWS_KMS_KEY_ID ?? 'lb_disburser_pk',
-        awsKmsEndpoint: process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://kms:8888/',
+        awsKmsKeyId:
+          process.env.LIGHTBRIDGE_AWS_KMS_KEY_ID ?? 'lb_disburser_pk',
+        awsKmsEndpoint:
+          process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://kms:8888/',
         awsKmsRegion: process.env.LIGHTBRIDGE_AWS_KMS_REGION ?? 'us-east-1',
         disableDisburserCheck: true,
       },
       airdropConfig: {
-        ...airdropConfig, airdropEnabled,
+        ...airdropConfig,
+        airdropEnabled,
       },
     })
   }
@@ -207,7 +219,7 @@ describe('lightbridge', () => {
         utils.parseEther('10'),
         chainId
       )
-      await res.wait();
+      await res.wait()
 
       const latestBlockNumber = await provider.getBlockNumber()
       const latestEvents = await teleportationService._getEvents(
@@ -230,18 +242,18 @@ describe('lightbridge', () => {
       await teleportationService.init()
 
       const blockNumber = await provider.getBlockNumber()
-      console.warn("BLOKKKKK", blockNumber)
+      console.warn('BLOKKKKK', blockNumber)
       const events = await teleportationService._getEvents(
         LightBridge,
         LightBridge.filters.AssetReceived(),
         0,
         blockNumber
       )
-      console.warn("EVEN:LLL", events.length)
+      console.warn('EVEN:LLL', events.length)
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
-      console.warn("EVENT LENGTH", events.length, JSON.stringify(events))
+      console.warn('EVENT LENGTH', events.length, JSON.stringify(events))
       let disbursement = []
       for (const event of events) {
         const sourceChainId = event.args.sourceChainId
@@ -266,14 +278,14 @@ describe('lightbridge', () => {
 
       const preBOBABalance = await L2BOBA.balanceOf(address1)
       const preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-      console.warn("PRE BAL: ", preBOBABalance, preSignerBOBABalance)
+      console.warn('PRE BAL: ', preBOBABalance, preSignerBOBABalance)
 
       await teleportationService._disburseTx(disbursement, chainId, blockNumber)
 
       const postBOBABalance = await L2BOBA.balanceOf(address1)
       const postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
 
-      console.warn("POST BAL: ", postBOBABalance, postSignerBOBABalance)
+      console.warn('POST BAL: ', postBOBABalance, postSignerBOBABalance)
 
       expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
         utils.parseEther('10')
@@ -572,7 +584,7 @@ describe('lightbridge', () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
-      await historyDataRepository.delete({chainId})
+      await historyDataRepository.delete({ chainId })
 
       const latestBlock = await provider.getBlockNumber()
       const depositTeleportations = {
@@ -789,14 +801,14 @@ describe('lightbridge', () => {
         ethers.constants.AddressZero, // send native BNB
         utils.parseEther('10'),
         chainId, // toChainId
-        {value: utils.parseEther('10')}
+        { value: utils.parseEther('10') }
       )
 
       const blockNumber = await provider.getBlockNumber()
       const events = await teleportationService._getEvents(
         LightBridgeBNB,
         LightBridgeBNB.filters.AssetReceived(),
-        preBlockNumber-1,
+        preBlockNumber - 1,
         blockNumber
       )
 
@@ -864,10 +876,7 @@ describe('lightbridge', () => {
       // deposit token
       const preBlockNumber = await provider.getBlockNumber()
 
-      await L2BNBOnBobaEth.approve(
-        LightBridge.address,
-        utils.parseEther('10')
-      )
+      await L2BNBOnBobaEth.approve(LightBridge.address, utils.parseEther('10'))
       await LightBridge.connect(signer).teleportAsset(
         L2BNBOnBobaEth.address, // send BNB as token
         utils.parseEther('10'),
@@ -980,7 +989,6 @@ describe('lightbridge', () => {
 
       // intialize the teleportation contract
       await LightBridge.initialize()
-
 
       LightBridgeBNB = await Factory__Teleportation.deploy()
       await LightBridge.deployTransaction.wait()
@@ -1164,9 +1172,13 @@ describe('lightbridge', () => {
         utils.parseEther('10')
       )
       const gasDelta = ethers.utils.parseEther('0.003')
-      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(airdropConfig.airdropAmountWei, gasDelta)
+      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
+        airdropConfig.airdropAmountWei,
+        gasDelta
+      )
       expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.closeTo(
-        airdropConfig.airdropAmountWei, gasDelta
+        airdropConfig.airdropAmountWei,
+        gasDelta
       )
     })
 
@@ -1196,7 +1208,10 @@ describe('lightbridge', () => {
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
-      const teleportationServiceEth = await startLightBridgeService(false, false)
+      const teleportationServiceEth = await startLightBridgeService(
+        false,
+        false
+      )
       await teleportationServiceEth.init()
 
       // random address to ensure balance = 0 to be eligible for airdrop
@@ -1256,9 +1271,13 @@ describe('lightbridge', () => {
         utils.parseEther('10')
       )
       const gasDelta = ethers.utils.parseEther('0.003')
-      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo('0', gasDelta)
+      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
+        '0',
+        gasDelta
+      )
       expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.closeTo(
-        '0', gasDelta
+        '0',
+        gasDelta
       )
     })
 
@@ -1345,9 +1364,13 @@ describe('lightbridge', () => {
         utils.parseEther('10')
       )
       const gasDelta = ethers.utils.parseEther('0.003')
-      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo('0', gasDelta)
+      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
+        '0',
+        gasDelta
+      )
       expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.closeTo(
-        '0', gasDelta
+        '0',
+        gasDelta
       )
     })
 
@@ -1358,10 +1381,7 @@ describe('lightbridge', () => {
       // deposit token
       const amountToBridge = utils.parseEther('10')
       const preBlockNumber = await provider.getBlockNumber()
-      await L2BOBA.connect(signer).approve(
-        LightBridge.address,
-        amountToBridge
-      )
+      await L2BOBA.connect(signer).approve(LightBridge.address, amountToBridge)
       await LightBridge.connect(signer).teleportAsset(
         L2BOBA.address,
         amountToBridge,
@@ -1427,8 +1447,13 @@ describe('lightbridge', () => {
       const postSignerNativeBalance = await provider.getBalance(randAddress)
 
       const gasDelta = ethers.utils.parseEther('0.003')
-      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(amountToBridge, gasDelta)
-      expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.eq(amountToBridge)
+      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
+        amountToBridge,
+        gasDelta
+      )
+      expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.eq(
+        amountToBridge
+      )
     })
 
     it('should not airdrop within cooldown period', async () => {
@@ -1461,7 +1486,9 @@ describe('lightbridge', () => {
       await teleportationServiceEth.init()
 
       const lastEvent = events[events.length - 1]
-      const randWallet = ethers.Wallet.createRandom().connect(LightBridge.provider)
+      const randWallet = ethers.Wallet.createRandom().connect(
+        LightBridge.provider
+      )
       const randAddress = randWallet.address
       const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
       const depositId = lastEvent.args.depositId
@@ -1510,7 +1537,7 @@ describe('lightbridge', () => {
         utils.parseEther('10'),
         chainId // toChainId
       )
-      disbursement[0].depositId += 1;
+      disbursement[0].depositId += 1
       await teleportationServiceEth._disburseTx(
         disbursement,
         chainId,
@@ -1529,8 +1556,13 @@ describe('lightbridge', () => {
         utils.parseEther('20')
       )
       const gasDelta = ethers.utils.parseEther('0.003')
-      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(airdropConfig.airdropAmountWei, gasDelta)
-      expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.eq(airdropConfig.airdropAmountWei)
+      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
+        airdropConfig.airdropAmountWei,
+        gasDelta
+      )
+      expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.eq(
+        airdropConfig.airdropAmountWei
+      )
     })
   })
 })

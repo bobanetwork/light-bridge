@@ -20,7 +20,8 @@
       "test": "hardhat test --show-stack-traces",
       "test:docker": "docker-compose -f docker-compose.test.yml up --abort-on-container-exit",
       "test:coverage": "nyc hardhat test && nyc merge .nyc_output coverage.json",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "typeorm": "typeorm-ts-node-commonjs",
+      "depcheck": "npx depcheck"
    },
    "license": "MIT",
    "devDependencies": {
@@ -36,7 +37,7 @@
       "ethereum-waffle": "^3.4.0",
       "ethers": "^5.5.4",
       "hardhat": "^2.19.1",
-      "hardhat-deploy": "^0.11.43",
+      "husky": "^8.0.3",
       "mocha": "^8.3.1",
       "ts-node": "^10.9.1",
       "tslint": "^6.1.3",
@@ -61,5 +62,10 @@
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.13",
       "typeorm": "0.3.16"
+   },
+   "husky": {
+      "hooks": {
+         "pre-commit": "yarn build && yarn lint && yarn depcheck"
+      }
    }
 }

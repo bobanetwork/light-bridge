@@ -1,11 +1,22 @@
-import {GetPublicKeyCommand, KMSClient, SignCommand, SignCommandInput, SignCommandOutput,} from '@aws-sdk/client-kms'
+import {
+  GetPublicKeyCommand,
+  KMSClient,
+  SignCommand,
+  SignCommandInput,
+  SignCommandOutput,
+} from '@aws-sdk/client-kms'
 import * as ethutil from 'ethereumjs-util'
 import * as asn1 from 'asn1.js'
 import BN from 'bn.js'
-import {FeeMarketEIP1559Transaction, Transaction} from '@ethereumjs/tx'
-import {Common} from '@ethereumjs/common'
-import {keccak256} from '@ethersproject/keccak256'
-import {BigNumber, BigNumberish, PopulatedTransaction, providers} from 'ethers'
+import { FeeMarketEIP1559Transaction, Transaction } from '@ethereumjs/tx'
+import { Common } from '@ethereumjs/common'
+import { keccak256 } from '@ethersproject/keccak256'
+import {
+  BigNumber,
+  BigNumberish,
+  PopulatedTransaction,
+  providers,
+} from 'ethers'
 
 export interface IKMSSignerConfig {
   awsKmsEndpoint: string
@@ -53,7 +64,9 @@ export class KMSSigner {
     )
   })
 
-  private sign = (msgHash: Uint8Array | undefined): Promise<SignCommandOutput> => {
+  private sign = (
+    msgHash: Uint8Array | undefined
+  ): Promise<SignCommandOutput> => {
     const params: SignCommandInput = {
       // key id or 'Alias/<alias>'
       KeyId: this.kmsKeyId,
@@ -66,7 +79,7 @@ export class KMSSigner {
   }
 
   private getPublicKey = (keyPairId: string) => {
-    return this.kmsClient.send(new GetPublicKeyCommand({KeyId: keyPairId}))
+    return this.kmsClient.send(new GetPublicKeyCommand({ KeyId: keyPairId }))
   }
 
   private getEthereumAddress = (publicKey: Buffer): string => {
@@ -112,10 +125,10 @@ export class KMSSigner {
       // if s < half the curve we need to invert it
       // s = curve.n - s
       s = secp256k1N.sub(s)
-      return {r, s}
+      return { r, s }
     }
     // if s is less than half of the curve, we're on the "good" side of the curve, we can just return
-    return {r, s}
+    return { r, s }
   }
 
   private recoverPubKeyFromSig = (msg: Buffer, r: BN, s: BN, v: number) => {
@@ -126,7 +139,13 @@ export class KMSSigner {
     return ethutil.bufferToHex(addrBuf)
   }
 
-  private findRightKey = (msg: Buffer, r: BN, s: BN, expectedEthAddr: string, isEIP1559: boolean) => {
+  private findRightKey = (
+    msg: Buffer,
+    r: BN,
+    s: BN,
+    expectedEthAddr: string,
+    isEIP1559: boolean
+  ) => {
     // This is the wrapper function to find the right v value
     // There are two matching signatues on the elliptic curve
     // we need to find the one that matches to our public key
@@ -139,9 +158,9 @@ export class KMSSigner {
       v = isEIP1559 ? 1 : 28
       pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
     }
-    console.log("sendRawTx: V-param -> ", v, "IsEIP1559: ", isEIP1559)
+    console.log('sendRawTx: V-param -> ', v, 'IsEIP1559: ', isEIP1559)
 
-    return {pubKey, v}
+    return { pubKey, v }
   }
 
   public getSignerAddr = async () => {
@@ -175,7 +194,6 @@ export class KMSSigner {
       supportsEIP1559
     )
 
-
     const chainId = (await provider.getNetwork()).chainId
 
     let baseTxObj = {
@@ -189,11 +207,10 @@ export class KMSSigner {
       data: Buffer.from(unsignedTx.data.slice('0x'.length), 'hex'),
     }
 
-    let tx: Transaction | FeeMarketEIP1559Transaction;
+    let tx: Transaction | FeeMarketEIP1559Transaction
 
     if (supportsEIP1559) {
-      const common = new Common({chain: chainId})
-
+      const common = new Common({ chain: chainId })
 
       tx = new FeeMarketEIP1559Transaction(
         {
@@ -201,9 +218,11 @@ export class KMSSigner {
           chainId,
           // gasPrice prop must be undefined
           maxFeePerGas: feeDataGasPrice.maxFeePerGas.toHexString(),
-          maxPriorityFeePerGas: feeDataGasPrice.maxPriorityFeePerGas.toHexString(),
+          maxPriorityFeePerGas:
+            feeDataGasPrice.maxPriorityFeePerGas.toHexString(),
           type: '0x02',
-        }, {common}
+        },
+        { common }
       )
     } else {
       let gasPrice: BigNumberish = (await provider.getGasPrice())
@@ -211,7 +230,7 @@ export class KMSSigner {
         .div('100')
 
       if (feeDataGasPrice.gasPrice.gt(gasPrice)) {
-        gasPrice = feeDataGasPrice.gasPrice;
+        gasPrice = feeDataGasPrice.gasPrice
       }
       gasPrice = gasPrice.toHexString()
 
@@ -219,7 +238,8 @@ export class KMSSigner {
         {
           ...baseTxObj,
           gasPrice,
-        }, {}
+        },
+        {}
       )
     }
 
@@ -230,22 +250,36 @@ export class KMSSigner {
     ethAddr: string,
     provider: providers.Provider,
     tx: Transaction | FeeMarketEIP1559Transaction,
-    supportsEIP1559: boolean,
+    supportsEIP1559: boolean
   ) => {
     const msgHash = tx.getMessageToSign(true) // tx.hash();
-    const sig = await this.findEthereumSig(msgHash);
+    const sig = await this.findEthereumSig(msgHash)
 
-    const recoveredPubAddr = this.findRightKey(msgHash, sig.r, sig.s, ethAddr, supportsEIP1559);
+    const recoveredPubAddr = this.findRightKey(
+      msgHash,
+      sig.r,
+      sig.s,
+      ethAddr,
+      supportsEIP1559
+    )
 
     const r = sig.r.toBuffer()
     const s = sig.s.toBuffer()
     const v = new BN(recoveredPubAddr.v).toBuffer()
 
-      const signedTx: Transaction | FeeMarketEIP1559Transaction = supportsEIP1559
-          ? new FeeMarketEIP1559Transaction({...tx as FeeMarketEIP1559Transaction, r, s, v})
-          : new Transaction({...tx as Transaction, r, s, v})
+    const signedTx: Transaction | FeeMarketEIP1559Transaction = supportsEIP1559
+      ? new FeeMarketEIP1559Transaction({
+          ...(tx as FeeMarketEIP1559Transaction),
+          r,
+          s,
+          v,
+        })
+      : new Transaction({ ...(tx as Transaction), r, s, v })
 
-    const senderAddr: string = signedTx.getSenderAddress().toBuffer().toString('hex')
+    const senderAddr: string = signedTx
+      .getSenderAddress()
+      .toBuffer()
+      .toString('hex')
 
     if (`0x${senderAddr}` !== recoveredPubAddr.pubKey) {
       throw new Error(

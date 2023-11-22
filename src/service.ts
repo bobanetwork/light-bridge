@@ -1,20 +1,23 @@
 /* Imports: External */
 import {
-  BigNumber, BigNumberish,
+  BigNumber,
+  BigNumberish,
   constants as ethersConstants,
-  Contract, ethers,
-  EventFilter, PopulatedTransaction,
+  Contract,
+  ethers,
+  EventFilter,
+  PopulatedTransaction,
   providers,
   Wallet,
 } from 'ethers'
-import {orderBy} from 'lodash'
+import { orderBy } from 'lodash'
 import 'reflect-metadata'
 
 /* Imports: Internal */
-import {sleep} from '@eth-optimism/core-utils'
-import {BaseService} from '@eth-optimism/common-ts'
-import {getContractFactory} from '@bobanetwork/core_contracts'
-import {getBobaContractAt} from '@bobanetwork/contracts'
+import { sleep } from '@eth-optimism/core-utils'
+import { BaseService } from '@eth-optimism/common-ts'
+import { getContractFactory } from '@bobanetwork/core_contracts'
+import { getBobaContractAt } from '@bobanetwork/contracts'
 
 /* Imports: Interface */
 import {
@@ -24,11 +27,11 @@ import {
   Disbursement,
   SupportedAssets,
 } from './utils/types'
-import {HistoryData} from './entities/HistoryData.entity'
-import {historyDataRepository, lastAirdropRepository} from './data-source'
-import {IKMSSignerConfig, KMSSigner} from './utils/kms-signing'
-import {Asset, BobaChains} from "./utils/chains";
-import {LastAirdrop} from "./entities/LastAirdrop.entity";
+import { HistoryData } from './entities/HistoryData.entity'
+import { historyDataRepository, lastAirdropRepository } from './data-source'
+import { IKMSSignerConfig, KMSSigner } from './utils/kms-signing'
+import { Asset, BobaChains } from './utils/chains'
+import { LastAirdrop } from './entities/LastAirdrop.entity'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -52,9 +55,9 @@ interface TeleportationOptions {
 
   airdropConfig?: {
     /** Amount of native gas airdropped to user when conditions are met */
-    airdropAmountWei?: BigNumberish,
+    airdropAmountWei?: BigNumberish
     /** Amount of seconds to wait after previous airdrop */
-    airdropCooldownSeconds?: BigNumberish,
+    airdropCooldownSeconds?: BigNumberish
     /** Define if airdrop is enabled on this network */
     airdropEnabled: boolean
   }
@@ -99,23 +102,32 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     // check the disburser wallet is the disburser of the contract
     const disburserAddress = await this.state.Teleportation.disburser()
     const kmsSignerAddress = await this.state.KMSSigner.getSignerAddr()
-    if (!this.options.awsConfig.disableDisburserCheck && disburserAddress.toLowerCase() !== kmsSignerAddress.toLowerCase()) {
+    if (
+      !this.options.awsConfig.disableDisburserCheck &&
+      disburserAddress.toLowerCase() !== kmsSignerAddress.toLowerCase()
+    ) {
       throw new Error(
         `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract ${disburserAddress}`
       )
     }
-    this.logger.info('Got disburser: ', {address: disburserAddress})
+    this.logger.info('Got disburser: ', { address: disburserAddress })
 
     // check if all chains are supported
     // if the chain is supported, then store the contract of the chain and the balance info
     // to the state
     this.state.supportedChains = []
     this.state.depositTeleportations = []
-    const bobaTokenContractAddr = Object.keys(this.options.ownSupportedAssets).find(
+    const bobaTokenContractAddr = Object.keys(
+      this.options.ownSupportedAssets
+    ).find(
       (k) => this.options.ownSupportedAssets[k?.toLowerCase()] === Asset.BOBA
     )
     if (!bobaTokenContractAddr) {
-      this.logger.error(`Could not find BOBA contract address to check for support: ${JSON.stringify(this.options.ownSupportedAssets)}`)
+      this.logger.error(
+        `Could not find BOBA contract address to check for support: ${JSON.stringify(
+          this.options.ownSupportedAssets
+        )}`
+      )
     }
 
     for (const chain of this.options.selectedBobaChains) {
@@ -123,12 +135,15 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const chainId = chain.chainId
         // assuming BOBA is enabled on supported networks to retain battle-tested logic
 
-        this.logger.info('Check if Boba supported for chainId: ', {chainId, bobaTokenContractAddr})
+        this.logger.info('Check if Boba supported for chainId: ', {
+          chainId,
+          bobaTokenContractAddr,
+        })
         const isSupported = await this.state.Teleportation.supportedTokens(
           bobaTokenContractAddr,
           chainId
         )
-        this.logger.info('Boba supported: ', {isSupported})
+        this.logger.info('Boba supported: ', { isSupported })
 
         if (!isSupported || !isSupported[0]) {
           // do not fail, as secured on-chain anyway & run.ts just returns all testnets/mainnets - thus just ignore networks that don't support Boba
@@ -151,7 +166,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           const totalDeposits = await depositTeleportation.totalDeposits(
             this.options.chainId
           )
-          this.logger.info('Total disbursements for chain', {chainId, totalDisbursements})
+          this.logger.info('Total disbursements for chain', {
+            chainId,
+            totalDisbursements,
+          })
 
           this.state.depositTeleportations.push({
             Teleportation: depositTeleportation,
@@ -161,8 +179,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             height: chain.height,
           })
         }
-      } catch(err) {
-        this.logger.error(`Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`)
+      } catch (err) {
+        this.logger.error(
+          `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`
+        )
       }
     }
     this.logger.info('Teleportation service initialized successfully.')
@@ -184,7 +204,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             events,
             latestBlock
           )
-          this.logger.info('Disbursed teleportations for network', { latestBlock })
+          this.logger.info('Disbursed teleportations for network', {
+            latestBlock,
+          })
         } catch (err) {
           this.logger.error('Error while running teleportation', {
             err,
@@ -243,8 +265,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           const destChainId = event.args.toChainId
 
           if (destChainId.toString() !== this.options.chainId.toString()) {
-            this.logger.info('Ignoring event as different destination chainId: ', {destChainId, currChainId: this.options.chainId})
-            continue;
+            this.logger.info(
+              'Ignoring event as different destination chainId: ',
+              { destChainId, currChainId: this.options.chainId }
+            )
+            continue
           }
 
           // we disburse tokens only if depositId is greater or equal to the last disbursement
@@ -288,7 +313,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           // disbure the token but only if all disbursements could have been processed to avoid missing events due to updating the latestBlock
           await this._disburseTx(disbursement, chainId, latestBlock)
         } else {
-          this.logger.info('No suitable disbursement event for current network', {chainId})
+          this.logger.info(
+            'No suitable disbursement event for current network',
+            { chainId }
+          )
           await this._putDepositInfo(chainId, latestBlock)
         }
       } catch (e) {
@@ -318,7 +346,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         for (const disb of slicedDisbursement) {
           tokens.set(
             disb.token,
-            BigNumber.from(disb.amount).add(tokens.get(disb.token) ?? BigNumber.from('0'))
+            BigNumber.from(disb.amount).add(
+              tokens.get(disb.token) ?? BigNumber.from('0')
+            )
           )
         }
         // do separate approves if necessary & sum up native requirement
@@ -349,7 +379,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const disburseTxUnsigned =
           await this.state.Teleportation.populateTransaction.disburseAsset(
             slicedDisbursement,
-            {value: nativeValue}
+            { value: nativeValue }
           )
         const disburseTx = await this.state.KMSSigner.sendTxViaKMS(
           this.state.Teleportation.provider,
@@ -383,31 +413,43 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
   /** @dev Checks if major airdrop eligibility criteria has been met such as not bridging native, has no gas on destination network, bridges enough value, .. */
   async _fulfillsAirdropConditions(disbursement: Disbursement) {
-    const nativeBalance = await this.state.Teleportation.provider.getBalance(disbursement.addr)
+    const nativeBalance = await this.state.Teleportation.provider.getBalance(
+      disbursement.addr
+    )
     if (nativeBalance.gt(this.options.airdropConfig.airdropAmountWei)) {
-      this.logger.info(`Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`)
-      return false;
+      this.logger.info(
+        `Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`
+      )
+      return false
     }
     if (disbursement.token === ethers.constants.AddressZero) {
-      this.logger.info(`Not airdropping as wallet is briding asset that is used to pay for gas on the destination network: ${disbursement.token}, wallet: ${disbursement.addr}`)
-      return false;
+      this.logger.info(
+        `Not airdropping as wallet is briding asset that is used to pay for gas on the destination network: ${disbursement.token}, wallet: ${disbursement.addr}`
+      )
+      return false
     }
     this.logger.info(`Airdropping for: ${JSON.stringify(disbursement)}`)
-    return true;
+    return true
   }
 
   async _airdropGas(disbursements: Disbursement[], latestBlock: number) {
     const provider = this.state.Teleportation.provider
 
     for (const disbursement of disbursements) {
-
       if (await this._fulfillsAirdropConditions(disbursement)) {
-        const lastAirdrop = await lastAirdropRepository.findOneBy({walletAddr: disbursement.addr})
+        const lastAirdrop = await lastAirdropRepository.findOneBy({
+          walletAddr: disbursement.addr,
+        })
         const unixTimestamp = Math.floor(Date.now() / 1000)
 
-        const airdropCooldownSeconds = this.options.airdropConfig?.airdropCooldownSeconds ?? '86400'
-        if (!lastAirdrop || BigNumber.from(airdropCooldownSeconds).lt(unixTimestamp - lastAirdrop.blockTimestamp)) {
-
+        const airdropCooldownSeconds =
+          this.options.airdropConfig?.airdropCooldownSeconds ?? '86400'
+        if (
+          !lastAirdrop ||
+          BigNumber.from(airdropCooldownSeconds).lt(
+            unixTimestamp - lastAirdrop.blockTimestamp
+          )
+        ) {
           let nativeAmount = this.options.airdropConfig?.airdropAmountWei
           if (!nativeAmount) {
             // default
@@ -418,23 +460,33 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             provider,
             disbursement.addr,
             BigNumber.from(nativeAmount.toString()), // native amount, converge types
-            {data: '0x'} as PopulatedTransaction // native transfer
+            { data: '0x' } as PopulatedTransaction // native transfer
           )
           await airdropTx.wait()
 
           // Save to db
-          const blockNumber = (await this.state.Teleportation.provider.getBlock('latest'))?.timestamp
-          const newAirdrop = new LastAirdrop();
-          newAirdrop.blockTimestamp = blockNumber;
-          newAirdrop.walletAddr = disbursement.addr;
+          const blockNumber = (
+            await this.state.Teleportation.provider.getBlock('latest')
+          )?.timestamp
+          const newAirdrop = new LastAirdrop()
+          newAirdrop.blockTimestamp = blockNumber
+          newAirdrop.walletAddr = disbursement.addr
           await lastAirdropRepository.save(newAirdrop)
 
-          this.logger.info(`Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`)
+          this.logger.info(
+            `Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`
+          )
         } else {
-          this.logger.info(`Cool down, user already got an airdrop within the cool down period with this wallet: ${disbursement.addr}.`)
+          this.logger.info(
+            `Cool down, user already got an airdrop within the cool down period with this wallet: ${disbursement.addr}.`
+          )
         }
       } else {
-        this.logger.info(`Not airdropping to ${disbursement.addr} as not eligible: ${JSON.stringify(disbursement)}`)
+        this.logger.info(
+          `Not airdropping to ${
+            disbursement.addr
+          } as not eligible: ${JSON.stringify(disbursement)}`
+        )
       }
     }
   }
@@ -449,10 +501,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     let events = []
     let startBlock = fromBlock
     while (startBlock < toBlock) {
-      const endBlock = Math.min(
-        startBlock + this.options.blockRangePerPolling,
-        toBlock
-      ) + 1 // also include toBlock
+      const endBlock =
+        Math.min(startBlock + this.options.blockRangePerPolling, toBlock) + 1 // also include toBlock
       const partialEvents = await contract.queryFilter(
         event,
         startBlock,
@@ -484,7 +534,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       )
     }
 
-    const srcChainTokenSymbol = srcChain.supportedAssets[sourceChainTokenAddr?.toLowerCase()]
+    const srcChainTokenSymbol =
+      srcChain.supportedAssets[sourceChainTokenAddr?.toLowerCase()]
 
     const supportedAsset = Object.entries(this.options.ownSupportedAssets).find(
       ([address, tokenSymbol]) => {
@@ -508,10 +559,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       historyData.chainId = chainId
       historyData.blockNo = latestBlock
       if (
-        await historyDataRepository.findOneBy({chainId: historyData.chainId})
+        await historyDataRepository.findOneBy({ chainId: historyData.chainId })
       ) {
         await historyDataRepository.update(
-          {chainId: historyData.chainId},
+          { chainId: historyData.chainId },
           historyData
         )
       } else {

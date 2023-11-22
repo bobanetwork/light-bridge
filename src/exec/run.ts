@@ -14,8 +14,8 @@ import { ChainInfo, SupportedAssets } from '../utils/types'
 import { AppDataSource } from '../data-source'
 import { HistoryData } from '../entities/HistoryData.entity'
 import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
-import {LastAirdrop} from "../entities/LastAirdrop.entity";
-import {LastAirdrop1687802800701} from "../migrations/1687802800701-01_LastAirdrop";
+import { LastAirdrop } from '../entities/LastAirdrop.entity'
+import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
 
 dotenv.config()
 
@@ -76,7 +76,7 @@ const main = async () => {
   )
   const LIGHTBRIDGE_AIRDROP_ENABLED = config.bool(
     'teleportation-airdrop-enabled',
-    env.LIGHTBRIDGE_AIRDROP_ENABLED?.toLowerCase() === "true" || false
+    env.LIGHTBRIDGE_AIRDROP_ENABLED?.toLowerCase() === 'true' || false
   )
 
   // Optional
@@ -138,13 +138,13 @@ const main = async () => {
       awsKmsSecretKey: LIGHTBRIDGE_AWS_KMS_SECRET_KEY,
       awsKmsKeyId: LIGHTBRIDGE_AWS_KMS_KEY_ID,
       awsKmsRegion: LIGHTBRIDGE_AWS_KMS_REGION,
-      awsKmsEndpoint: LIGHTBRIDGE_AWS_KMS_ENDPOINT
+      awsKmsEndpoint: LIGHTBRIDGE_AWS_KMS_ENDPOINT,
     },
     airdropConfig: {
       airdropAmountWei: LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI,
       airdropCooldownSeconds: LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS,
       airdropEnabled: LIGHTBRIDGE_AIRDROP_ENABLED,
-    }
+    },
   })
 
   await service.start()

@@ -4,7 +4,7 @@ import { HistoryData } from './entities/HistoryData.entity'
 import * as postgres from 'pg' // keep depcheck (db driver)
 
 import dotenv from 'dotenv'
-import {LastAirdrop} from "./entities/LastAirdrop.entity";
+import { LastAirdrop } from './entities/LastAirdrop.entity'
 
 dotenv.config()
 

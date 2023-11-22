@@ -1,8 +1,8 @@
 import {BigNumber, Contract, ethers, providers} from 'ethers'
 import { getContractFactory } from '@bobanetwork/core_contracts'
 import fs from 'fs'
-import LightBridgeJson from "../artifacts/src/contracts/LightBridge.sol/LightBridge.json";
-import Lib_ResolvedDelegateProxy from "../artifacts/src/contracts/Lib_ResolvedDelegateProxy.sol/Lib_ResolvedDelegateProxy.json"
+import LightBridgeJson from "../artifacts/contracts/LightBridge.sol/LightBridge.json";
+import Lib_ResolvedDelegateProxy from "../artifacts/contracts/Lib_ResolvedDelegateProxy.sol/Lib_ResolvedDelegateProxy.json"
 
 let Proxy__LightBridge: Contract
 let LightBridge: Contract

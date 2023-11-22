@@ -1626,9 +1626,7 @@ describe('Asset Teleportation Tests', async () => {
         const failedDisbursementRetried2 =
           await Proxy__Teleportation.failedNativeDisbursements(3)
         expect(failedDisbursementRetried2.failed).to.be.eq(false)
-        expect(failedDisbursementRetried2.disbursement.amount).to.be.eq(
-          '0'
-        )
+        expect(failedDisbursementRetried2.disbursement.amount).to.be.eq('0')
         expect(failedDisbursementRetried2.disbursement.addr).to.be.eq(
           ethers.constants.AddressZero
         )
