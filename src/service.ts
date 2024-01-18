@@ -189,6 +189,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   protected async _start(): Promise<void> {
+
     while (this.running) {
       for (const depositTeleportation of this.state.depositTeleportations) {
         // search AssetReceived events
@@ -222,14 +223,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     latestBlock: number
   ): Promise<AssetReceivedEvent[]> {
     let lastBlock: number
-    const chainId = depositTeleportation.chainId.toString()
+    const depositChainId = depositTeleportation.chainId.toString()
     try {
-      lastBlock = await this._getDepositInfo(chainId)
+      lastBlock = await this._getDepositInfo(depositChainId)
     } catch (e) {
-      this.logger.warn(`No deposit info found in chainId - ${chainId}`)
+      this.logger.warn(`No deposit info found in chainId - ${depositChainId}`)
       lastBlock = depositTeleportation.height
       // store the new deposit info
-      await this._putDepositInfo(chainId, lastBlock)
+      await this._putDepositInfo(depositChainId, lastBlock)
     }
     return this._getEvents(
       depositTeleportation.Teleportation,
@@ -244,14 +245,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     events: AssetReceivedEvent[],
     latestBlock: number
   ): Promise<void> {
-    const chainId = depositTeleportation.chainId
+    const depositChainId = depositTeleportation.chainId
     // parse events
     if (events.length === 0) {
       // update the deposit info if no events are found
-      await this._putDepositInfo(chainId, latestBlock)
+      await this._putDepositInfo(depositChainId, latestBlock)
     } else {
       const lastDisbursement =
-        await this.state.Teleportation.totalDisbursements(chainId)
+        await this.state.Teleportation.totalDisbursements(depositChainId)
       // eslint-disable-next-line prefer-const
       let disbursement: Disbursement[] = []
 
@@ -311,13 +312,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           // sort disbursement
           disbursement = orderBy(disbursement, ['depositId'], ['asc'])
           // disbure the token but only if all disbursements could have been processed to avoid missing events due to updating the latestBlock
-          await this._disburseTx(disbursement, chainId, latestBlock)
+          await this._disburseTx(disbursement, depositChainId, latestBlock)
         } else {
           this.logger.info(
             'No suitable disbursement event for current network',
-            { chainId }
+            { depositChainId, serviceChainId: this.options.chainId }
           )
-          await this._putDepositInfo(chainId, latestBlock)
+          await this._putDepositInfo(depositChainId, latestBlock)
         }
       } catch (e) {
         // Catch outside loop to stop at first failing depositID as all subsequent disbursements as depositId = amountDisbursements and would fail when disbursing
@@ -328,7 +329,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
   async _disburseTx(
     disbursement: Disbursement[],
-    chainId: number,
+    depositChainId: number,
     latestBlock: number
   ): Promise<void> {
     try {
@@ -393,18 +394,22 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         sliceEnd = Math.min(sliceEnd + 10, numberOfDisbursement)
       }
       this.logger.info(
-        `Disbursement successful - chainId: ${chainId} - slicedDisbursement:${JSON.stringify(
+        `Disbursement successful - serviceChainId: ${
+          this.options.chainId
+        } - depositChainId: ${depositChainId} - slicedDisbursement:${JSON.stringify(
           disbursement
         )} - latestBlock: ${latestBlock}`
       )
 
-      await this._putDepositInfo(chainId, latestBlock)
+      await this._putDepositInfo(depositChainId, latestBlock)
 
       // Only do on boba l2
       if (this.options.airdropConfig?.airdropEnabled) {
         await this._airdropGas(disbursement, latestBlock)
       } else {
-        this.logger.info(`Gas airdrop is disabled on chainId: ${chainId}.`)
+        this.logger.info(
+          `Gas airdrop is disabled on chainId: ${depositChainId}.`
+        )
       }
     } catch (e) {
       this.logger.error(e)
@@ -439,6 +444,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       if (await this._fulfillsAirdropConditions(disbursement)) {
         const lastAirdrop = await lastAirdropRepository.findOneBy({
           walletAddr: disbursement.addr,
+          serviceChainId: this.options.chainId,
         })
         const unixTimestamp = Math.floor(Date.now() / 1000)
 
@@ -469,6 +475,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             await this.state.Teleportation.provider.getBlock('latest')
           )?.timestamp
           const newAirdrop = new LastAirdrop()
+          newAirdrop.serviceChainId = this.options.chainId
           newAirdrop.blockTimestamp = blockNumber
           newAirdrop.walletAddr = disbursement.addr
           await lastAirdropRepository.save(newAirdrop)
@@ -551,18 +558,22 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   async _putDepositInfo(
-    chainId: number | string,
+    depositChainId: number | string,
     latestBlock: number
   ): Promise<void> {
     try {
       const historyData = new HistoryData()
-      historyData.chainId = chainId
-      historyData.blockNo = latestBlock
+      historyData.serviceChainId = this.options.chainId
+      historyData.depositChainId = depositChainId
+      historyData.depositBlockNo = latestBlock
       if (
-        await historyDataRepository.findOneBy({ chainId: historyData.chainId })
+        await historyDataRepository.findOneBy({
+          depositChainId,
+          serviceChainId: this.options.chainId,
+        })
       ) {
         await historyDataRepository.update(
-          { chainId: historyData.chainId },
+          { depositChainId, serviceChainId: this.options.chainId },
           historyData
         )
       } else {
@@ -575,11 +586,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
   async _getDepositInfo(chainId: number | string): Promise<number> {
     const historyData = await historyDataRepository.findOneBy({
-      chainId,
+      depositChainId: chainId,
     })
 
     if (historyData) {
-      return historyData.blockNo
+      return historyData.depositBlockNo
     } else {
       throw new Error("Can't find latestBlock in depositInfo")
     }

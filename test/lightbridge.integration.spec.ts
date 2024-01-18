@@ -242,18 +242,15 @@ describe('lightbridge', () => {
       await teleportationService.init()
 
       const blockNumber = await provider.getBlockNumber()
-      console.warn('BLOKKKKK', blockNumber)
       const events = await teleportationService._getEvents(
         LightBridge,
         LightBridge.filters.AssetReceived(),
         0,
         blockNumber
       )
-      console.warn('EVEN:LLL', events.length)
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
-      console.warn('EVENT LENGTH', events.length, JSON.stringify(events))
       let disbursement = []
       for (const event of events) {
         const sourceChainId = event.args.sourceChainId
@@ -278,14 +275,11 @@ describe('lightbridge', () => {
 
       const preBOBABalance = await L2BOBA.balanceOf(address1)
       const preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-      console.warn('PRE BAL: ', preBOBABalance, preSignerBOBABalance)
 
       await teleportationService._disburseTx(disbursement, chainId, blockNumber)
 
       const postBOBABalance = await L2BOBA.balanceOf(address1)
       const postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-
-      console.warn('POST BAL: ', postBOBABalance, postSignerBOBABalance)
 
       expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
         utils.parseEther('10')
@@ -584,7 +578,7 @@ describe('lightbridge', () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
-      await historyDataRepository.delete({ chainId })
+      await historyDataRepository.delete({ depositChainId: chainId })
 
       const latestBlock = await provider.getBlockNumber()
       const depositTeleportations = {
