@@ -66,7 +66,6 @@ interface TeleportationOptions {
 const optionSettings = {}
 
 export class LightBridgeService extends BaseService<TeleportationOptions> {
-
   constructor(options: TeleportationOptions) {
     super('Teleportation', options, optionSettings)
   }
@@ -190,8 +189,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   protected async _start(): Promise<void> {
-    // to avoid having multiple databases and have multiple instances run in parallel in the same container
-    const serviceChainId = this.options.chainId;
 
     while (this.running) {
       for (const depositTeleportation of this.state.depositTeleportations) {
@@ -397,7 +394,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         sliceEnd = Math.min(sliceEnd + 10, numberOfDisbursement)
       }
       this.logger.info(
-        `Disbursement successful - serviceChainId: ${this.options.chainId} - depositChainId: ${depositChainId} - slicedDisbursement:${JSON.stringify(
+        `Disbursement successful - serviceChainId: ${
+          this.options.chainId
+        } - depositChainId: ${depositChainId} - slicedDisbursement:${JSON.stringify(
           disbursement
         )} - latestBlock: ${latestBlock}`
       )
@@ -408,7 +407,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       if (this.options.airdropConfig?.airdropEnabled) {
         await this._airdropGas(disbursement, latestBlock)
       } else {
-        this.logger.info(`Gas airdrop is disabled on chainId: ${depositChainId}.`)
+        this.logger.info(
+          `Gas airdrop is disabled on chainId: ${depositChainId}.`
+        )
       }
     } catch (e) {
       this.logger.error(e)
@@ -566,7 +567,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       historyData.depositChainId = depositChainId
       historyData.depositBlockNo = latestBlock
       if (
-        await historyDataRepository.findOneBy({ depositChainId, serviceChainId: this.options.chainId })
+        await historyDataRepository.findOneBy({
+          depositChainId,
+          serviceChainId: this.options.chainId,
+        })
       ) {
         await historyDataRepository.update(
           { depositChainId, serviceChainId: this.options.chainId },

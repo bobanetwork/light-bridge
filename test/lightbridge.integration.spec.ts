@@ -731,7 +731,6 @@ describe('lightbridge', () => {
       const teleportationServiceEth = await startLightBridgeService(false)
       await teleportationServiceEth.init()
 
-
       let disbursement = []
       for (const event of events) {
         const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
