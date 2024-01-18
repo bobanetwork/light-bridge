@@ -88,3 +88,16 @@ The maximum amount that can be deposited within one single bridge operation. The
 
 ### Maximum Amount Per Day
 The maximum amount per day limits how many units of the asset to be bridged can be moved to the corresponding network per day.
+
+---
+
+## AWS KMS
+You will need a disburser key managed through KMS with the following configuration: 
+
+Key type: `asymmetric`
+Usage: `Signing/verifying`
+Specification: `ECC_SECG_P256K1`
+
+Advanced Options:
+Origin: `KMS`
+Regionality: `Multi Region Key`
