@@ -3,9 +3,13 @@ import { PrimaryColumn } from 'typeorm/decorator/columns/PrimaryColumn'
 
 @Entity({ name: 'history_data' })
 export class HistoryData {
-  @PrimaryColumn({ type: 'int', name: 'chain_id' })
-  chainId: string | number
+  /** @dev This is NOT the sourceChainId, this is the chain the service is running on (to avoid having multiple databases) */
+  @PrimaryColumn({ type: 'int', name: 'service_chain_id' })
+  serviceChainId: string | number;
 
-  @Column({ type: 'int', name: 'block_no' })
-  blockNo: number
+  @PrimaryColumn({ type: 'int', name: 'deposit_chain_id' })
+  depositChainId: string | number
+
+  @Column({ type: 'int', name: 'deposit_block_no' })
+  depositBlockNo: number
 }
