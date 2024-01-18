@@ -1,6 +1,6 @@
 {
    "name": "@bobanetwork/lightbridge",
-   "version": "1.0.0",
+   "version": "1.1.0",
    "description": "The light bridge between L2s and L1s",
    "main": "build/src/exec/run.js",
    "files": [
