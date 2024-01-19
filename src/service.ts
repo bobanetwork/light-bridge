@@ -189,7 +189,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   protected async _start(): Promise<void> {
-
     while (this.running) {
       for (const depositTeleportation of this.state.depositTeleportations) {
         // search AssetReceived events
@@ -408,7 +407,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         await this._airdropGas(disbursement, latestBlock)
       } else {
         this.logger.info(
-          `Gas airdrop is disabled on chainId: ${depositChainId}.`
+          `Gas airdrop is disabled on chainId: ${this.options.chainId}.`
         )
       }
     } catch (e) {
