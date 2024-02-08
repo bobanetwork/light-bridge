@@ -143,6 +143,24 @@ async function main() {
       }
     }
 
+    /*
+    We basically have 2 Assets that we will support as of now depending on the route/network:
+    Boba
+    ETH
+    And we have 3 parameters/limits to set:
+    minimum amount per tx
+    maximum amount per tx
+    maximum amount per day in overall
+    For ETH I would suggest:
+    minimum: 0.01 ETH
+    maximum: 2 ETH
+    maximum per day: 6 ETH
+    For BOBA:
+    minimum: 20 BOBA
+    maximum: 20k BOBA (appr. 5k rn)
+    maximum per day: 40k BOBA (appr. 10k rn)
+    */
+
     // TODO: Add Mainnet routes
     type Route = {
       fromChainId: ChainIds,
