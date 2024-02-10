@@ -20,6 +20,7 @@ export const AppDataSource = new DataSource({
   entities: [HistoryData, LastAirdrop],
   migrations: [],
   subscribers: [],
+  ssl: { rejectUnauthorized: false }
 })
 
 export const historyDataRepository = AppDataSource.getRepository(HistoryData)
