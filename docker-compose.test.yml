@@ -22,6 +22,7 @@ services:
     command: bash -c "npm test"
     environment:
       RPC_URL: "http://anvil:8545"
+      LIGHTBRIDGE_REJECT_UNAUTHORIZED: "true"
       # KMS setup (incl. defaults)
       LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: "1"
       LIGHTBRIDGE_AWS_KMS_SECRET_KEY: "2"
