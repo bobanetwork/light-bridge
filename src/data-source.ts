@@ -27,6 +27,7 @@ export const AppDataSource = new DataSource({
     // prod = false (self-signed certificates need to be allowed in prod for aws deployment), dev = true
     rejectUnauthorized: false
   },
+  connectTimeoutMS: 10000,
 })
 
 export const historyDataRepository = AppDataSource.getRepository(HistoryData)
