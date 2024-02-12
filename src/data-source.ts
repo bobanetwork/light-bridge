@@ -8,7 +8,10 @@ import { LastAirdrop } from './entities/LastAirdrop.entity'
 
 dotenv.config()
 
-console.log("SSL: Rejecting unauthorized -> ", process.env.LIGHTBRIDGE_REJECT_UNAUTHORIZED)
+console.log(
+  'SSL: Rejecting unauthorized -> ',
+  process.env.LIGHTBRIDGE_REJECT_UNAUTHORIZED
+)
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -23,11 +26,16 @@ export const AppDataSource = new DataSource({
   migrations: [],
   subscribers: [],
   // ssl obj needs to be undefined to still allow for non-encrypted connections
-  ssl: process.env.LIGHTBRIDGE_REJECT_UNAUTHORIZED?.toLowerCase() === 'true' ? undefined : {
-    // prod = false (self-signed certificates need to be allowed in prod for aws deployment), dev = true
-    rejectUnauthorized: false
-  },
-  connectTimeoutMS: 10000,
+  ssl:
+    process.env.LIGHTBRIDGE_REJECT_UNAUTHORIZED?.toLowerCase() === 'true'
+      ? undefined
+      : {
+          // prod = false (self-signed certificates need to be allowed in prod for aws deployment), dev = true
+          rejectUnauthorized: false,
+        },
+  connectTimeoutMS: process.env.LIGHTBRIDGE_POSTGRES_CONNECT_TIMEOUT_MS
+    ? parseInt(process.env.LIGHTBRIDGE_POSTGRES_CONNECT_TIMEOUT_MS)
+    : undefined,
 })
 
 export const historyDataRepository = AppDataSource.getRepository(HistoryData)

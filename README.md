@@ -6,18 +6,19 @@ This service monitors the on-chain events and release funds when a new deposit i
 
 All configuration is done via environment variables. See all variables at [.env.example](.env.example); copy into a `.env` file before running.
 
-|                                     | Description                                        | Default        |
-|-------------------------------------|----------------------------------------------------|----------------|
-| RPC_URL                             | The endpoint of Layer 2                            |                |
-| LIGHTBRIDGE_REJECT_UNAUTHORIZED     | Allows self-signed certificates if false (TypeORM) | true           |
-| LIGHTBRIDGE_DISBURSER_KEY           | The pk of disburser                                |                |
-| LIGHTBRIDGE_POLLING_INTERVAL        | The polling interval of fetching events            | 60s            |
-| LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING | The blcock range of each polling                   | 1000           |
-| LIGHTBRIDGE_POSTGRES_PASSWORD       | The database password                              | abcdef         |
-| LIGHTBRIDGE_POSTGRES_DB_HOST        | The database host                                  | LIGHTBRIDGE_db |
-| LIGHTBRIDGE_POSTGRES_DB             | The database name                                  | postgres       |
-| LIGHTBRIDGE_POSTGRES_PORT           | The database port                                  | 5432           |
-| LIGHTBRIDGE_POSTGRES_USER           | The database user                                  | postgres       |
+|                                         | Description                                        | Default         |
+|-----------------------------------------|----------------------------------------------------|-----------------|
+| RPC_URL                                 | The endpoint of Layer 2                            |                 |
+| LIGHTBRIDGE_REJECT_UNAUTHORIZED         | Allows self-signed certificates if false (TypeORM) | true            |
+| LIGHTBRIDGE_DISBURSER_KEY               | The pk of disburser                                |                 |
+| LIGHTBRIDGE_POLLING_INTERVAL            | The polling interval of fetching events            | 60s             |
+| LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING     | The blcock range of each polling                   | 1000            |
+| LIGHTBRIDGE_POSTGRES_CONNECT_TIMEOUT_MS | DB connect timeout in ms                           | Typeorm default |
+| LIGHTBRIDGE_POSTGRES_PASSWORD           | The database password                              | abcdef          |
+| LIGHTBRIDGE_POSTGRES_DB_HOST            | The database host                                  | LIGHTBRIDGE_db  |
+| LIGHTBRIDGE_POSTGRES_DB                 | The database name                                  | postgres        |
+| LIGHTBRIDGE_POSTGRES_PORT               | The database port                                  | 5432            |
+| LIGHTBRIDGE_POSTGRES_USER               | The database user                                  | postgres        |
 
 ## Building & Running
 
