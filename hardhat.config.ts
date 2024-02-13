@@ -2,17 +2,26 @@ import { HardhatUserConfig } from 'hardhat/types'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 
+require('dotenv').config()
+
+const LOCAL_PK = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+
 const config: HardhatUserConfig = {
   mocha: {
     timeout: 200000,
   },
   networks: {
-    boba: {
-      url: 'http://localhost:8545',
-      // This sets the gas price to 0 for all transactions on L2. We do this
-      // because account balances are not automatically initiated with an ETH
-      // balance.
-      gasPrice: 0,
+    boba_sepolia: {
+      url: 'https://sepolia.boba.network',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
+    sepolia: {
+      url: 'https://ethereum-sepolia.publicnode.com',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
+    boba_goerli: {
+      url: 'https://goerli.boba.network',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     localhost: {
       url: 'http://localhost:9545',
@@ -23,7 +32,12 @@ const config: HardhatUserConfig = {
       ],
     },
   },
-  solidity: '0.8.9',
+  solidity: {
+    version: '0.8.9',
+    settings: {
+      optimizer: { enabled: true, runs: 10_000 },
+    },
+  },
   paths: {
     sources: "./contracts",
     tests: "./test",
