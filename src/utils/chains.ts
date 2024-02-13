@@ -168,8 +168,8 @@ export const BobaChains: IBobaChains = {
   // Sepolia
   11155111: {
     url:
-        process.env.LIGHTBRIDGE_RPC_SEPOLIATESTNET ??
-        'https://ethereum-sepolia.publicnode.com',
+      process.env.LIGHTBRIDGE_RPC_SEPOLIATESTNET ??
+      'https://ethereum-sepolia.publicnode.com',
     testnet: true,
     name: 'Sepolia Testnet',
     teleportationAddress: '0x670b130112C6f03E17192e63c67866e67D77c3ee',
@@ -182,8 +182,8 @@ export const BobaChains: IBobaChains = {
   // Boba Sepolia
   28882: {
     url:
-        process.env.LIGHTBRIDGE_RPC_BOBASEPOLIATESTNET ??
-        'https://sepolia.boba.network',
+      process.env.LIGHTBRIDGE_RPC_BOBASEPOLIATESTNET ??
+      'https://sepolia.boba.network',
     testnet: true,
     name: 'Boba Sepolia Testnet',
     teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
