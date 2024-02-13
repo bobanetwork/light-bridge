@@ -51,7 +51,7 @@ export class KMSSigner {
       })
     } else {
       this.kmsClient = new KMSClient({
-        region: awsKmsRegion
+        region: awsKmsRegion,
       })
     }
 
