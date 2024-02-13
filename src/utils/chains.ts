@@ -165,8 +165,35 @@ export const BobaChains: IBobaChains = {
       '0xB8c77482e45F1F44dE1745F52C74426C631bDD52': 'BNB',*/
     },
   },
+  // Sepolia
+  11155111: {
+    url:
+        process.env.LIGHTBRIDGE_RPC_SEPOLIATESTNET ??
+        'https://ethereum-sepolia.publicnode.com',
+    testnet: true,
+    name: 'Sepolia Testnet',
+    teleportationAddress: '0x670b130112C6f03E17192e63c67866e67D77c3ee',
+    height: 5280795,
+    supportedAssets: {
+      ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
+      ['0x33faF65b3DfcC6A1FccaD4531D9ce518F0FDc896'.toLowerCase()]: Asset.BOBA,
+    },
+  },
+  // Boba Sepolia
+  28882: {
+    url:
+        process.env.LIGHTBRIDGE_RPC_BOBASEPOLIATESTNET ??
+        'https://sepolia.boba.network',
+    testnet: true,
+    name: 'Boba Sepolia Testnet',
+    teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
+    height: 19220000, // TODO: might need to be adapted
+    supportedAssets: {
+      ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
+      ['0x4200000000000000000000000000000000000023'.toLowerCase()]: Asset.BOBA,
+    },
+  },
   5: {
-    // TODO: DEV VERSION (GRT tokens needed): subgraph deployed: https://api.studio.thegraph.com/query/57436/boba_bridges/version/latest
     url:
       process.env.LIGHTBRIDGE_RPC_GOERLITESTNET ??
       'https://rpc.ankr.com/eth_goerli',
@@ -182,7 +209,6 @@ export const BobaChains: IBobaChains = {
     },
   },
   97: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves)
     url:
       process.env.LIGHTBRIDGE_RPC_BNBTESTNET ??
       'https://api.zan.top/node/v1/bsc/testnet/public',
