@@ -39,6 +39,13 @@ const main = async () => {
   })
 
   const env = process.env
+
+  if (env.LIGHTBRIDGE_ENV !== 'dev' && env.LIGHTBRIDGE_ENV !== 'prod') {
+    throw Error("must define env: LIGHTBRIDGE_ENV either dev or prod")
+  }
+
+  const envModeIsDevelopment = env.LIGHTBRIDGE_ENV === 'dev'
+
   const RPC_URL = config.str('l2-node-web3-url', env.RPC_URL)
   // This private key is used to send funds to the contract and initiate the tx,
   // so it should have enough BOBA balance
@@ -134,11 +141,11 @@ const main = async () => {
     pollingInterval: POLLING_INTERVAL,
     blockRangePerPolling: BLOCK_RANGE_PER_POLLING,
     awsConfig: {
-      awsKmsAccessKey: LIGHTBRIDGE_AWS_KMS_ACCESS_KEY,
-      awsKmsSecretKey: LIGHTBRIDGE_AWS_KMS_SECRET_KEY,
+      awsKmsAccessKey: envModeIsDevelopment ? LIGHTBRIDGE_AWS_KMS_ACCESS_KEY : null ,
+      awsKmsSecretKey: envModeIsDevelopment ? LIGHTBRIDGE_AWS_KMS_SECRET_KEY : null,
       awsKmsKeyId: LIGHTBRIDGE_AWS_KMS_KEY_ID,
       awsKmsRegion: LIGHTBRIDGE_AWS_KMS_REGION,
-      awsKmsEndpoint: LIGHTBRIDGE_AWS_KMS_ENDPOINT,
+      awsKmsEndpoint: envModeIsDevelopment ? LIGHTBRIDGE_AWS_KMS_ENDPOINT : null,
     },
     airdropConfig: {
       airdropAmountWei: LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI,
