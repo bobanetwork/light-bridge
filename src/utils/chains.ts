@@ -172,7 +172,7 @@ export const BobaChains: IBobaChains = {
       'https://ethereum-sepolia.publicnode.com',
     testnet: true,
     name: 'Sepolia Testnet',
-    teleportationAddress: '0x670b130112C6f03E17192e63c67866e67D77c3ee',
+    teleportationAddress: '0xaeE12b8D99BBff7ED47866DF868CF5b4b3F73ffF',
     height: 5280795,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,

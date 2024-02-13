@@ -44,8 +44,8 @@ Contract audited.
 ## Testnet deployments
 
 ### Sepolia (L1)
-- LightBridge deployed to: `0x45B9877497d73C683D38e0C7FfCf089D5D9FDCDf`
-- Proxy__LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
+- LightBridge deployed to: `0x6550b0B7e3D2dD0E0382E0638B0f56F614921CA5`
+- Proxy__LightBridge deployed to: `0xaeE12b8D99BBff7ED47866DF868CF5b4b3F73ffF`
 
 ### Goerli (L1)
 - LightBridge deployed to: `0xB93d9748808A5cC7dC6b61b31F15b87F50BfcAd0`
