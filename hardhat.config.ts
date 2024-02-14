@@ -72,7 +72,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
   etherscan: {
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY,
-      arbitrumOne: "",
+      arbitrumOne: process.env.ARBISCAN_API_KEY,
       bsc: "",
       mainnet: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,

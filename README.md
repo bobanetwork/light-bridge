@@ -55,6 +55,10 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
 
+### Arbitrum Mainnet
+- LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
+- Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+
 
 ## Testnet deployments
 
