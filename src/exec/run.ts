@@ -100,12 +100,12 @@ const main = async () => {
     throw new Error('Must pass RPC_URL')
   }
   if (
-    envModeIsDevelopment && (
-    !LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ||
-    !LIGHTBRIDGE_AWS_KMS_SECRET_KEY ||
-    !LIGHTBRIDGE_AWS_KMS_KEY_ID ||
-    !LIGHTBRIDGE_AWS_KMS_ENDPOINT ||
-    !LIGHTBRIDGE_AWS_KMS_REGION)
+    envModeIsDevelopment &&
+    (!LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ||
+      !LIGHTBRIDGE_AWS_KMS_SECRET_KEY ||
+      !LIGHTBRIDGE_AWS_KMS_KEY_ID ||
+      !LIGHTBRIDGE_AWS_KMS_ENDPOINT ||
+      !LIGHTBRIDGE_AWS_KMS_REGION)
   ) {
     throw new Error('Must pass TELEPORTATION AWS CONFIG ENV')
   }

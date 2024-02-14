@@ -22,6 +22,7 @@ All configuration is done via environment variables. See all variables at [.env.
 | LIGHTBRIDGE_POSTGRES_DB                 | The database name                                  | postgres        |
 | LIGHTBRIDGE_POSTGRES_PORT               | The database port                                  | 5432            |
 | LIGHTBRIDGE_POSTGRES_USER               | The database user                                  | postgres        |
+| LIGHTBRIDGE_ENV                         | The environment mode (dev or prod)                 | dev             |
 
 ## Building & Running
 
