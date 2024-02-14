@@ -51,6 +51,9 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
 
+### Optimism Mainnet
+- LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
+- Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
 
 
 ## Testnet deployments
@@ -72,6 +75,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Boba Sepolia
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+- No alerts set yet, since no Tenderly support available (14 Feb 2024)
 
 ### Boba Goerli
 - LightBridge deployed to: `0x95ec63aE2573bD5e70C223E075D9483573968699`

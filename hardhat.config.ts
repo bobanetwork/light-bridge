@@ -75,7 +75,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       arbitrumOne: "",
       bsc: "",
       mainnet: process.env.ETHERSCAN_API_KEY,
-      optimisticEthereum: "",
+      optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
     },
     customChains: [
       {
