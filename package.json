@@ -29,6 +29,7 @@
       "@bobanetwork/contracts": "0.0.2",
       "@eth-optimism/core-utils": "0.8.1",
       "@nomiclabs/hardhat-ethers": "^2.0.2",
+      "@nomiclabs/hardhat-etherscan": "^3.1.8",
       "@nomiclabs/hardhat-waffle": "^2.0.1",
       "@types/chai": "^4.3.10",
       "@types/mocha": "^8.2.3",
