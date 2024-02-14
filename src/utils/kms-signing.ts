@@ -21,8 +21,8 @@ import {
 export interface IKMSSignerConfig {
   awsKmsEndpoint: string
   awsKmsRegion: string
-  awsKmsAccessKey: string
-  awsKmsSecretKey: string
+  awsKmsAccessKey?: string
+  awsKmsSecretKey?: string
   awsKmsKeyId: string
   /** @dev Should always be enabled, but can be helpful for debugging and unit tests, .. */
   disableDisburserCheck?: boolean
@@ -32,7 +32,7 @@ export class KMSSigner {
   private kmsClient: KMSClient
   private readonly kmsKeyId: string
 
-  constructor(kmsSignerConfig: IKMSSignerConfig) {
+  constructor(kmsSignerConfig: IKMSSignerConfig, isDevelopment = true) {
     const {
       awsKmsEndpoint,
       awsKmsKeyId,
@@ -40,14 +40,21 @@ export class KMSSigner {
       awsKmsSecretKey,
       awsKmsAccessKey,
     } = kmsSignerConfig
-    this.kmsClient = new KMSClient({
-      region: awsKmsRegion,
-      endpoint: awsKmsEndpoint,
-      credentials: {
-        accessKeyId: awsKmsAccessKey, // credentials for your IAM user with KMS access
-        secretAccessKey: awsKmsSecretKey, // credentials for your IAM user with KMS access
-      },
-    })
+    if (isDevelopment) {
+      this.kmsClient = new KMSClient({
+        region: awsKmsRegion,
+        endpoint: awsKmsEndpoint,
+        credentials: {
+          accessKeyId: awsKmsAccessKey, // credentials for your IAM user with KMS access
+          secretAccessKey: awsKmsSecretKey, // credentials for your IAM user with KMS access
+        },
+      })
+    } else {
+      this.kmsClient = new KMSClient({
+        region: awsKmsRegion,
+      })
+    }
+
     this.kmsKeyId = awsKmsKeyId
   }
 

@@ -86,7 +86,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     })
 
     this.logger.info('Initializing KMSSigner...')
-    this.state.KMSSigner = new KMSSigner(this.options.awsConfig)
+    this.state.KMSSigner = new KMSSigner(
+      this.options.awsConfig,
+      process.env.LIGHTBRIDGE_ENV === 'dev'
+    )
 
     this.logger.info('Connecting to Teleportation contract...')
     this.state.Teleportation = await getBobaContractAt(
