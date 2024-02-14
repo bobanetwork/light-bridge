@@ -40,7 +40,18 @@ Connect to Postgres on CLI:
 
 Contract audited.
 
+## Wallets
+Make sure disbursers have enough liquidity in form of the native asset (such as ETH) and in form of supported tokens (such as BOBA).
+
 ---
+
+## Mainnet deployments
+
+### Ethereum Mainnet (L1)
+- LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
+- Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+
+
 
 ## Testnet deployments
 
@@ -51,6 +62,8 @@ Contract audited.
 ### Goerli (L1)
 - LightBridge deployed to: `0xB93d9748808A5cC7dC6b61b31F15b87F50BfcAd0`
 - Proxy__LightBridge deployed to: `0x84b22166366a6f7E0cD0c3ce9998f2913Bf17A13`
+- Disburser transferred to AWS KMS managed wallet on [14 Feb 2024](https://goerli.etherscan.io/tx/0x32d5de977ebbcfdcc7ac9c66c8e818b4b5289a7f47e924ba27cb1b9f94123d16): `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
+- Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
 
 ### BNB Testnet (L1)
 - LightBridge deployed to: `0xD151c8F0dc69618e6180a2dC74B05cCE3E08e0aC`

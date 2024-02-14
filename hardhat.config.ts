@@ -29,7 +29,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_eth_mainnet: {
-      url: 'https://boba-ethereum.gateway.tenderly.co',
+      url: 'https://mainnet.boba.network',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_bnb_mainnet: {

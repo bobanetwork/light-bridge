@@ -71,14 +71,21 @@ async function main() {
         deployer
     )
 
+    let gasLimit = prompt("Custom gas limit? [number/N]")
+    if (isNaN(gasLimit?.toLowerCase())) {
+        gasLimit = null;
+    } else {
+        gasLimit = parseInt(gasLimit)
+    }
+
     const redeploy = prompt("Want to redeploy? [Y/n]")?.toLowerCase() === "y"
     if (redeploy) {
-        LightBridge = await Factory__LightBridge.deploy()
+        LightBridge = await Factory__LightBridge.deploy({gasLimit})
         let res = await LightBridge.deployTransaction.wait()
         console.log(`Deployed light bridge: `, res)
 
         console.log(`LightBridge for ${currChainId} deployed to: ${LightBridge.address}`)
-        Proxy__LightBridge = await Factory__ProxyLightBridge.deploy(LightBridge.address)
+        Proxy__LightBridge = await Factory__ProxyLightBridge.deploy(LightBridge.address, {gasLimit})
         res = await Proxy__LightBridge.deployTransaction.wait()
 
         fileName = `${Proxy__LightBridge.address}-${currChainId}`
@@ -135,7 +142,7 @@ async function main() {
 
     // Initialize the Proxy__LightBridge contract
     if (redeploy) {
-        let res = await Proxy__LightBridge.initialize()
+        let res = await Proxy__LightBridge.initialize({gasLimit})
         file.log(fileName, `Initialized proxy: ${await res.wait()}`)
         res = await LightBridge.initialize()
         file.log(fileName, `LightBridge initialized: ${await res.wait()}`)
@@ -144,7 +151,7 @@ async function main() {
             const disburser = await LightBridge.disburser()
             if (!disburser || disburser === ethers.constants.AddressZero) {
                 // not initialized
-                let res = await Proxy__LightBridge.initialize()
+                let res = await Proxy__LightBridge.initialize({gasLimit})
                 file.log(fileName, `Initialized proxy: ${await res.wait()}`)
                 res = await LightBridge.initialize()
                 file.log(fileName, `Light bridge initialized: ${await res.wait()}`)
@@ -476,6 +483,7 @@ async function main() {
                 minAmount,
                 maxAmount,
                 maxDailyAmount,
+                {gasLimit}
             )
             const routeRes = await Proxy__LightBridge.addSupportedToken(
                 fromTokenAddr,
@@ -483,6 +491,7 @@ async function main() {
                 minAmount,
                 maxAmount,
                 maxDailyAmount,
+                {gasLimit}
             )
             file.log(
                 fileName,
