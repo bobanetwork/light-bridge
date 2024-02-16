@@ -102,7 +102,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     this.logger.info('Connected to Teleportation', {
       address: this.state.Teleportation.address,
       chainId: this.options.chainId,
-      rpc: this.state.Teleportation.provider
+      rpc: this.state.Teleportation.provider,
     })
 
     // check the disburser wallet is the disburser of the contract
@@ -117,23 +117,26 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract ${disburserAddress}`
       )
     }*/
-    this.logger.info('Got disburser: ', { address: disburserAddress, serviceChainId: this.options.chainId })
+    this.logger.info('Got disburser: ', {
+      address: disburserAddress,
+      serviceChainId: this.options.chainId,
+    })
 
     // check if all chains are supported
     // if the chain is supported, then store the contract of the chain and the balance info
     // to the state
     this.state.supportedChains = []
     this.state.depositTeleportations = []
-    const defaultAssetAddr = Object.keys(
-      this.options.ownSupportedAssets
-    ).find(
-      (k) => this.options.ownSupportedAssets[k?.toLowerCase()] === Asset.BOBA
-    ) ?? '0x0000000000000000000000000000000000000000'
+    const defaultAssetAddr =
+      Object.keys(this.options.ownSupportedAssets).find(
+        (k) => this.options.ownSupportedAssets[k?.toLowerCase()] === Asset.BOBA
+      ) ?? '0x0000000000000000000000000000000000000000'
     if (!defaultAssetAddr) {
       this.logger.error(
         `Could not find BOBA contract address to check for support: ${JSON.stringify(
           this.options.ownSupportedAssets
-        )}`, {serviceChainId: this.options.chainId}
+        )}`,
+        { serviceChainId: this.options.chainId }
       )
     }
 
@@ -145,13 +148,16 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         this.logger.info('Check if Boba or native supported for chainId: ', {
           chainId,
           bobaTokenContractAddr: defaultAssetAddr,
-          serviceChainId: this.options.chainId
+          serviceChainId: this.options.chainId,
         })
         const isSupported = await this.state.Teleportation.supportedTokens(
           defaultAssetAddr,
           chainId
         )
-        this.logger.info('Boba or native supported: ', { isSupported, serviceChainId: this.options.chainId })
+        this.logger.info('Boba or native supported: ', {
+          isSupported,
+          serviceChainId: this.options.chainId,
+        })
 
         if (!isSupported || !isSupported[0]) {
           // do not fail, as secured on-chain anyway & run.ts just returns all testnets/mainnets - thus just ignore networks that don't support Boba
@@ -160,7 +166,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
               this.state.Teleportation.address
             } on chain ${
               (await this.state.Teleportation.provider.getNetwork()).chainId
-            }`, {serviceChainId: this.options.chainId}
+            }`,
+            { serviceChainId: this.options.chainId }
           )
         } else {
           this.state.supportedChains = [...this.state.supportedChains, chain]
@@ -178,7 +185,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           this.logger.info('Total disbursements for chain', {
             chainId,
             totalDisbursements,
-            serviceChainId: this.options.chainId
+            serviceChainId: this.options.chainId,
           })
 
           this.state.depositTeleportations.push({
@@ -191,11 +198,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
       } catch (err) {
         this.logger.error(
-          `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`, {serviceChainId: this.options.chainId, err}
+          `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`,
+          { serviceChainId: this.options.chainId, err }
         )
       }
     }
-    this.logger.info('Teleportation service initialized successfully.', {serviceChainId: this.options.chainId})
+    this.logger.info('Teleportation service initialized successfully.', {
+      serviceChainId: this.options.chainId,
+    })
   }
 
   protected async _start(): Promise<void> {
@@ -215,11 +225,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             latestBlock
           )
           this.logger.info('Disbursed teleportations for network', {
-            latestBlock, serviceChainId: this.options.chainId
+            latestBlock,
+            serviceChainId: this.options.chainId,
           })
         } catch (err) {
           this.logger.error('Error while running teleportation', {
-            err, serviceChainId: this.options.chainId
+            err,
+            serviceChainId: this.options.chainId,
           })
         }
       }
@@ -236,7 +248,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     try {
       lastBlock = await this._getDepositInfo(depositChainId)
     } catch (e) {
-      this.logger.warn(`No deposit info found in chainId - ${depositChainId}`, {serviceChainId: this.options.chainId})
+      this.logger.warn(`No deposit info found in chainId - ${depositChainId}`, {
+        serviceChainId: this.options.chainId,
+      })
       lastBlock = depositTeleportation.height
       // store the new deposit info
       await this._putDepositInfo(depositChainId, lastBlock)
@@ -312,7 +326,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
               ]
               this.logger.info(
                 `Found a new deposit - sourceChainId: ${sourceChainId.toString()} - depositId: ${depositId.toNumber()} - amount: ${amount.toString()} - emitter: ${emitter} - token/native: ${sourceChainTokenAddr}`,
-                  {serviceChainId: this.options.chainId}
+                { serviceChainId: this.options.chainId }
               )
             }
           }
@@ -332,7 +346,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
       } catch (e) {
         // Catch outside loop to stop at first failing depositID as all subsequent disbursements as depositId = amountDisbursements and would fail when disbursing
-        this.logger.error(e.message, {serviceChainId: this.options.chainId})
+        this.logger.error(e.message, { serviceChainId: this.options.chainId })
       }
     }
   }
@@ -408,7 +422,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           this.options.chainId
         } - depositChainId: ${depositChainId} - slicedDisbursement:${JSON.stringify(
           disbursement
-        )} - latestBlock: ${latestBlock}`, {serviceChainId: this.options.chainId}
+        )} - latestBlock: ${latestBlock}`,
+        { serviceChainId: this.options.chainId }
       )
 
       await this._putDepositInfo(depositChainId, latestBlock)
@@ -419,11 +434,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       } else {
         this.logger.info(
           `Gas airdrop is disabled on chainId: ${this.options.chainId}.`,
-            {serviceChainId: this.options.chainId}
+          { serviceChainId: this.options.chainId }
         )
       }
     } catch (e) {
-      this.logger.error(e, {serviceChainId: this.options.chainId})
+      this.logger.error(e, { serviceChainId: this.options.chainId })
     }
   }
 
@@ -435,18 +450,20 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     if (nativeBalance.gt(this.options.airdropConfig.airdropAmountWei)) {
       this.logger.info(
         `Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`,
-          {serviceChainId: this.options.chainId}
+        { serviceChainId: this.options.chainId }
       )
       return false
     }
     if (disbursement.token === ethers.constants.AddressZero) {
       this.logger.info(
         `Not airdropping as wallet is briding asset that is used to pay for gas on the destination network: ${disbursement.token}, wallet: ${disbursement.addr}`,
-          {serviceChainId: this.options.chainId}
+        { serviceChainId: this.options.chainId }
       )
       return false
     }
-    this.logger.info(`Airdropping for: ${JSON.stringify(disbursement)}`, {serviceChainId: this.options.chainId})
+    this.logger.info(`Airdropping for: ${JSON.stringify(disbursement)}`, {
+      serviceChainId: this.options.chainId,
+    })
     return true
   }
 
@@ -495,12 +512,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
           this.logger.info(
             `Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
-              {serviceChainId: this.options.chainId}
+            { serviceChainId: this.options.chainId }
           )
         } else {
           this.logger.info(
             `Cool down, user already got an airdrop within the cool down period with this wallet: ${disbursement.addr}.`,
-              {serviceChainId: this.options.chainId}
+            { serviceChainId: this.options.chainId }
           )
         }
       } else {
@@ -508,7 +525,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           `Not airdropping to ${
             disbursement.addr
           } as not eligible: ${JSON.stringify(disbursement)}`,
-            {serviceChainId: this.options.chainId}
+          { serviceChainId: this.options.chainId }
         )
       }
     }
@@ -596,7 +613,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         await historyDataRepository.save(historyData)
       }
     } catch (error) {
-      this.logger.error(`Failed to put depositInfo! - ${error}`, {serviceChainId: this.options.chainId})
+      this.logger.error(`Failed to put depositInfo! - ${error}`, {
+        serviceChainId: this.options.chainId,
+      })
     }
   }
 
