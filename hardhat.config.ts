@@ -17,7 +17,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     bsc: {
-      url: 'https://binance.llamarpc.com',
+      url: 'https://bsc-pokt.nodies.app',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     arbitrumOne: {
@@ -73,10 +73,11 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY,
       arbitrumOne: process.env.ARBISCAN_API_KEY,
-      bsc: "",
+      bsc: process.env.BSCSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
       boba_eth_mainnet: "boba", // not required, set placeholder
+      boba_bnb_mainnet: "boba", // not required, set placeholder
     },
     customChains: [
       {
@@ -91,8 +92,8 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
         network: "boba_bnb_mainnet",
         chainId: 56288,
         urls: {
-          apiURL: "",
-          browserURL: "",
+          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/56288/etherscan",
+          browserURL: "https://bobascan.com"
         },
       }
     ],
