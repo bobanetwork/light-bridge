@@ -13,7 +13,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
   },
   networks: {
     mainnet: {
-      url: 'https://eth.llamarpc.com',
+      url: process.env.LIGHTBRIDGE_RPC_ETHMAINNET ?? 'https://eth.llamarpc.com',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     bsc: {
@@ -29,7 +29,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_eth_mainnet: {
-      url: 'https://mainnet.boba.network',
+      url: process.env.LIGHTBRIDGE_RPC_BOBAETHMAINNET ?? 'https://mainnet.boba.network',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_bnb_mainnet: {
@@ -60,7 +60,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
   solidity: {
     version: '0.8.9',
     settings: {
-      optimizer: { enabled: true, runs: 10_000 },
+      optimizer: { enabled: true, runs: 200 },
     },
   },
   paths: {
@@ -72,18 +72,19 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
   etherscan: {
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY,
-      arbitrumOne: "",
+      arbitrumOne: process.env.ARBISCAN_API_KEY,
       bsc: "",
       mainnet: process.env.ETHERSCAN_API_KEY,
-      optimisticEthereum: "",
+      optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
+      boba_eth_mainnet: "boba", // not required, set placeholder
     },
     customChains: [
       {
         network: "boba_eth_mainnet",
         chainId: 288,
         urls: {
-          apiURL: "",
-          browserURL: "",
+          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/288/etherscan",
+          browserURL: "https://bobascan.com"
         },
       },
       {
