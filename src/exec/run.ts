@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv'
 import Config from 'bcfg'
 
 /* Imports: Core */
-import { LightBridgeService } from '../service'
+import {IAirdropConfig, LightBridgeService} from '../service'
 
 /* Imports: Config */
 import { BobaChains } from '../utils/chains'
@@ -16,6 +16,7 @@ import { HistoryData } from '../entities/HistoryData.entity'
 import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
 import { LastAirdrop } from '../entities/LastAirdrop.entity'
 import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
+import {IKMSSignerConfig} from "../utils/kms-signing";
 
 dotenv.config()
 
@@ -46,119 +47,134 @@ const main = async () => {
 
   const envModeIsDevelopment = env.LIGHTBRIDGE_ENV === 'dev'
 
-  const RPC_URL = config.str('l2-node-web3-url', env.RPC_URL)
+  const rpcUrl = config.str('l2-node-web3-url', env.RPC_URL)
   // This private key is used to send funds to the contract and initiate the tx,
   // so it should have enough BOBA balance
-  const LIGHTBRIDGE_AWS_KMS_ACCESS_KEY = config.str(
+  const awsKmsAccessKey = config.str(
     'teleportation-aws-kms-access-key',
     env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY
   )
-  const LIGHTBRIDGE_AWS_KMS_SECRET_KEY = config.str(
+  const awsKmsSecretKey = config.str(
     'teleportation-aws-kms-secret-key',
     env.LIGHTBRIDGE_AWS_KMS_SECRET_KEY
   )
-  const LIGHTBRIDGE_AWS_KMS_KEY_ID = config.str(
+  const awsKmsKeyId = config.str(
     'teleportation-aws-kms-key-id',
     env.LIGHTBRIDGE_AWS_KMS_KEY_ID
   )
-  const LIGHTBRIDGE_AWS_KMS_REGION = config.str(
+  const awsKmsRegion = config.str(
     'teleportation-aws-kms-region',
     env.LIGHTBRIDGE_AWS_KMS_REGION
   )
-  const LIGHTBRIDGE_AWS_KMS_ENDPOINT = config.str(
+  const awsKmsEndpoint = config.str(
     'teleportation-aws-kms-endpoint',
     env.LIGHTBRIDGE_AWS_KMS_ENDPOINT
   )
-  const LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI = config.str(
+  const airdropAmountWei = config.str(
     'teleportation-airdrop-gas-amount-wei',
     env.LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI || '100000000000000' // 0.0001 eth
   )
-  const LIGHTBRIDGE_AIRDROP_MIN_USD_VALUE = config.str(
-    'teleportation-airdrop-min-usd-value',
-    env.LIGHTBRIDGE_AIRDROP_MIN_USD_VALUE || '15'
-  )
-  const LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS = config.str(
+  const airdropCooldownSeconds = config.str(
     'teleportation-airdrop-cooldown-seconds',
     env.LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS || '86400'
   )
-  const LIGHTBRIDGE_AIRDROP_ENABLED = config.bool(
+  const airdropEnabled = config.bool(
     'teleportation-airdrop-enabled',
     env.LIGHTBRIDGE_AIRDROP_ENABLED?.toLowerCase() === 'true' || false
   )
 
   // Optional
-  const POLLING_INTERVAL = config.uint(
+  const pollingInterval = config.uint(
     'polling-interval',
     parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 1000 * 60
   )
-  const BLOCK_RANGE_PER_POLLING = config.uint(
+  const blockRangePerPolling = config.uint(
     'block-range-per-polling',
     parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000
   )
 
-  if (!RPC_URL) {
-    throw new Error('Must pass RPC_URL')
-  }
   if (
     envModeIsDevelopment &&
-    (!LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ||
-      !LIGHTBRIDGE_AWS_KMS_SECRET_KEY ||
-      !LIGHTBRIDGE_AWS_KMS_KEY_ID ||
-      !LIGHTBRIDGE_AWS_KMS_ENDPOINT ||
-      !LIGHTBRIDGE_AWS_KMS_REGION)
+    (!awsKmsAccessKey ||
+      !awsKmsSecretKey ||
+      !awsKmsKeyId ||
+      !awsKmsEndpoint ||
+      !awsKmsRegion)
   ) {
-    throw new Error('Must pass TELEPORTATION AWS CONFIG ENV')
+    throw new Error('Must pass LIGHTBRIDGE AWS CONFIG ENV')
   }
 
-  const l2Provider = new providers.StaticJsonRpcProvider(RPC_URL)
+  // TODO: OPTIONS
+  if (!rpcUrl) {
+    throw new Error('Must pass RPC_URL')
+  }
+  await startLightBridgeForNetwork({rpcUrl, blockRangePerPolling, pollingInterval, envModeIsDevelopment,
+    awsKmsConfig: {
+      awsKmsAccessKey, awsKmsEndpoint, awsKmsKeyId, awsKmsRegion, awsKmsSecretKey
+    },
+    airdropConfig: {
+      airdropAmountWei, airdropEnabled, airdropCooldownSeconds
+    }
+  })
+}
+
+interface ILightBridgeOpts {
+  envModeIsDevelopment: boolean;
+  rpcUrl: string;
+  pollingInterval: number;
+  blockRangePerPolling: number;
+  awsKmsConfig: IKMSSignerConfig;
+  airdropConfig?: IAirdropConfig;
+}
+
+const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
+  const {rpcUrl, pollingInterval, blockRangePerPolling, envModeIsDevelopment, awsKmsConfig, airdropConfig} = opts;
+
+  const l2RpcProvider = new providers.StaticJsonRpcProvider(rpcUrl)
 
   // get all boba chains and exclude the current chain
-  const chainId = (await l2Provider.getNetwork()).chainId
+  const chainId = (await l2RpcProvider.getNetwork()).chainId
   const isTestnet = BobaChains[chainId].testnet
   let originSupportedAssets: SupportedAssets
   const selectedBobaChains: ChainInfo[] = Object.keys(BobaChains).reduce(
-    (acc, cur) => {
-      const chain = BobaChains[cur]
-      if (isTestnet === chain.testnet) {
-        if (Number(cur) !== chainId) {
-          chain.provider = new providers.StaticJsonRpcProvider(chain.url)
-          acc.push({ chainId: cur, ...chain })
-        } else {
-          originSupportedAssets = chain.supportedAssets
+      (acc, cur) => {
+        const chain = BobaChains[cur]
+        if (isTestnet === chain.testnet) {
+          if (Number(cur) !== chainId) {
+            chain.provider = new providers.StaticJsonRpcProvider(chain.url)
+            acc.push({ chainId: cur, ...chain })
+          } else {
+            originSupportedAssets = chain.supportedAssets
+          }
         }
-      }
-      return acc
-    },
-    []
+        return acc
+      },
+      []
   )
-  const LIGHTBRIDGE_ADDRESS = BobaChains[chainId].teleportationAddress
+  const teleportationAddress = BobaChains[chainId].teleportationAddress
 
   const service = new LightBridgeService({
-    l2RpcProvider: l2Provider,
+    l2RpcProvider,
     chainId,
-    teleportationAddress: LIGHTBRIDGE_ADDRESS,
+    teleportationAddress,
     selectedBobaChains,
     ownSupportedAssets: originSupportedAssets,
-    pollingInterval: POLLING_INTERVAL,
-    blockRangePerPolling: BLOCK_RANGE_PER_POLLING,
+    pollingInterval: pollingInterval,
+    blockRangePerPolling: blockRangePerPolling,
     awsConfig: {
       awsKmsAccessKey: envModeIsDevelopment
-        ? LIGHTBRIDGE_AWS_KMS_ACCESS_KEY
-        : null,
+          ? awsKmsConfig.awsKmsAccessKey
+          : null,
       awsKmsSecretKey: envModeIsDevelopment
-        ? LIGHTBRIDGE_AWS_KMS_SECRET_KEY
-        : null,
-      awsKmsKeyId: LIGHTBRIDGE_AWS_KMS_KEY_ID,
-      awsKmsRegion: LIGHTBRIDGE_AWS_KMS_REGION,
+          ? awsKmsConfig.awsKmsSecretKey
+          : null,
+      awsKmsKeyId: awsKmsConfig.awsKmsKeyId,
+      awsKmsRegion: awsKmsConfig.awsKmsRegion,
       awsKmsEndpoint: envModeIsDevelopment
-        ? LIGHTBRIDGE_AWS_KMS_ENDPOINT
-        : null,
+          ? awsKmsConfig.awsKmsEndpoint
+          : null,
     },
-    airdropConfig: {
-      airdropAmountWei: LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI,
-      airdropCooldownSeconds: LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS,
-      airdropEnabled: LIGHTBRIDGE_AIRDROP_ENABLED,
-    },
+    airdropConfig,
   })
 
   await service.start()
