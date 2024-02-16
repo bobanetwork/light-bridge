@@ -180,7 +180,7 @@ export const BobaChains: IBobaChains = {
     testnet: true,
     name: 'Boba Sepolia Testnet',
     teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
-    height: 19220000, // TODO: might need to be adapted
+    height: 1043907, // TODO: might need to be adapted
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
       ['0x4200000000000000000000000000000000000023'.toLowerCase()]: Asset.BOBA,
