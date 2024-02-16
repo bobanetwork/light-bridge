@@ -1,9 +1,9 @@
 name: Build & Release Light Bridge
 
 on:
-  workflow_dispatch:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build_docker:
@@ -20,14 +20,19 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_ACCESS_TOKEN_USERNAME }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN_SECRET }}
-      - name: Get project versions
-        run: |
-          echo "version=$(cat ./package.json | jq ".version" | tr -d '"\r\n')" >> $GITHUB_OUTPUT
-        id: version
+      - name: Create tag artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{github.ref_name}}
+          path: Release
+      #- name: Get project versions
+      #  run: |
+      #    echo "version=$(cat ./package.json | jq ".version" | tr -d '"\r\n')" >> $GITHUB_OUTPUT
+      #  id: version
       - name: Build version specific docker image
-        run: docker build . --file ./Dockerfile.prod --tag bobanetwork/lightbridge:v${{ steps.version.outputs.version }}
+        run: docker build . --file ./Dockerfile.prod --tag bobanetwork/lightbridge:${{ github.ref_name }}
       - name: Push version specific docker image
-        run: docker push bobanetwork/lightbridge:v${{ steps.version.outputs.version }}
+        run: docker push bobanetwork/lightbridge:${{ github.ref_name }}
       - name: Build stable docker image
         run: docker build . --file ./Dockerfile.prod --tag bobanetwork/lightbridge:stable
       - name: Push stable docker image
