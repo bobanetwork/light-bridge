@@ -59,6 +59,10 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
 
+### Boba ETH Mainnet
+- LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
+- Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
+
 
 ## Testnet deployments
 

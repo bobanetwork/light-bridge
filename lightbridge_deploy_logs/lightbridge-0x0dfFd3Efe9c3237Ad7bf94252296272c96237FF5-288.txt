@@ -1,0 +1,9 @@
+LightBridge deployed to: 0x670b130112C6f03E17192e63c67866e67D77c3ee
+Proxy__LightBridge deployed to: 0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5
+Initialized proxy: [object Object]
+LightBridge initialized: [object Object]
+Added route for 1 chain, and token: 0x0000000000000000000000000000000000000000, receipt: [object Object]
+Added route for 1 chain, and token: 0xa18bF3994C0Cc6E3b63ac420308E5383f53120D7, receipt: [object Object]
+Added route for 56288 chain, and token: 0xa18bF3994C0Cc6E3b63ac420308E5383f53120D7, receipt: [object Object]
+Added route for 56 chain, and token: 0xa18bF3994C0Cc6E3b63ac420308E5383f53120D7, receipt: [object Object]
+Network iteration done

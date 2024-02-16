@@ -71,12 +71,17 @@ async function main() {
         deployer
     )
 
+    //const gasPrice = BigNumber.from("110000000")
     let gasLimit = prompt("Custom gas limit? [number/N]")
     if (isNaN(gasLimit?.toLowerCase())) {
         gasLimit = null;
     } else {
         gasLimit = parseInt(gasLimit)
     }
+
+    /*const deployData = Factory__LightBridge.interface.encodeDeploy()
+    const estimatedGas = await provider.estimateGas({ data: deployData })
+    console.log("ESTIMATED GAS: ", estimatedGas, deployData)*/
 
     const redeploy = prompt("Want to redeploy? [Y/n]")?.toLowerCase() === "y"
     if (redeploy) {

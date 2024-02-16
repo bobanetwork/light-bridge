@@ -27,19 +27,18 @@ export const BobaChains: IBobaChains = {
 
   //#region boba_networks
   288: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves) --> boba listed though, but requires a hosted service
     url:
       process.env.LIGHTBRIDGE_RPC_BOBAETHMAINNET ??
       'https://boba-ethereum.gateway.tenderly.co',
     testnet: false,
     name: 'Boba Ethereum Mainnet',
-    teleportationAddress: '0xd68809330075C792C171C450B983F4D18128e9BF',
+    teleportationAddress: '0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5',
     height: 873302,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
       ['0xa18bF3994C0Cc6E3b63ac420308E5383f53120D7'.toLowerCase()]: Asset.BOBA,
-      ['0x5DE1677344D3Cb0D7D465c10b72A8f60699C062d'.toLowerCase()]: Asset.USDT,
-      ['0x68ac1623ACf9eB9F88b65B5F229fE3e2c0d5789e'.toLowerCase()]: Asset.BNB,
+      //['0x5DE1677344D3Cb0D7D465c10b72A8f60699C062d'.toLowerCase()]: Asset.USDT,
+      //['0x68ac1623ACf9eB9F88b65B5F229fE3e2c0d5789e'.toLowerCase()]: Asset.BNB,
     },
   },
   56288: {
@@ -57,7 +56,6 @@ export const BobaChains: IBobaChains = {
     },
   },
   2888: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves)
     url:
       process.env.LIGHTBRIDGE_RPC_BOBAETHGOERLI ??
       'https://replica.goerli.boba.network',
@@ -71,7 +69,6 @@ export const BobaChains: IBobaChains = {
     },
   },
   9728: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves)
     url:
       process.env.LIGHTBRIDGE_RPC_BOBABNBTESTNET ??
       'https://boba-bnb-testnet.gateway.tenderly.co',
@@ -110,26 +107,24 @@ export const BobaChains: IBobaChains = {
     },
   },
   42161: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves)
     url:
       process.env.LIGHTBRIDGE_RPC_ARBITRUMMAINNET ??
       'https://arbitrum.llamarpc.com',
     testnet: false,
     name: 'Arbitrum Mainnet',
-    teleportationAddress: '0xd68809330075C792C171C450B983F4D18128e9BF',
+    teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
     height: 3393,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
   },
   10: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves)
     url:
       process.env.LIGHTBRIDGE_RPC_OPTIMISMMAINNET ??
       'https://optimism.llamarpc.com',
     testnet: false,
     name: 'Optimism Mainnet',
-    teleportationAddress: '0xd68809330075C792C171C450B983F4D18128e9BF',
+    teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
     height: 3393,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
@@ -138,11 +133,10 @@ export const BobaChains: IBobaChains = {
   //#endregion
   //#region l1
   1: {
-    // TODO: Public nodes available, deploy once contract is live
     url: process.env.LIGHTBRIDGE_RPC_ETHMAINNET ?? 'https://eth.llamarpc.com',
     testnet: false,
     name: 'Ethereum Mainnet',
-    teleportationAddress: '0x0',
+    teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
     height: 17565090,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
@@ -152,17 +146,16 @@ export const BobaChains: IBobaChains = {
     },
   },
   56: {
-    // TODO: Public nodes available, deploy once contract is live
+    // TODO: Replace light bridge contract
     url: process.env.LIGHTBRIDGE_RPC_BNBMAINNET ?? 'https://rpc.ankr.com/bsc',
     testnet: false,
     name: 'BNB Mainnet',
     teleportationAddress: '0x0',
     height: 30907682,
     supportedAssets: {
-      /*'0x0000000000000000000000000000000000000000': 'ETH',
-      '0x42bBFa2e77757C645eeaAd1655E0911a7553Efbc': 'BOBA',
-      '0xdAC17F958D2ee523a2206206994597C13D831ec7': 'USDT',
-      '0xB8c77482e45F1F44dE1745F52C74426C631bDD52': 'BNB',*/
+      ['0xE0DB679377A0F5Ae2BaE485DE475c9e1d8A4607D'.toLowerCase()]: Asset.BOBA,
+      ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.BNB,
+      ['0x2170Ed0880ac9A755fd29B2688956BD959F933F8'.toLowerCase()]: Asset.ETH,
     },
   },
   // Sepolia
