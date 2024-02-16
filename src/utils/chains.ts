@@ -33,7 +33,7 @@ export const BobaChains: IBobaChains = {
     testnet: false,
     name: 'Boba Ethereum Mainnet',
     teleportationAddress: '0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5',
-    height: 873302,
+    height: 1111267,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
       ['0xa18bF3994C0Cc6E3b63ac420308E5383f53120D7'.toLowerCase()]: Asset.BOBA,
@@ -113,7 +113,7 @@ export const BobaChains: IBobaChains = {
     testnet: false,
     name: 'Arbitrum Mainnet',
     teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
-    height: 3393,
+    height: 180755096,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
@@ -125,7 +125,7 @@ export const BobaChains: IBobaChains = {
     testnet: false,
     name: 'Optimism Mainnet',
     teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
-    height: 3393,
+    height: 116168267,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
@@ -137,7 +137,7 @@ export const BobaChains: IBobaChains = {
     testnet: false,
     name: 'Ethereum Mainnet',
     teleportationAddress: '0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801',
-    height: 17565090,
+    height: 19227141,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
       ['0x42bBFa2e77757C645eeaAd1655E0911a7553Efbc'.toLowerCase()]: Asset.BOBA,
