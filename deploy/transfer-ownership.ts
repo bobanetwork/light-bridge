@@ -7,24 +7,25 @@ const prompt = require("prompt-sync")()
 async function main() {
 
     console.log(`'Transfer rights to multi-sig (Light bridge contract), ..`)
-    const provider = hre.network.provider
+    const provider = hre.ethers.provider
     const network = hre.network
+    const chainId = (await provider.getNetwork()).chainId
 
     console.log(`Network name=${network?.name}`)
-    console.log(`Network chain id=${network?.chainId}`)
+    console.log(`Network chain id=${chainId}`)
     if (!network?.config?.accounts || !network?.config?.accounts?.length) {
         console.log('No private key supplied, aborting.')
         return;
     }
 
-    const deployer = new Wallet(network.config.accounts[0])
+    const deployer = new Wallet(network.config.accounts[0], provider)
 
     const ADDRESSES = {
-        LIGHT_BRIDGE: '',
-        NEW_DISBURSER: '',
-        NEW_OWNER: '',
+        LIGHT_BRIDGE: '0xB43EE846Aa266228FeABaD1191D6cB2eD9808894',
+        NEW_DISBURSER: '0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a',
+        NEW_OWNER: '0x351fcAbCF549ea7aA1696CC090681Ab0ed8baFDa',
     }
-    console.log("Network: ", network.chainId, network.name)
+    console.log("Network: ", chainId, network.name)
     console.log("Your addresses: ", JSON.stringify(ADDRESSES))
     const continuePrompt = prompt("Please confirm you have configured your addresses correctly, continue? [y/N] ")
     if (continuePrompt?.toLowerCase() !== 'y') {
