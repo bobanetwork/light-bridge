@@ -17,7 +17,10 @@ import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAir
 import Piscina from 'piscina'
 import { ENetworkMode, ILightBridgeOpts } from './types'
 import path from 'path'
-import {lightBridgeWorkerFileName, startLightBridgeForNetwork} from './lightbridge-instance'
+import {
+  lightBridgeWorkerFileName,
+  startLightBridgeForNetwork,
+} from './lightbridge-instance'
 
 dotenv.config()
 
@@ -98,7 +101,9 @@ const main = async () => {
   )
 
   // only for testing (integration tests, otherwise real networks are being used)
-  const localNetworks = env.__LOCAL_NETWORKS ? JSON.parse(env.__LOCAL_NETWORKS) : undefined
+  const localNetworks = env.__LOCAL_NETWORKS
+    ? JSON.parse(env.__LOCAL_NETWORKS)
+    : undefined
 
   if (
     envModeIsDevelopment &&
@@ -145,9 +150,11 @@ const main = async () => {
     workerData: { fullpath: lightBridgeWorkerFileName },
   })
   const isTestnetMode = ENetworkMode.TESTNETS === networkMode
-  const networksToWatch: IBobaChain[] = localNetworks ? localNetworks : Object.values(BobaChains).filter(
-    (n: IBobaChain) => n.testnet === isTestnetMode
-  )
+  const networksToWatch: IBobaChain[] = localNetworks
+    ? localNetworks
+    : Object.values(BobaChains).filter(
+        (n: IBobaChain) => n.testnet === isTestnetMode
+      )
   console.log(
     'Watching networks:',
     networkMode,

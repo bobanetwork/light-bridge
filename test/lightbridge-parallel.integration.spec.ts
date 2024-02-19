@@ -17,13 +17,13 @@ import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import {ChainInfo, IBobaChain, LightBridgeService} from '../src'
+import { ChainInfo, IBobaChain, LightBridgeService } from '../src'
 
 /* Imports: Core */
 import { AppDataSource } from '../src/data-source'
 import { Asset } from '../src'
 import dotenv from 'dotenv'
-import main from "../src/exec/run";
+import main from '../src/exec/run'
 
 dotenv.config()
 
@@ -63,7 +63,7 @@ describe.only('lightbridge parallel', () => {
     ) // PK used by anvil (public anyway)
     address1 = wallet1.address
 
-    console.warn("Using wallet: ", address1)
+    console.warn('Using wallet: ', address1)
 
     await signer.sendTransaction({
       to: wallet1.address,
@@ -108,7 +108,11 @@ describe.only('lightbridge parallel', () => {
     await LightBridge.initialize()
     await LightBridgeBNB.initialize()
 
-    console.warn("Owner/Disburser for light bridge: ", await LightBridge.disburser(), await LightBridgeBNB.disburser())
+    console.warn(
+      'Owner/Disburser for light bridge: ',
+      await LightBridge.disburser(),
+      await LightBridgeBNB.disburser()
+    )
 
     Factory__L2BOBA = new ethers.ContractFactory(
       L1ERC20Json.abi,
@@ -140,11 +144,11 @@ describe.only('lightbridge parallel', () => {
       defaultMaxTransferPerDay
     )
     await LightBridgeBNB.addSupportedToken(
-        L2BOBA.address,
-        chainId,
-        defaultMinDepositAmount,
-        defaultMaxDepositAmount,
-        defaultMaxTransferPerDay
+      L2BOBA.address,
+      chainId,
+      defaultMinDepositAmount,
+      defaultMaxDepositAmount,
+      defaultMaxTransferPerDay
     )
 
     // build payload
@@ -178,27 +182,34 @@ describe.only('lightbridge parallel', () => {
       // bnb will be added in routing tests to have cleaner before hooks
     ]
 
-    __LOCAL_NETWORKS = selectedBobaChains;
+    __LOCAL_NETWORKS = selectedBobaChains
 
-    console.log("STARTING NOW")
+    console.log('STARTING NOW')
     await startAllLightBridgeServices()
   })
 
   const startAllLightBridgeServices = async () => {
-    process.env = {...process.env, LIGHTBRIDGE_ENV: 'dev',
-      LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: '1', LIGHTBRIDGE_AWS_KMS_SECRET_KEY: '2', LIGHTBRIDGE_AWS_KMS_KEY_ID: 'lb_disburser_pk',
-      LIGHTBRIDGE_AWS_KMS_ENDPOINT: 'http://kms:8888', LIGHTBRIDGE_AWS_KMS_REGION: 'us-east-1', __LOCAL_NETWORKS: JSON.stringify(__LOCAL_NETWORKS)}
+    process.env = {
+      ...process.env,
+      LIGHTBRIDGE_ENV: 'dev',
+      LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: '1',
+      LIGHTBRIDGE_AWS_KMS_SECRET_KEY: '2',
+      LIGHTBRIDGE_AWS_KMS_KEY_ID: 'lb_disburser_pk',
+      LIGHTBRIDGE_AWS_KMS_ENDPOINT: 'http://kms:8888',
+      LIGHTBRIDGE_AWS_KMS_REGION: 'us-east-1',
+      __LOCAL_NETWORKS: JSON.stringify(__LOCAL_NETWORKS),
+    }
 
     main() // do not await as it would block tests
     await delay(8000)
   }
 
   const delay = (ms: number) => {
-    return new Promise( resolve => setTimeout(resolve, ms) );
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   it('should watch LightBridge contract', async () => {
-    console.log("Waiting a few seconds to let parallel services to start up. ")
+    console.log('Waiting a few seconds to let parallel services to start up. ')
     await delay(15)
 
     // deposit token
@@ -208,14 +219,14 @@ describe.only('lightbridge parallel', () => {
 
     await L2BOBA.approve(LightBridge.address, amount)
     const bridgeTx = await LightBridge.connect(signer).teleportAsset(
-        L2BOBA.address,
-        amount,
-        chainIdBobaBnb
+      L2BOBA.address,
+      amount,
+      chainIdBobaBnb
     )
-    console.warn("Bridged tx........")
+    console.warn('Bridged tx........')
     //await bridgeTx.wait(2)
     await delay(2000)
-    console.warn("confirmed tx......")
+    console.warn('confirmed tx......')
 
     const postBalanceBobaSigner = await L2BOBA.balanceOf(signerAddr)
     const postBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1.address)
@@ -230,5 +241,4 @@ describe.only('lightbridge parallel', () => {
     expect(events[1].args.emitter).to.be.eq(signerAddr)
     expect(events[1].args.amount).to.be.eq(utils.parseEther('11'))*/
   })
-
 })

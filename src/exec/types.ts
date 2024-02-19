@@ -1,6 +1,6 @@
 import { IKMSSignerConfig } from '../utils/kms-signing'
 import { IAirdropConfig } from '../service'
-import {ChainInfo} from "../utils/types";
+import { ChainInfo } from '../utils/types'
 
 export enum ENetworkMode {
   TESTNETS = 'testnets',
