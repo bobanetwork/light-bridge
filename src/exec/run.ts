@@ -17,7 +17,7 @@ import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAir
 import Piscina from 'piscina'
 import { ENetworkMode, ILightBridgeOpts } from './types'
 import path from 'path'
-import { lightBridgeWorkerFileName } from './lightbridge-instance'
+import {lightBridgeWorkerFileName, startLightBridgeForNetwork} from './lightbridge-instance'
 
 dotenv.config()
 
@@ -97,6 +97,9 @@ const main = async () => {
     parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000
   )
 
+  // only for testing (integration tests, otherwise real networks are being used)
+  const localNetworks = env.__LOCAL_NETWORKS ? JSON.parse(env.__LOCAL_NETWORKS) : undefined
+
   if (
     envModeIsDevelopment &&
     (!awsKmsAccessKey ||
@@ -134,6 +137,7 @@ const main = async () => {
       airdropEnabled,
       airdropCooldownSeconds,
     },
+    localNetworks,
   }
 
   const piscina = new Piscina({
@@ -141,7 +145,7 @@ const main = async () => {
     workerData: { fullpath: lightBridgeWorkerFileName },
   })
   const isTestnetMode = ENetworkMode.TESTNETS === networkMode
-  const networksToWatch: IBobaChain[] = Object.values(BobaChains).filter(
+  const networksToWatch: IBobaChain[] = localNetworks ? localNetworks : Object.values(BobaChains).filter(
     (n: IBobaChain) => n.testnet === isTestnetMode
   )
   console.log(
@@ -150,18 +154,18 @@ const main = async () => {
     networksToWatch.map((n) => n.name)
   )
 
-  const serviceWorkers: Promise<void>[] = []
+  const serviceWorkers = []
   for (const network of networksToWatch) {
     const networkConfig = { ...baseOpts, rpcUrl: network.url }
-    serviceWorkers.push(
+    serviceWorkers.push(startLightBridgeForNetwork(networkConfig))
+    /*serviceWorkers.push(
       piscina.run(networkConfig, { name: 'startLightBridgeForNetwork' })
-    )
+    )*/
     console.log('Started light bridge service for network: ', network.name)
   }
   // TODO: For now just failing in general, reconsider this and introduce fallbacks? But maybe it's a good idea to just fail for all networks when one service fails
-  Promise.all(serviceWorkers)
-    .then((res) => console.log(res.map((row, index) => `${index} -> ${row}`)))
-    .catch(console.error)
+  await Promise.all(serviceWorkers)
+  console.log('Ran all light bridge services.')
 }
 
 if (require.main === module) {
