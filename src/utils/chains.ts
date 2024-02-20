@@ -44,13 +44,12 @@ export const BobaChains: IBobaChains = {
     },
   },
   56288: {
-    // TODO: seemingly no public graph node available (would require hosted_service or deploying it ourselves)
     url:
       process.env.LIGHTBRIDGE_RPC_BOBABNBMAINNET ??
       'https://replica.bnb.boba.network',
     testnet: false,
     name: 'Boba BNB Mainnet',
-    teleportationAddress: '0xd68809330075C792C171C450B983F4D18128e9BF',
+    teleportationAddress: '0x670b130112C6f03E17192e63c67866e67D77c3ee',
     height: 3393,
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.BOBA,
@@ -148,11 +147,10 @@ export const BobaChains: IBobaChains = {
     },
   },
   56: {
-    // TODO: Replace light bridge contract
     url: process.env.LIGHTBRIDGE_RPC_BNBMAINNET ?? 'https://rpc.ankr.com/bsc',
     testnet: false,
     name: 'BNB Mainnet',
-    teleportationAddress: '0x0',
+    teleportationAddress: '0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5',
     height: 30907682,
     supportedAssets: {
       ['0xE0DB679377A0F5Ae2BaE485DE475c9e1d8A4607D'.toLowerCase()]: Asset.BOBA,
