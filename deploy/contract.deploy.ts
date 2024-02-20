@@ -108,7 +108,7 @@ async function main() {
         fileName = `${previousDeploymentAddress}-${currChainId}`
         file.log(fileName, "Using previous deployment of LightBridge contract on " + previousDeploymentAddress)
         Proxy__LightBridge = new ethers.Contract(
-            Proxy__LightBridge.address,
+            previousDeploymentAddress,
             Factory__LightBridge.interface,
             deployer
         )
@@ -164,7 +164,7 @@ async function main() {
                 file.log(fileName, `Not initializing contract again as already done.`)
             }
         } catch (err) {
-            file.log(fileName, `Could not initialized not initialized contracts for already deployed contracts: ${JSON.stringify(err)}`)
+            file.log(fileName, `Could not initialize contracts for already deployed contracts: ${JSON.stringify(err)}`)
         }
     }
 
