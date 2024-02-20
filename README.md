@@ -63,6 +63,10 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 - Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
 
+### BSC Mainnet
+- LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
+- Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
+
 
 ## Testnet deployments
 
@@ -74,7 +78,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0xB93d9748808A5cC7dC6b61b31F15b87F50BfcAd0`
 - Proxy__LightBridge deployed to: `0x84b22166366a6f7E0cD0c3ce9998f2913Bf17A13`
 - Disburser transferred to AWS KMS managed wallet on [14 Feb 2024](https://goerli.etherscan.io/tx/0x32d5de977ebbcfdcc7ac9c66c8e818b4b5289a7f47e924ba27cb1b9f94123d16): `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
+- Owner managed by EOA: `0x351fcAbCF549ea7aA1696CC090681Ab0ed8baFDa`
 
 ### BNB Testnet (L1)
 - LightBridge deployed to: `0xD151c8F0dc69618e6180a2dC74B05cCE3E08e0aC`
@@ -88,6 +92,8 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Boba Goerli
 - LightBridge deployed to: `0x95ec63aE2573bD5e70C223E075D9483573968699`
 - Proxy__LightBridge deployed to: `0xB43EE846Aa266228FeABaD1191D6cB2eD9808894`
+- Disburser transferred to AWS KMS managed wallet [17 Feb 2024](https://testnet.bobascan.com/tx/0x1f825a236562d9f3fed22637d013487c6d0ead5e9826e73bb50d6bb532e9ae3b?chainId=2888): `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
+- Owner managed by EOA: `0x351fcAbCF549ea7aA1696CC090681Ab0ed8baFDa`
 
 ### Boba BNB Testnet
 - LightBridge deployed to: `0x46FA6144C61d2bb9aCDc3Ca90C8673dd9B6caEB2`

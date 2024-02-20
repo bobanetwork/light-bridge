@@ -17,7 +17,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     bsc: {
-      url: 'https://binance.llamarpc.com',
+      url: 'https://bsc-pokt.nodies.app',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     arbitrumOne: {
@@ -40,6 +40,10 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       url: 'https://sepolia.boba.network',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
+    goerli: {
+      url: 'https://rpc.ankr.com/eth_goerli',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
     sepolia: {
       url: 'https://ethereum-sepolia.publicnode.com',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
@@ -60,6 +64,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
   solidity: {
     version: '0.8.9',
     settings: {
+      // 10k too much for boba mainnets, ..
       optimizer: { enabled: true, runs: 200 },
     },
   },
@@ -73,10 +78,13 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY,
       arbitrumOne: process.env.ARBISCAN_API_KEY,
-      bsc: "",
+      bsc: process.env.BSCSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
       boba_eth_mainnet: "boba", // not required, set placeholder
+      boba_bnb_mainnet: "boba", // not required, set placeholder
+      boba_goerli: "boba", // not required, set placeholder
+      boba_bnb_testnet: "boba", // not required, set placeholder
     },
     customChains: [
       {
@@ -91,8 +99,24 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
         network: "boba_bnb_mainnet",
         chainId: 56288,
         urls: {
-          apiURL: "",
-          browserURL: "",
+          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/56288/etherscan",
+          browserURL: "https://bobascan.com"
+        },
+      },
+      {
+        network: "boba_goerli",
+        chainId: 2888,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/testnet/evm/2888/etherscan",
+          browserURL: "https://testnet.bobascan.com"
+        },
+      },
+      {
+        network: "boba_bnb_testnet",
+        chainId: 9728,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/testnet/evm/9728/etherscan",
+          browserURL: "https://testnet.bobascan.com"
         },
       }
     ],
