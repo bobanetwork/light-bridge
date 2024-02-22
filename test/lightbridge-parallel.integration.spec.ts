@@ -43,11 +43,12 @@ describe.only('lightbridge parallel', () => {
   const defaultMaxTransferPerDay = utils.parseEther('100000')
 
   before(async () => {
+    console.log('STARTED ===')
     await AppDataSource.initialize()
     await AppDataSource.synchronize(true) // drops database and recreates
 
     providerUrl = process.env.RPC_URL ?? 'http://anvil:8545'
-    provider = new providers.JsonRpcProvider(providerUrl)
+    provider = new providers.StaticJsonRpcProvider(providerUrl)
     console.warn('Using provider: ', providerUrl)
     // must be the same as for AWS KMS (see kms-seed.yml)
     signer = new Wallet(
@@ -90,7 +91,8 @@ describe.only('lightbridge parallel', () => {
 
   before(async () => {
     chainId = (await provider.getNetwork()).chainId
-    chainIdBobaBnb = chainId // needs to be the same since service reads it from provider
+    console.log('chainId Boba basic: ', chainId)
+    chainIdBobaBnb = chainId + 1
 
     Factory__Teleportation = new ethers.ContractFactory(
       LightBridgeJson.abi,
@@ -128,9 +130,18 @@ describe.only('lightbridge parallel', () => {
     await L2BOBA.deployTransaction.wait()
     await L2BOBA.transfer(address1, utils.parseEther('100000000'))
 
+    console.log('ADDING SUPP TOKEN: ', L2BOBA.address, chainIdBobaBnb)
+    console.log(
+      'ADDING SUPP TOKEN: ',
+      ethers.constants.AddressZero,
+      chainIdBobaBnb
+    )
+    console.log('---')
+    console.log('ADDING SUPP TOKEN: ', L2BOBA.address, chainId)
+    console.log('ADDING SUPP TOKEN: ', ethers.constants.AddressZero, chainId)
     // add the supported chain & token
     await LightBridge.addSupportedToken(
-      L2BOBA.address,
+      L2BOBA.address.toLowerCase(),
       chainIdBobaBnb,
       defaultMinDepositAmount,
       defaultMaxDepositAmount,
@@ -144,12 +155,26 @@ describe.only('lightbridge parallel', () => {
       defaultMaxTransferPerDay
     )
     await LightBridgeBNB.addSupportedToken(
-      L2BOBA.address,
+      L2BOBA.address.toLowerCase(),
       chainId,
       defaultMinDepositAmount,
       defaultMaxDepositAmount,
       defaultMaxTransferPerDay
     )
+    await LightBridgeBNB.addSupportedToken(
+      ethers.constants.AddressZero,
+      chainId,
+      defaultMinDepositAmount,
+      defaultMaxDepositAmount,
+      defaultMaxTransferPerDay
+    )
+
+    console.log('expecting....')
+    expect(
+      LightBridgeBNB.supportedTokens(L2BOBA.address.toLowerCase(), chainId)
+    )
+
+    console.log('Teleportation contract inside test: ', LightBridgeBNB.address)
 
     // build payload
     selectedBobaChains = [
@@ -167,7 +192,7 @@ describe.only('lightbridge parallel', () => {
         },
       },
       {
-        chainId: chainIdBobaBnb,
+        chainId: chainIdBobaBnb, // 38
         url: providerUrl,
         provider: provider,
         testnet: true,
@@ -181,6 +206,8 @@ describe.only('lightbridge parallel', () => {
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]
+
+    console.log('>>>>>> setting tel addr ', LightBridgeBNB.address)
 
     __LOCAL_NETWORKS = selectedBobaChains
 
@@ -200,7 +227,7 @@ describe.only('lightbridge parallel', () => {
       __LOCAL_NETWORKS: JSON.stringify(__LOCAL_NETWORKS),
     }
 
-    main() // do not await as it would block tests
+    main().then((res) => console.log('--- main() DONE!')) // do not await as it would block tests
     await delay(8000)
   }
 
@@ -217,19 +244,28 @@ describe.only('lightbridge parallel', () => {
     const preBalanceBobaSigner = await L2BOBA.balanceOf(signerAddr)
     const preBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1.address)
 
+    console.log('--- PRE')
+    console.log('prebalance: ', preBalanceBobaSigner)
+    console.log('prebalance: ', preBalanceBobaDisburser)
+    console.log('---')
+
     await L2BOBA.approve(LightBridge.address, amount)
     const bridgeTx = await LightBridge.connect(signer).teleportAsset(
       L2BOBA.address,
       amount,
       chainIdBobaBnb
     )
-    console.warn('Bridged tx........')
-    //await bridgeTx.wait(2)
-    await delay(2000)
-    console.warn('confirmed tx......')
+    await bridgeTx.wait(1)
+    await delay(30_000)
 
     const postBalanceBobaSigner = await L2BOBA.balanceOf(signerAddr)
     const postBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1.address)
+
+    console.log('--- POST')
+    console.log('postbalance: ', postBalanceBobaSigner)
+    console.log('postbalance ', postBalanceBobaDisburser)
+    console.log('---')
+
     expect(preBalanceBobaSigner).to.be.gt(postBalanceBobaSigner)
     expect(preBalanceBobaDisburser).to.be.lt(postBalanceBobaDisburser)
 

@@ -1,6 +1,7 @@
 import { IKMSSignerConfig } from '../utils/kms-signing'
 import { IAirdropConfig } from '../service'
 import { ChainInfo } from '../utils/types'
+import { IBobaChain } from '../utils/chains'
 
 export enum ENetworkMode {
   TESTNETS = 'testnets',
@@ -15,5 +16,8 @@ export interface ILightBridgeOpts {
   blockRangePerPolling: number
   awsKmsConfig: IKMSSignerConfig
   airdropConfig?: IAirdropConfig
-  localNetworks?: ChainInfo[]
+  localNetworks?: {
+    mainNetwork: IBobaChain
+    selectedBobaNetworks: ChainInfo[]
+  }
 }

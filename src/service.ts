@@ -92,11 +92,20 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       process.env.LIGHTBRIDGE_ENV?.toLowerCase() === 'dev'
     )
 
-    this.logger.info('Connecting to Teleportation contract...')
+    console.log(
+      'Connecting to Teleportation contract... at',
+      this.options.teleportationAddress
+    )
+    console.log('provider: ', this.options.l2RpcProvider.connection.url)
     this.state.Teleportation = await getBobaContractAt(
       'Teleportation',
       this.options.teleportationAddress,
       this.options.l2RpcProvider
+    )
+
+    console.log(
+      'got Teleportation contract at',
+      this.state.Teleportation.address
     )
 
     this.logger.info('Connected to Teleportation', {
@@ -141,8 +150,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     }
 
     for (const chain of this.options.selectedBobaChains) {
+      console.log('checking for: ', chain.chainId, chain.supportedAssets)
       try {
         const chainId = chain.chainId
+        console.log('chain looking for ', chain)
         // assuming BOBA is enabled on supported networks to retain battle-tested logic
 
         this.logger.info('Check if Boba or native supported for chainId: ', {
@@ -150,14 +161,26 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           bobaTokenContractAddr: defaultAssetAddr,
           serviceChainId: this.options.chainId,
         })
+
+        console.log('checking support for: ', defaultAssetAddr, chainId)
+        console.log(
+          '----- working with teleportation at addr: ',
+          this.state.Teleportation.address
+        )
+
         const isSupported = await this.state.Teleportation.supportedTokens(
           defaultAssetAddr,
           chainId
         )
-        this.logger.info('Boba or native supported: ', {
-          isSupported,
-          serviceChainId: this.options.chainId,
-        })
+
+        console.log(
+          'addr ',
+          defaultAssetAddr,
+          ' for chain id ',
+          chainId,
+          ' is supported',
+          isSupported[0]
+        )
 
         if (!isSupported || !isSupported[0]) {
           // do not fail, as secured on-chain anyway & run.ts just returns all testnets/mainnets - thus just ignore networks that don't support Boba
@@ -174,10 +197,17 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           const depositTeleportation = await getBobaContractAt(
             'Teleportation',
             chain.teleportationAddress,
-            chain.provider
+            new providers.StaticJsonRpcProvider(chain.url)
           )
-          const totalDisbursements =
-            await this.state.Teleportation.totalDisbursements(chainId)
+          console.log('undefined ???', depositTeleportation)
+          let totalDisbursements
+          try {
+            totalDisbursements =
+              await this.state.Teleportation.totalDisbursements(chainId)
+          } catch (e) {
+            console.log('e', e)
+          }
+
           const totalDeposits = await depositTeleportation.totalDeposits(
             this.options.chainId
           )
@@ -196,7 +226,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             height: chain.height,
           })
         }
+
+        console.log(
+          'Got depositTeleportations inside LENGTH = ',
+          this.state.depositTeleportations.length
+        )
       } catch (err) {
+        console.log('+++ ERR is:', err)
         this.logger.error(
           `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`,
           { serviceChainId: this.options.chainId, err }
@@ -211,6 +247,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   protected async _start(): Promise<void> {
     while (this.running) {
       for (const depositTeleportation of this.state.depositTeleportations) {
+        console.log(
+          'Checking for depositTeleportation: ...',
+          depositTeleportation.chainId
+        )
         // search AssetReceived events
         const latestBlock =
           await depositTeleportation.Teleportation.provider.getBlockNumber()
@@ -219,6 +259,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             depositTeleportation,
             latestBlock
           )
+          console.log('ALL EVENTS === ', events)
           await this._disburseTeleportation(
             depositTeleportation,
             events,

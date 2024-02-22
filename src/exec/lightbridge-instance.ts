@@ -27,12 +27,23 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   let originSupportedAssets: SupportedAssets
   let teleportationAddress: string
 
+  // localNetworks: {
+  //    selectedBobaNetworks: otherNetworks (filtered),
+  //    mainNetwork: network of iteration (must be the same as rpcUrl)
+  // }
+
   // get all boba chains and exclude the current chain
   const chainId = (await l2RpcProvider.getNetwork()).chainId
-  let selectedBobaChains = localNetworks
-  if (localNetworks) {
-    originSupportedAssets = localNetworks[0].supportedAssets
-    teleportationAddress = localNetworks[0].teleportationAddress
+  let selectedBobaChains = localNetworks.selectedBobaNetworks
+  if (localNetworks && localNetworks.selectedBobaNetworks.length > 0) {
+    console.log('local networks are defined: ', localNetworks)
+    originSupportedAssets = localNetworks.mainNetwork.supportedAssets
+    console.log('origin supported assets: ', originSupportedAssets)
+    teleportationAddress = localNetworks.mainNetwork.teleportationAddress
+    console.log(
+      '>>> LOCAL tel addr inside lightbridge-instance.ts',
+      teleportationAddress
+    )
   } else {
     const isTestnet = BobaChains[chainId].testnet
     if (
@@ -55,8 +66,19 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
       return acc
     }, [])
     teleportationAddress = BobaChains[chainId].teleportationAddress
+    // todo hint must match the tel addr inside test gen
+    console.log('>>>>>> final selected boba chains are: : ', selectedBobaChains)
   }
 
+  console.log('---')
+  console.log(
+    'starting lightbridgeservice with: ',
+    l2RpcProvider.connection.url,
+    chainId,
+    teleportationAddress,
+    selectedBobaChains
+  )
+  console.log('---')
   const service = new LightBridgeService({
     l2RpcProvider,
     chainId,

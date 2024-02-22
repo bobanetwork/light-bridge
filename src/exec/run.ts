@@ -14,13 +14,14 @@ import { HistoryData } from '../entities/HistoryData.entity'
 import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
 import { LastAirdrop } from '../entities/LastAirdrop.entity'
 import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
-import Piscina from 'piscina'
 import { ENetworkMode, ILightBridgeOpts } from './types'
 import path from 'path'
 import {
   lightBridgeWorkerFileName,
   startLightBridgeForNetwork,
 } from './lightbridge-instance'
+import { ChainInfo } from '../utils/types'
+import { Chain } from '@ethereumjs/common'
 
 dotenv.config()
 
@@ -102,8 +103,10 @@ const main = async () => {
 
   // only for testing (integration tests, otherwise real networks are being used)
   const localNetworks = env.__LOCAL_NETWORKS
-    ? JSON.parse(env.__LOCAL_NETWORKS)
+    ? (JSON.parse(env.__LOCAL_NETWORKS) as ChainInfo[])
     : undefined
+
+  console.log('LOCAL NETWORKS INSIDE RUN is: ', localNetworks)
 
   if (
     envModeIsDevelopment &&
@@ -142,14 +145,14 @@ const main = async () => {
       airdropEnabled,
       airdropCooldownSeconds,
     },
-    localNetworks,
   }
 
-  const piscina = new Piscina({
-    filename: path.resolve(__dirname, './workerWrapper.js'),
-    workerData: { fullpath: lightBridgeWorkerFileName },
-  })
+  // const piscina = new Piscina({
+  //   filename: path.resolve(__dirname, './workerWrapper.js'),
+  //   workerData: { fullpath: lightBridgeWorkerFileName },
+  // })
   const isTestnetMode = ENetworkMode.TESTNETS === networkMode
+  // filter out the own chainid
   const networksToWatch: IBobaChain[] = localNetworks
     ? localNetworks
     : Object.values(BobaChains).filter(
@@ -163,7 +166,19 @@ const main = async () => {
 
   const serviceWorkers = []
   for (const network of networksToWatch) {
-    const networkConfig = { ...baseOpts, rpcUrl: network.url }
+    // base options hat localnetworks property
+    // hier filtern, nach nur den anderen
+    const networkConfig: ILightBridgeOpts = {
+      ...baseOpts,
+      rpcUrl: network.url,
+      localNetworks: {
+        mainNetwork: network,
+        selectedBobaNetworks: localNetworks.filter(
+          (f) => network.name !== f.name
+        ),
+      },
+    }
+
     serviceWorkers.push(startLightBridgeForNetwork(networkConfig))
     /*serviceWorkers.push(
       piscina.run(networkConfig, { name: 'startLightBridgeForNetwork' })
