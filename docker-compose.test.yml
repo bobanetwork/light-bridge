@@ -1,7 +1,15 @@
 version: "3"
 
 services:
-  anvil:
+  anvil_bnb:
+    image: ghcr.io/foundry-rs/foundry:latest
+    command:
+      - "anvil --hardfork berlin --chain-id 31338" # use legacy tx to emulate boba network
+    environment:
+      - ANVIL_IP_ADDR=0.0.0.0
+    ports:
+      - "8546:8545"
+  anvil_eth:
     image: ghcr.io/foundry-rs/foundry:latest
     command:
       - "anvil --hardfork berlin" # use legacy tx to emulate boba network
@@ -14,7 +22,8 @@ services:
     depends_on:
       - lightbridge_db
       - kms
-      - anvil
+      - anvil_eth
+      - anvil_bnb
     image: bobanetwork/lightbridge:latest
     build:
       context: .
