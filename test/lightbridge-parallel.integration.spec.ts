@@ -26,7 +26,7 @@ import main from '../src/exec/run'
 
 dotenv.config()
 
-describe.only('lightbridge parallel', () => {
+describe('lightbridge parallel', () => {
   let providerUrl: string
   let providerUrlBnb: string
   let provider: providers.JsonRpcProvider
@@ -201,7 +201,6 @@ describe.only('lightbridge parallel', () => {
     )
 
     // build payload
-    // todo Q: Can teleportationAddress be the same?
     selectedBobaChains = [
       {
         chainId,
