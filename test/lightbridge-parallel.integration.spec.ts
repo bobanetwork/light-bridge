@@ -51,7 +51,9 @@ describe('lightbridge parallel', () => {
   const defaultMaxTransferPerDay = utils.parseEther('100000')
 
   before(async () => {
-    await AppDataSource.initialize()
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize()
+    }
     await AppDataSource.synchronize(true) // drops database and recreates
 
     providerUrl = 'http://anvil_eth:8545'
