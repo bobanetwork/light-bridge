@@ -41,7 +41,7 @@ describe.only('lightbridge parallel', () => {
   let address1: string
   let address1Bnb: string
 
-  let chainId: number;
+  let chainId: number
   let chainIdBnb: number
 
   let selectedBobaChains: ChainInfo[]
@@ -60,8 +60,8 @@ describe.only('lightbridge parallel', () => {
     providerUrlBnb = 'http://anvil_bnb:8545'
     providerBnb = new providers.StaticJsonRpcProvider(providerUrlBnb)
 
-    chainId = (await provider.getNetwork()).chainId;
-    chainIdBnb = (await providerBnb.getNetwork()).chainId;
+    chainId = (await provider.getNetwork()).chainId
+    chainIdBnb = (await providerBnb.getNetwork()).chainId
 
     signer = new Wallet(
       process.env.PRIVATE_KEY_1 ??
@@ -78,13 +78,13 @@ describe.only('lightbridge parallel', () => {
 
     signerBnb = new Wallet(
       process.env.PRIVATE_KEY_1 ??
-      '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
       providerBnb
     )
     signerAddrBnb = await signerBnb.getAddress()
     wallet1Bnb = new Wallet(
       process.env.PRIVATE_KEY_2 ??
-      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       providerBnb
     )
     address1Bnb = wallet1Bnb.address
@@ -257,7 +257,7 @@ describe.only('lightbridge parallel', () => {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  it("should boot up anvil and test configuration correctly", async () => {
+  it('should boot up anvil and test configuration correctly', async () => {
     // expect provider setup is correct
     expect(providerUrl).to.contain('eth')
     expect(providerUrlBnb).to.contain('bnb')
@@ -266,44 +266,95 @@ describe.only('lightbridge parallel', () => {
     expect(providerBnb.connection.url).to.contain('bnb')
     expect((await providerBnb.getNetwork()).chainId).to.be.eq(31338)
     // expect disburse are correctly setup
-    expect(await LightBridge.disburser()).to.eq(wallet1.address);
-    expect(await LightBridgeBNB.disburser()).to.eq(wallet1Bnb.address);
+    expect(await LightBridge.disburser()).to.eq(wallet1.address)
+    expect(await LightBridgeBNB.disburser()).to.eq(wallet1Bnb.address)
   })
 
-  it("should create the correct example chain data", async () => {
+  it('should create the correct example chain data', async () => {
     // - 31337
     const chainIdUndertest = 31337
-    const sutLocalhost = selectedBobaChains.find(s => s.name === 'localhost')
+    const sutLocalhost = selectedBobaChains.find((s) => s.name === 'localhost')
     expect(sutLocalhost.chainId).to.eq(chainIdUndertest)
-    expect((await(new providers.StaticJsonRpcProvider(sutLocalhost.url).getNetwork())).chainId).to.eq(chainIdUndertest)
-    expect(sutLocalhost.testnet).to.be.true;
-    const expectedAssets = [L2BOBA_BNB.address.toLowerCase(), ethers.constants.AddressZero.toLowerCase()]
-    Object.keys(sutLocalhost.supportedAssets).forEach(key => {
+    expect(
+      (await new providers.StaticJsonRpcProvider(sutLocalhost.url).getNetwork())
+        .chainId
+    ).to.eq(chainIdUndertest)
+    expect(sutLocalhost.testnet).to.be.true
+    const expectedAssets = [
+      L2BOBA_BNB.address.toLowerCase(),
+      ethers.constants.AddressZero.toLowerCase(),
+    ]
+    Object.keys(sutLocalhost.supportedAssets).forEach((key) => {
       expectedAssets.includes(key)
     })
     // - 31338
     const chainIdUndertest2 = 31338
-    const sutLocalhostBnb = selectedBobaChains.find(s => s.name === 'localhost:bnb');
+    const sutLocalhostBnb = selectedBobaChains.find(
+      (s) => s.name === 'localhost:bnb'
+    )
     expect(sutLocalhostBnb.chainId).to.eq(chainIdUndertest2)
-    expect((await(new providers.StaticJsonRpcProvider(sutLocalhostBnb.url).getNetwork())).chainId).to.eq(chainIdUndertest2)
-    expect(sutLocalhost.testnet).to.be.true;
-    const expectedBnbAssets = [L2BOBA.address?.toLowerCase(), ethers.constants.AddressZero.toLowerCase()]
-    Object.keys(sutLocalhost.supportedAssets).forEach(key => {
+    expect(
+      (
+        await new providers.StaticJsonRpcProvider(
+          sutLocalhostBnb.url
+        ).getNetwork()
+      ).chainId
+    ).to.eq(chainIdUndertest2)
+    expect(sutLocalhost.testnet).to.be.true
+    const expectedBnbAssets = [
+      L2BOBA.address?.toLowerCase(),
+      ethers.constants.AddressZero.toLowerCase(),
+    ]
+    Object.keys(sutLocalhost.supportedAssets).forEach((key) => {
       expectedBnbAssets.includes(key)
     })
   })
 
-  it("should add supported tokens", async () => {
+  it('should add supported tokens', async () => {
     // supported true cases
-    expect((await LightBridge.supportedTokens(ethers.constants.AddressZero, chainIdBnb))[0]).to.be.true
-    expect((await LightBridge.supportedTokens(L2BOBA.address, chainIdBnb))[0]).to.be.true
-    expect((await LightBridgeBNB.supportedTokens(ethers.constants.AddressZero, chainId))[0]).to.be.true
-    expect((await LightBridgeBNB.supportedTokens(L2BOBA_BNB.address, chainId))[0]).to.be.true
+    expect(
+      (
+        await LightBridge.supportedTokens(
+          ethers.constants.AddressZero,
+          chainIdBnb
+        )
+      )[0]
+    ).to.be.true
+    expect((await LightBridge.supportedTokens(L2BOBA.address, chainIdBnb))[0])
+      .to.be.true
+    expect(
+      (
+        await LightBridgeBNB.supportedTokens(
+          ethers.constants.AddressZero,
+          chainId
+        )
+      )[0]
+    ).to.be.true
+    expect(
+      (await LightBridgeBNB.supportedTokens(L2BOBA_BNB.address, chainId))[0]
+    ).to.be.true
     // supported false cases
-    expect((await LightBridgeBNB.supportedTokens(ethers.constants.AddressZero, chainId))[0]).to.be.true
-    expect((await LightBridgeBNB.supportedTokens(L2BOBA.address, chainId))[0]).to.be.true
-    expect((await LightBridge.supportedTokens(ethers.constants.AddressZero, chainIdBnb))[0]).to.be.true
-    expect((await LightBridge.supportedTokens(L2BOBA_BNB.address, chainIdBnb))[0]).to.be.true
+    expect(
+      (
+        await LightBridgeBNB.supportedTokens(
+          ethers.constants.AddressZero,
+          chainId
+        )
+      )[0]
+    ).to.be.true
+    expect((await LightBridgeBNB.supportedTokens(L2BOBA.address, chainId))[0])
+      .to.be.true
+    expect(
+      (
+        await LightBridge.supportedTokens(
+          ethers.constants.AddressZero,
+          chainIdBnb
+        )
+      )[0]
+    ).to.be.true
+    expect(
+      (await LightBridge.supportedTokens(L2BOBA_BNB.address, chainIdBnb))[0]
+    ).to.be.true
   })
 
   it('should Bridge successfully', async () => {
@@ -315,14 +366,14 @@ describe.only('lightbridge parallel', () => {
     const preBalanceBobaDisburser = await L2BOBA_BNB.balanceOf(wallet1.address)
 
     await L2BOBA_BNB.approve(LightBridgeBNB.address, amount)
-    expect(preBalanceLightBridge).to.be.eq(0);
+    expect(preBalanceLightBridge).to.be.eq(0)
     await L2BOBA.approve(LightBridge.address, amount)
     const bridgeTx = await LightBridge.connect(signer).teleportAsset(
       L2BOBA.address,
       amount,
       chainIdBnb
     )
-    await bridgeTx.wait(2);
+    await bridgeTx.wait(2)
 
     const postBalanceSigner = await L2BOBA.balanceOf(signerAddr)
     const postBalanceSignerBNB = await L2BOBA_BNB.balanceOf(signerAddr)
@@ -347,7 +398,7 @@ describe.only('lightbridge parallel', () => {
       amount,
       chainId
     )
-    await bridgeTx.wait(2);
+    await bridgeTx.wait(2)
 
     const postBalanceSigner = await L2BOBA_BNB.balanceOf(signerAddr)
     const postBalanceDisburser = await L2BOBA.balanceOf(wallet1Bnb.address)
@@ -366,7 +417,7 @@ describe.only('lightbridge parallel', () => {
       amount,
       chainId
     )
-    const hashUnderTest = bridgeTx.hash;
+    const hashUnderTest = bridgeTx.hash
 
     const originEvents = await LightBridgeBNB.queryFilter(
       'AssetReceived',
@@ -374,26 +425,29 @@ describe.only('lightbridge parallel', () => {
       100
     )
     expect(originEvents.length).to.be.greaterThanOrEqual(1)
-    const specificEvent = originEvents.find(event => event.transactionHash === hashUnderTest)
+    const specificEvent = originEvents.find(
+      (event) => event.transactionHash === hashUnderTest
+    )
     expect(specificEvent.args.token).to.eq(L2BOBA_BNB.address)
     expect(specificEvent.args.sourceChainId).to.eq(chainIdBnb)
     expect(specificEvent.args.toChainId).to.eq(chainId)
-    expect(specificEvent.args.amount).to.eq("12000000000000000000")
+    expect(specificEvent.args.amount).to.eq('12000000000000000000')
 
     const destinationEvents = await LightBridge.queryFilter(
       'DisbursementSuccess',
       0,
       100
     )
-    expect(destinationEvents.length).to.be.greaterThanOrEqual(1);
-    const specificDestinationEvent = destinationEvents.find(event => event.args.amount.toString() === "12000000000000000000")
+    expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
+    const specificDestinationEvent = destinationEvents.find(
+      (event) => event.args.amount.toString() === '12000000000000000000'
+    )
     expect(specificDestinationEvent.args.token).to.eq(L2BOBA_BNB.address)
     expect(specificDestinationEvent.args.sourceChainId).to.eq(chainIdBnb)
-
   }).timeout(600_000)
 
   it('should fail if deposit amount too big', async () => {
-    let error;
+    let error
     try {
       await LightBridgeBNB.connect(signerBnb).teleportAsset(
         L2BOBA_BNB.address,
@@ -401,9 +455,9 @@ describe.only('lightbridge parallel', () => {
         chainId
       )
     } catch (e) {
-      error = e;
+      error = e
     }
 
-    expect(error.toString()).to.contain("Deposit amount too big")
+    expect(error.toString()).to.contain('Deposit amount too big')
   }).timeout(280_000)
 })
