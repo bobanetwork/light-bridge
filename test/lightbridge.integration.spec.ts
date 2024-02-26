@@ -28,7 +28,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-describe('lightbridge', () => {
+describe.only('lightbridge', () => {
   let providerUrl: string
   let provider: providers.JsonRpcProvider
   let signer: Signer
@@ -47,7 +47,9 @@ describe('lightbridge', () => {
   const defaultMaxTransferPerDay = utils.parseEther('100000')
 
   before(async () => {
-    await AppDataSource.initialize()
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize()
+    }
     await AppDataSource.synchronize(true) // drops database and recreates
 
     providerUrl = process.env.RPC_URL ?? 'http://anvil_eth:8545'

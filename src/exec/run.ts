@@ -147,10 +147,6 @@ const main = async () => {
     },
   }
 
-  // const piscina = new Piscina({
-  //   filename: path.resolve(__dirname, './workerWrapper.js'),
-  //   workerData: { fullpath: lightBridgeWorkerFileName },
-  // })
   const isTestnetMode = ENetworkMode.TESTNETS === networkMode
   // filter out the own chainid
   const networksToWatch: IBobaChain[] = localNetworks
@@ -180,9 +176,6 @@ const main = async () => {
     }
 
     serviceWorkers.push(startLightBridgeForNetwork(networkConfig))
-    /*serviceWorkers.push(
-      piscina.run(networkConfig, { name: 'startLightBridgeForNetwork' })
-    )*/
     console.log('Started light bridge service for network: ', network.name)
   }
   // TODO: For now just failing in general, reconsider this and introduce fallbacks? But maybe it's a good idea to just fail for all networks when one service fails

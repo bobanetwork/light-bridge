@@ -7,8 +7,6 @@ import path from 'path'
 
 export const lightBridgeWorkerFileName = path.resolve(__filename)
 
-/** This extra file is needed to execute light bridge instances in parallel.
- * I used by piscina, thus it seems to be unused. */
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   const {
     rpcUrl,
@@ -84,5 +82,4 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   })
 
   await service.start()
-  // Do not return anything since piscina would wait for it infinitely due to the .start() function's infinite loop
 }
