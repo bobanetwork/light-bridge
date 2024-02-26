@@ -12,9 +12,7 @@ import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
 import { LastAirdrop } from '../entities/LastAirdrop.entity'
 import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
 import { ENetworkMode, ILightBridgeOpts } from './types'
-import {
-  startLightBridgeForNetwork,
-} from './lightbridge-instance'
+import { startLightBridgeForNetwork } from './lightbridge-instance'
 import { ChainInfo } from '../utils/types'
 
 dotenv.config()

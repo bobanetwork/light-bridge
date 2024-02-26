@@ -1,5 +1,5 @@
 import { BigNumber, Contract, providers } from 'ethers'
-import {IAirdropConfig} from "../exec/types";
+import { IAirdropConfig } from '../exec/types'
 
 export interface SupportedAssets {
   [address: string]: string // symbol (MUST BE UNIQUE)

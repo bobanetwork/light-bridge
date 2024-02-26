@@ -30,9 +30,9 @@ import {
 import { HistoryData } from './entities/HistoryData.entity'
 import { historyDataRepository, lastAirdropRepository } from './data-source'
 import { IKMSSignerConfig, KMSSigner } from './utils/kms-signing'
-import {Asset, BobaChains} from './utils/chains'
+import { Asset, BobaChains } from './utils/chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
-import {IAirdropConfig} from "./exec/types";
+import { IAirdropConfig } from './exec/types'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -442,7 +442,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   /** @dev Helper function to read airdropConfig for current service from bobaChains config. */
-  private getAirdropConfig = (): IAirdropConfig => BobaChains[this.options.chainId]?.airdropConfig
+  private getAirdropConfig = (): IAirdropConfig =>
+    BobaChains[this.options.chainId]?.airdropConfig
 
   /** @dev Checks if major airdrop eligibility criteria has been met such as not bridging native, has no gas on destination network, bridges enough value, .. */
   async _fulfillsAirdropConditions(disbursement: Disbursement) {
