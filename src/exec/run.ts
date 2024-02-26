@@ -86,8 +86,6 @@ const main = async () => {
     ? (JSON.parse(env.__LOCAL_NETWORKS) as ChainInfo[])
     : undefined
 
-  console.log('LOCAL NETWORKS INSIDE RUN is: ', localNetworks)
-
   if (
     envModeIsDevelopment &&
     (!awsKmsAccessKey ||
@@ -99,7 +97,6 @@ const main = async () => {
     throw new Error('Must pass LIGHTBRIDGE AWS CONFIG ENV')
   }
 
-  // TODO: OPTIONS
   if (!networkMode) {
     throw new Error(
       'Must pass LIGHTBRIDGE_MODE, either testnets or mainnets explicitly'

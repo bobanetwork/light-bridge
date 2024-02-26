@@ -1,7 +1,6 @@
 import { IKMSSignerConfig } from '../utils/kms-signing'
 import { ChainInfo } from '../utils/types'
 import { BigNumberish } from 'ethers'
-import { IBobaChain } from '../utils/chains'
 
 export enum ENetworkMode {
   TESTNETS = 'testnets',
