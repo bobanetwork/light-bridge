@@ -3,7 +3,6 @@ import { expect } from './setup'
 /* External Imports */
 import { ethers } from 'hardhat'
 import {
-  BigNumber,
   Contract,
   ContractFactory,
   providers,
@@ -17,7 +16,7 @@ import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import { ChainInfo, IBobaChain, LightBridgeService } from '../src'
+import { ChainInfo, LightBridgeService } from '../src'
 
 /* Imports: Core */
 import { AppDataSource } from '../src/data-source'
@@ -29,12 +28,21 @@ dotenv.config()
 
 describe.only('lightbridge parallel', () => {
   let providerUrl: string
+  let providerUrlBnb: string
   let provider: providers.JsonRpcProvider
+  let providerBnb: providers.JsonRpcProvider
   let signer: Signer
+  let signerBnb: Signer
   let signerAddr: string
+  let signerAddrBnb: string
 
   let wallet1: Wallet
+  let wallet1Bnb: Wallet
   let address1: string
+  let address1Bnb: string
+
+  let chainId: number;
+  let chainIdBnb: number
 
   let selectedBobaChains: ChainInfo[]
 
@@ -43,43 +51,61 @@ describe.only('lightbridge parallel', () => {
   const defaultMaxTransferPerDay = utils.parseEther('100000')
 
   before(async () => {
-    console.log('STARTED ===')
     await AppDataSource.initialize()
     await AppDataSource.synchronize(true) // drops database and recreates
 
-    providerUrl = process.env.RPC_URL ?? 'http://anvil:8545'
+    providerUrl = 'http://anvil_eth:8545'
     provider = new providers.StaticJsonRpcProvider(providerUrl)
-    console.warn('Using provider: ', providerUrl)
-    // must be the same as for AWS KMS (see kms-seed.yml)
+
+    providerUrlBnb = 'http://anvil_bnb:8545'
+    providerBnb = new providers.StaticJsonRpcProvider(providerUrlBnb)
+
+    chainId = (await provider.getNetwork()).chainId;
+    chainIdBnb = (await providerBnb.getNetwork()).chainId;
+
     signer = new Wallet(
       process.env.PRIVATE_KEY_1 ??
         '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
       provider
-    ) // PK used by anvil (public anyway)
+    )
     signerAddr = await signer.getAddress()
     wallet1 = new Wallet(
       process.env.PRIVATE_KEY_2 ??
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       provider
-    ) // PK used by anvil (public anyway)
+    )
     address1 = wallet1.address
 
-    console.warn('Using wallet: ', address1)
+    signerBnb = new Wallet(
+      process.env.PRIVATE_KEY_1 ??
+      '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+      providerBnb
+    )
+    signerAddrBnb = await signerBnb.getAddress()
+    wallet1Bnb = new Wallet(
+      process.env.PRIVATE_KEY_2 ??
+      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      providerBnb
+    )
+    address1Bnb = wallet1Bnb.address
 
     await signer.sendTransaction({
       to: wallet1.address,
       value: ethers.utils.parseEther('100'),
     })
+    await signerBnb.sendTransaction({
+      to: wallet1.address,
+      value: ethers.utils.parseEther('100'),
+    })
   })
 
-  let chainId: number
-  let chainIdBobaBnb: number
   let Factory__Teleportation: ContractFactory
   let LightBridge: Contract
   let LightBridgeBNB: Contract
 
   let Factory__L2BOBA: ContractFactory
   let L2BOBA: Contract
+  let L2BOBA_BNB: Contract
   let __LOCAL_NETWORKS: ChainInfo[]
   let lightBridgeServices: LightBridgeService[]
 
@@ -90,21 +116,17 @@ describe.only('lightbridge parallel', () => {
   }
 
   before(async () => {
-    chainId = (await provider.getNetwork()).chainId
-    console.log('chainId Boba basic: ', chainId)
-    chainIdBobaBnb = chainId + 1
-
     Factory__Teleportation = new ethers.ContractFactory(
       LightBridgeJson.abi,
       LightBridgeJson.bytecode,
-      wallet1
+      wallet1 // must be wallet1!
     )
 
     LightBridge = await Factory__Teleportation.deploy()
     await LightBridge.deployTransaction.wait()
 
-    LightBridgeBNB = await Factory__Teleportation.deploy()
-    await LightBridgeBNB.deployTransaction.wait()
+    LightBridgeBNB = await Factory__Teleportation.connect(wallet1Bnb).deploy()
+    await LightBridgeBNB.connect(wallet1Bnb).deployTransaction.wait()
 
     // intialize the teleportation contract
     await LightBridge.initialize()
@@ -116,6 +138,7 @@ describe.only('lightbridge parallel', () => {
       await LightBridgeBNB.disburser()
     )
 
+    // BOBA TOKEN ---
     Factory__L2BOBA = new ethers.ContractFactory(
       L1ERC20Json.abi,
       L1ERC20Json.bytecode,
@@ -123,65 +146,67 @@ describe.only('lightbridge parallel', () => {
     )
     L2BOBA = await Factory__L2BOBA.deploy(
       utils.parseEther('100000000000'),
-      'BOBA',
-      'BOBA',
+      'BOBA BNB',
+      'BOBA BNB',
       18
     )
     await L2BOBA.deployTransaction.wait()
     await L2BOBA.transfer(address1, utils.parseEther('100000000'))
 
-    console.log('ADDING SUPP TOKEN: ', L2BOBA.address, chainIdBobaBnb)
-    console.log(
-      'ADDING SUPP TOKEN: ',
-      ethers.constants.AddressZero,
-      chainIdBobaBnb
+    // BOBA TOKEN BNB ---
+    const Factory__L2BOBA_BNB = new ethers.ContractFactory(
+      L1ERC20Json.abi,
+      L1ERC20Json.bytecode,
+      signerBnb
     )
-    console.log('---')
-    console.log('ADDING SUPP TOKEN: ', L2BOBA.address, chainId)
-    console.log('ADDING SUPP TOKEN: ', ethers.constants.AddressZero, chainId)
-    // add the supported chain & token
+    L2BOBA_BNB = await Factory__L2BOBA_BNB.deploy(
+      utils.parseEther('100000000000'),
+      'BOBA_BNB',
+      'BOBA_BNB',
+      18
+    )
+    await L2BOBA_BNB.deployTransaction.wait()
+    await L2BOBA_BNB.transfer(address1Bnb, utils.parseEther('100000000'))
+
     await LightBridge.addSupportedToken(
-      L2BOBA.address.toLowerCase(),
-      chainIdBobaBnb,
+      L2BOBA.address,
+      chainIdBnb,
       defaultMinDepositAmount,
       defaultMaxDepositAmount,
       defaultMaxTransferPerDay
     )
+
     await LightBridge.addSupportedToken(
       ethers.constants.AddressZero,
-      chainIdBobaBnb,
+      chainIdBnb,
       defaultMinDepositAmount,
       defaultMaxDepositAmount,
       defaultMaxTransferPerDay
     )
+
     await LightBridgeBNB.addSupportedToken(
-      L2BOBA.address.toLowerCase(),
-      chainId,
-      defaultMinDepositAmount,
-      defaultMaxDepositAmount,
-      defaultMaxTransferPerDay
-    )
-    await LightBridgeBNB.addSupportedToken(
-      ethers.constants.AddressZero,
+      L2BOBA_BNB.address,
       chainId,
       defaultMinDepositAmount,
       defaultMaxDepositAmount,
       defaultMaxTransferPerDay
     )
 
-    console.log('expecting....')
-    expect(
-      LightBridgeBNB.supportedTokens(L2BOBA.address.toLowerCase(), chainId)
+    await LightBridgeBNB.addSupportedToken(
+      ethers.constants.AddressZero,
+      chainId,
+      defaultMinDepositAmount,
+      defaultMaxDepositAmount,
+      defaultMaxTransferPerDay
     )
-
-    console.log('Teleportation contract inside test: ', LightBridgeBNB.address)
 
     // build payload
+    // todo Q: Can teleportationAddress be the same?
     selectedBobaChains = [
       {
         chainId,
         url: providerUrl,
-        provider: provider,
+        provider: null, // not serializable
         testnet: true,
         name: 'localhost',
         teleportationAddress: LightBridge.address,
@@ -192,26 +217,23 @@ describe.only('lightbridge parallel', () => {
         },
       },
       {
-        chainId: chainIdBobaBnb, // 38
-        url: providerUrl,
-        provider: provider,
+        chainId: chainIdBnb, // 38
+        url: providerUrlBnb,
+        provider: null, // not serializable
         testnet: true,
         name: 'localhost:bnb',
         teleportationAddress: LightBridgeBNB.address,
         height: 0,
         supportedAssets: {
-          [L2BOBA.address?.toLowerCase()]: Asset.BOBA,
+          [L2BOBA_BNB.address?.toLowerCase()]: Asset.BOBA,
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]
 
-    console.log('>>>>>> setting tel addr ', LightBridgeBNB.address)
-
     __LOCAL_NETWORKS = selectedBobaChains
 
-    console.log('STARTING NOW')
     await startAllLightBridgeServices()
   })
 
@@ -235,46 +257,153 @@ describe.only('lightbridge parallel', () => {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  it('should watch LightBridge contract', async () => {
-    console.log('Waiting a few seconds to let parallel services to start up. ')
-    await delay(15)
+  it("should boot up anvil and test configuration correctly", async () => {
+    // expect provider setup is correct
+    expect(providerUrl).to.contain('eth')
+    expect(providerUrlBnb).to.contain('bnb')
+    expect((await provider.getNetwork()).chainId).to.be.eq(31337)
+    expect(provider.connection.url).to.contain('eth')
+    expect(providerBnb.connection.url).to.contain('bnb')
+    expect((await providerBnb.getNetwork()).chainId).to.be.eq(31338)
+    // expect disburse are correctly setup
+    expect(await LightBridge.disburser()).to.eq(wallet1.address);
+    expect(await LightBridgeBNB.disburser()).to.eq(wallet1Bnb.address);
+  })
 
+  it("should create the correct example chain data", async () => {
+    // - 31337
+    const chainIdUndertest = 31337
+    const sutLocalhost = selectedBobaChains.find(s => s.name === 'localhost')
+    expect(sutLocalhost.chainId).to.eq(chainIdUndertest)
+    expect((await(new providers.StaticJsonRpcProvider(sutLocalhost.url).getNetwork())).chainId).to.eq(chainIdUndertest)
+    expect(sutLocalhost.testnet).to.be.true;
+    const expectedAssets = [L2BOBA_BNB.address.toLowerCase(), ethers.constants.AddressZero.toLowerCase()]
+    Object.keys(sutLocalhost.supportedAssets).forEach(key => {
+      expectedAssets.includes(key)
+    })
+    // - 31338
+    const chainIdUndertest2 = 31338
+    const sutLocalhostBnb = selectedBobaChains.find(s => s.name === 'localhost:bnb');
+    expect(sutLocalhostBnb.chainId).to.eq(chainIdUndertest2)
+    expect((await(new providers.StaticJsonRpcProvider(sutLocalhostBnb.url).getNetwork())).chainId).to.eq(chainIdUndertest2)
+    expect(sutLocalhost.testnet).to.be.true;
+    const expectedBnbAssets = [L2BOBA.address?.toLowerCase(), ethers.constants.AddressZero.toLowerCase()]
+    Object.keys(sutLocalhost.supportedAssets).forEach(key => {
+      expectedBnbAssets.includes(key)
+    })
+  })
+
+  it("should add supported tokens", async () => {
+    // supported true cases
+    expect((await LightBridge.supportedTokens(ethers.constants.AddressZero, chainIdBnb))[0]).to.be.true
+    expect((await LightBridge.supportedTokens(L2BOBA.address, chainIdBnb))[0]).to.be.true
+    expect((await LightBridgeBNB.supportedTokens(ethers.constants.AddressZero, chainId))[0]).to.be.true
+    expect((await LightBridgeBNB.supportedTokens(L2BOBA_BNB.address, chainId))[0]).to.be.true
+    // supported false cases
+    expect((await LightBridgeBNB.supportedTokens(ethers.constants.AddressZero, chainId))[0]).to.be.true
+    expect((await LightBridgeBNB.supportedTokens(L2BOBA.address, chainId))[0]).to.be.true
+    expect((await LightBridge.supportedTokens(ethers.constants.AddressZero, chainIdBnb))[0]).to.be.true
+    expect((await LightBridge.supportedTokens(L2BOBA_BNB.address, chainIdBnb))[0]).to.be.true
+  })
+
+  it('should Bridge successfully', async () => {
     // deposit token
     const amount = utils.parseEther('5')
     const preBalanceBobaSigner = await L2BOBA.balanceOf(signerAddr)
-    const preBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1.address)
+    const preBalanceBobaSignerBNB = await L2BOBA_BNB.balanceOf(signerAddr)
+    const preBalanceLightBridge = await L2BOBA.balanceOf(LightBridge.address)
+    const preBalanceBobaDisburser = await L2BOBA_BNB.balanceOf(wallet1.address)
 
-    console.log('--- PRE')
-    console.log('prebalance: ', preBalanceBobaSigner)
-    console.log('prebalance: ', preBalanceBobaDisburser)
-    console.log('---')
-
+    await L2BOBA_BNB.approve(LightBridgeBNB.address, amount)
+    expect(preBalanceLightBridge).to.be.eq(0);
     await L2BOBA.approve(LightBridge.address, amount)
     const bridgeTx = await LightBridge.connect(signer).teleportAsset(
       L2BOBA.address,
       amount,
-      chainIdBobaBnb
+      chainIdBnb
     )
-    await bridgeTx.wait(1)
-    await delay(30_000)
+    await bridgeTx.wait(2);
 
-    const postBalanceBobaSigner = await L2BOBA.balanceOf(signerAddr)
-    const postBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1.address)
+    const postBalanceSigner = await L2BOBA.balanceOf(signerAddr)
+    const postBalanceSignerBNB = await L2BOBA_BNB.balanceOf(signerAddr)
+    const postBalanceDisburser = await L2BOBA_BNB.balanceOf(wallet1.address)
+    const postBalanceLightBridge = await L2BOBA.balanceOf(LightBridge.address)
 
-    console.log('--- POST')
-    console.log('postbalance: ', postBalanceBobaSigner)
-    console.log('postbalance ', postBalanceBobaDisburser)
-    console.log('---')
+    expect(preBalanceBobaSigner).to.be.gt(postBalanceSigner)
+    expect(preBalanceBobaDisburser).to.be.gt(postBalanceDisburser)
+    expect(preBalanceBobaSignerBNB).to.be.lt(postBalanceSignerBNB)
+    expect(preBalanceLightBridge).to.be.lt(postBalanceLightBridge)
+  }).timeout(600_000)
 
-    expect(preBalanceBobaSigner).to.be.gt(postBalanceBobaSigner)
-    expect(preBalanceBobaDisburser).to.be.lt(postBalanceBobaDisburser)
+  it('should should bridge back', async () => {
+    // deposit token
+    const amount = utils.parseEther('50')
+    const preBalanceBobaSigner = await L2BOBA_BNB.balanceOf(signerAddrBnb)
+    const preBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1Bnb.address)
 
-    /*expect(events.length).to.be.eq(2)
-    expect(events[1].args.token).to.be.eq(L2BOBA.address)
-    expect(events[1].args.sourceChainId).to.be.eq(chainId)
-    expect(events[1].args.toChainId).to.be.eq(chainId)
-    expect(events[1].args.depositId).to.be.eq(16)
-    expect(events[1].args.emitter).to.be.eq(signerAddr)
-    expect(events[1].args.amount).to.be.eq(utils.parseEther('11'))*/
-  })
+    await L2BOBA_BNB.approve(LightBridgeBNB.address, amount)
+    const bridgeTx = await LightBridgeBNB.connect(signerBnb).teleportAsset(
+      L2BOBA_BNB.address,
+      amount,
+      chainId
+    )
+    await bridgeTx.wait(2);
+
+    const postBalanceSigner = await L2BOBA_BNB.balanceOf(signerAddr)
+    const postBalanceDisburser = await L2BOBA.balanceOf(wallet1Bnb.address)
+
+    expect(preBalanceBobaSigner).to.be.gt(postBalanceSigner)
+    expect(preBalanceBobaDisburser).to.be.gt(postBalanceDisburser)
+  }).timeout(600_000)
+
+  it('should contain a valid AssetReceived and DisbursementSuccess Event', async () => {
+    // deposit token
+    const amount = utils.parseEther('12')
+
+    await L2BOBA_BNB.approve(LightBridgeBNB.address, amount)
+    const bridgeTx = await LightBridgeBNB.connect(signerBnb).teleportAsset(
+      L2BOBA_BNB.address,
+      amount,
+      chainId
+    )
+    const hashUnderTest = bridgeTx.hash;
+
+    const originEvents = await LightBridgeBNB.queryFilter(
+      'AssetReceived',
+      0,
+      100
+    )
+    expect(originEvents.length).to.be.greaterThanOrEqual(1)
+    const specificEvent = originEvents.find(event => event.transactionHash === hashUnderTest)
+    expect(specificEvent.args.token).to.eq(L2BOBA_BNB.address)
+    expect(specificEvent.args.sourceChainId).to.eq(chainIdBnb)
+    expect(specificEvent.args.toChainId).to.eq(chainId)
+    expect(specificEvent.args.amount).to.eq("12000000000000000000")
+
+    const destinationEvents = await LightBridge.queryFilter(
+      'DisbursementSuccess',
+      0,
+      100
+    )
+    expect(destinationEvents.length).to.be.greaterThanOrEqual(1);
+    const specificDestinationEvent = destinationEvents.find(event => event.args.amount.toString() === "12000000000000000000")
+    expect(specificDestinationEvent.args.token).to.eq(L2BOBA_BNB.address)
+    expect(specificDestinationEvent.args.sourceChainId).to.eq(chainIdBnb)
+
+  }).timeout(600_000)
+
+  it('should fail if deposit amount too big', async () => {
+    let error;
+    try {
+      await LightBridgeBNB.connect(signerBnb).teleportAsset(
+        L2BOBA_BNB.address,
+        utils.parseEther('101'), // max at 100
+        chainId
+      )
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error.toString()).to.contain("Deposit amount too big")
+  }).timeout(280_000)
 })

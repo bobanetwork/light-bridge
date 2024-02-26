@@ -50,7 +50,7 @@ describe('lightbridge', () => {
     await AppDataSource.initialize()
     await AppDataSource.synchronize(true) // drops database and recreates
 
-    providerUrl = process.env.RPC_URL ?? 'http://anvil:8545'
+    providerUrl = process.env.RPC_URL ?? 'http://anvil_eth:8545'
     provider = new providers.JsonRpcProvider(providerUrl)
     console.warn('Using provider: ', providerUrl)
     // must be the same as for AWS KMS (see kms-seed.yml)

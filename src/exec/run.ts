@@ -94,7 +94,7 @@ const main = async () => {
   // Optional
   const pollingInterval = config.uint(
     'polling-interval',
-    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 1000 * 60
+    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 100 * 60
   )
   const blockRangePerPolling = config.uint(
     'block-range-per-polling',
