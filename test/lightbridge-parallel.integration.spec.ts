@@ -53,6 +53,8 @@ describe('lightbridge parallel', () => {
   before(async () => {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize()
+    } else {
+      await AppDataSource.dropDatabase()
     }
     await AppDataSource.synchronize(true) // drops database and recreates
 

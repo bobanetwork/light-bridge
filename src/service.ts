@@ -434,7 +434,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       if (this.getAirdropConfig()?.airdropEnabled) {
         await this._airdropGas(disbursement, latestBlock)
       } else {
-        this.logger.warn('issue airdrop: ', { configTest: this.getAirdropConfig() ?? {empty: true}, test: "hello" })
+        this.logger.warn('issue airdrop: ', {
+          configTest: this.getAirdropConfig() ?? { empty: true },
+          test: 'hello',
+        })
         this.logger.info(
           `Gas airdrop is disabled on chainId: ${this.options.chainId}.`,
           { serviceChainId: this.options.chainId }
@@ -448,8 +451,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   /** @dev Helper function to read airdropConfig for current service from bobaChains config. */
   private getAirdropConfig = (): IAirdropConfig => {
     // prefer override via opts, right now just used for tests but might be set via env again in future
-    return this.options.airdropConfig
-        ?? BobaChains[this.options.chainId].airdropConfig
+    return (
+      this.options.airdropConfig ??
+      BobaChains[this.options.chainId].airdropConfig
+    )
   }
 
   /** @dev Checks if major airdrop eligibility criteria has been met such as not bridging native, has no gas on destination network, bridges enough value, .. */
