@@ -165,7 +165,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             chain.teleportationAddress,
             new providers.StaticJsonRpcProvider(chain.url)
           )
-          const totalDisbursements = await this.state.Teleportation.totalDisbursements(chainId)
+          const totalDisbursements =
+            await this.state.Teleportation.totalDisbursements(chainId)
 
           const totalDeposits = await depositTeleportation.totalDeposits(
             this.options.chainId
