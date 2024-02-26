@@ -133,7 +133,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     }
 
     for (const chain of this.options.selectedBobaChains) {
-      console.log('checking for: ', chain.chainId, chain.supportedAssets)
       try {
         const chainId = chain.chainId
         // assuming BOBA is enabled on supported networks to retain battle-tested logic
@@ -166,13 +165,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             chain.teleportationAddress,
             new providers.StaticJsonRpcProvider(chain.url)
           )
-          let totalDisbursements
-          try {
-            totalDisbursements =
-              await this.state.Teleportation.totalDisbursements(chainId)
-          } catch (e) {
-            console.log('---- ERR: fetching total disbursements', e)
-          }
+          const totalDisbursements = await this.state.Teleportation.totalDisbursements(chainId)
 
           const totalDeposits = await depositTeleportation.totalDeposits(
             this.options.chainId
@@ -192,11 +185,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             height: chain.height,
           })
         }
-
-        console.log(
-          'Got depositTeleportations inside LENGTH = ',
-          this.state.depositTeleportations.length
-        )
       } catch (err) {
         console.log('+++ ERR is:', err)
         this.logger.error(
@@ -596,12 +584,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       ([address, tokenSymbol]) => {
         return tokenSymbol === srcChainTokenSymbol
       }
-    )
-    console.warn(
-      'get supportchain token: ',
-      srcChainTokenSymbol,
-      supportedAsset,
-      this.options.ownSupportedAssets
     )
 
     if (!supportedAsset) {
