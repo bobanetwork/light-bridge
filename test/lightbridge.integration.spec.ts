@@ -1,7 +1,7 @@
 import { expect } from './setup'
 
 /* External Imports */
-import {ethers, network} from 'hardhat'
+import { ethers, network } from 'hardhat'
 import {
   BigNumber,
   Contract,
@@ -48,9 +48,9 @@ describe('lightbridge', () => {
 
   after(async () => {
     await network.provider.request({
-      method: "hardhat_reset",
+      method: 'hardhat_reset',
       params: [],
-    });
+    })
   })
 
   before(async () => {

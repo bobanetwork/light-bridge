@@ -1,7 +1,7 @@
 import { expect } from './setup'
 
 /* External Imports */
-import {ethers, network} from 'hardhat'
+import { ethers, network } from 'hardhat'
 import {
   Contract,
   ContractFactory,
@@ -52,9 +52,9 @@ describe('lightbridge parallel', () => {
 
   after(async () => {
     await network.provider.request({
-      method: "hardhat_reset",
+      method: 'hardhat_reset',
       params: [],
-    });
+    })
   })
 
   before(async () => {
