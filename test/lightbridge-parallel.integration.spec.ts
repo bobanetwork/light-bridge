@@ -368,12 +368,12 @@ describe.only('lightbridge parallel', () => {
     await L2BOBA_BNB.approve(LightBridgeBNB.address, amount)
     expect(preBalanceLightBridge).to.be.eq(0)
     await L2BOBA.approve(LightBridge.address, amount)
-    const bridgeTx = await LightBridge.connect(signer).teleportAsset(
+    await LightBridge.connect(signer).teleportAsset(
       L2BOBA.address,
       amount,
       chainIdBnb
     )
-    await bridgeTx.wait(2)
+    await delay(10_000)
 
     const postBalanceSigner = await L2BOBA.balanceOf(signerAddr)
     const postBalanceSignerBNB = await L2BOBA_BNB.balanceOf(signerAddr)
@@ -384,7 +384,7 @@ describe.only('lightbridge parallel', () => {
     expect(preBalanceBobaDisburser).to.be.gt(postBalanceDisburser)
     expect(preBalanceBobaSignerBNB).to.be.lt(postBalanceSignerBNB)
     expect(preBalanceLightBridge).to.be.lt(postBalanceLightBridge)
-  }).timeout(600_000)
+  }).timeout(100_000)
 
   it('should should bridge back', async () => {
     // deposit token
@@ -393,19 +393,19 @@ describe.only('lightbridge parallel', () => {
     const preBalanceBobaDisburser = await L2BOBA.balanceOf(wallet1Bnb.address)
 
     await L2BOBA_BNB.approve(LightBridgeBNB.address, amount)
-    const bridgeTx = await LightBridgeBNB.connect(signerBnb).teleportAsset(
+    await LightBridgeBNB.connect(signerBnb).teleportAsset(
       L2BOBA_BNB.address,
       amount,
       chainId
     )
-    await bridgeTx.wait(2)
+    await delay(10_000)
 
     const postBalanceSigner = await L2BOBA_BNB.balanceOf(signerAddr)
     const postBalanceDisburser = await L2BOBA.balanceOf(wallet1Bnb.address)
 
     expect(preBalanceBobaSigner).to.be.gt(postBalanceSigner)
     expect(preBalanceBobaDisburser).to.be.gt(postBalanceDisburser)
-  }).timeout(600_000)
+  }).timeout(100_000)
 
   it('should contain a valid AssetReceived and DisbursementSuccess Event', async () => {
     // deposit token
@@ -418,6 +418,8 @@ describe.only('lightbridge parallel', () => {
       chainId
     )
     const hashUnderTest = bridgeTx.hash
+
+    await delay(20_000)
 
     const originEvents = await LightBridgeBNB.queryFilter(
       'AssetReceived',
