@@ -1,7 +1,7 @@
 import { IKMSSignerConfig } from '../utils/kms-signing'
-import { IAirdropConfig } from '../service'
 import { ChainInfo } from '../utils/types'
-import { IBobaChain } from '../utils/chains'
+import {BigNumberish} from "ethers";
+import {IBobaChain} from "../utils/chains";
 
 export enum ENetworkMode {
   TESTNETS = 'testnets',
@@ -15,9 +15,17 @@ export interface ILightBridgeOpts {
   pollingInterval: number
   blockRangePerPolling: number
   awsKmsConfig: IKMSSignerConfig
-  airdropConfig?: IAirdropConfig
   localNetworks?: {
     mainNetwork: IBobaChain
     selectedBobaNetworks: ChainInfo[]
   }
+}
+
+export interface IAirdropConfig {
+  /** Amount of native gas airdropped to user when conditions are met */
+  airdropAmountWei?: BigNumberish
+  /** Amount of seconds to wait after previous airdrop */
+  airdropCooldownSeconds?: BigNumberish
+  /** Define if airdrop is enabled on this network */
+  airdropEnabled: boolean
 }

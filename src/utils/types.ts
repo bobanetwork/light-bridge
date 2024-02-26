@@ -1,4 +1,5 @@
 import { BigNumber, Contract, providers } from 'ethers'
+import {IAirdropConfig} from "../exec/types";
 
 export interface SupportedAssets {
   [address: string]: string // symbol (MUST BE UNIQUE)
@@ -24,6 +25,7 @@ export interface ChainInfo {
   teleportationAddress: string
   height: number
   supportedAssets: SupportedAssets
+  airdropConfig: IAirdropConfig
 }
 
 export interface DepositTeleportations {

@@ -151,6 +151,7 @@ describe.only('lightbridge', () => {
           [L2BOBA.address?.toLowerCase()]: Asset.BOBA,
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
+        airdropConfig: {...airdropConfig, airdropEnabled: false}
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]
@@ -163,17 +164,20 @@ describe.only('lightbridge', () => {
   ) => {
     const chainIdToUse = useBnb ? chainIdBobaBnb : chainId
 
+    const selectedNetworks = (useBnb ? selectedBobaChainsBnb : selectedBobaChains).map(n => {
+      n.airdropConfig.airdropEnabled = airdropEnabled
+      return n;
+    })
+
     return new LightBridgeService({
       l2RpcProvider: provider,
       chainId: chainIdToUse,
       teleportationAddress: useBnb
         ? LightBridgeBNB.address
         : LightBridge.address,
-      selectedBobaChains: useBnb ? selectedBobaChainsBnb : selectedBobaChains,
+      selectedBobaChains: selectedNetworks,
       // only defined one other for the routing tests (so idx 0 = own origin network)
-      ownSupportedAssets: useBnb
-        ? selectedBobaChains[0].supportedAssets
-        : selectedBobaChainsBnb[0].supportedAssets,
+      ownSupportedAssets: selectedNetworks[0].supportedAssets,
       pollingInterval,
       blockRangePerPolling,
       awsConfig: {
@@ -186,10 +190,6 @@ describe.only('lightbridge', () => {
           process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://kms:8888/',
         awsKmsRegion: process.env.LIGHTBRIDGE_AWS_KMS_REGION ?? 'us-east-1',
         disableDisburserCheck: true,
-      },
-      airdropConfig: {
-        ...airdropConfig,
-        airdropEnabled,
       },
     })
   }
@@ -684,6 +684,7 @@ describe.only('lightbridge', () => {
             [L2BNBOnBobaBnb.address?.toLowerCase()]: Asset.BOBA,
             [ethers.constants.AddressZero?.toLowerCase()]: Asset.BNB, // simulate BNB for native to token teleport
           },
+          airdropConfig: {...airdropConfig, airdropEnabled: false}
         },
       ]
       selectedBobaChainsBnb = [
@@ -700,6 +701,7 @@ describe.only('lightbridge', () => {
             [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
+          airdropConfig: {...airdropConfig, airdropEnabled: false}
         },
       ]
     })
@@ -1062,6 +1064,7 @@ describe.only('lightbridge', () => {
             [L2BNBOnBobaBnb.address?.toLowerCase()]: Asset.BNB,
             [ethers.constants.AddressZero]: Asset.BOBA, // simulate BNB for native to token teleport
           },
+          airdropConfig: {...airdropConfig, airdropEnabled: false}
         },
       ]
       selectedBobaChainsBnb = [
@@ -1078,6 +1081,7 @@ describe.only('lightbridge', () => {
             [ethers.constants.AddressZero]: Asset.ETH,
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
+          airdropConfig: {...airdropConfig, airdropEnabled: false}
         },
       ]
     })

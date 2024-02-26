@@ -216,6 +216,7 @@ describe('lightbridge parallel', () => {
           [L2BOBA.address?.toLowerCase()]: Asset.BOBA,
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
+        airdropConfig: {...airdropConfig, airdropEnabled: false}
       },
       {
         chainId: chainIdBnb, // 38
@@ -229,6 +230,7 @@ describe('lightbridge parallel', () => {
           [L2BOBA_BNB.address?.toLowerCase()]: Asset.BOBA,
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
+        airdropConfig: {...airdropConfig, airdropEnabled: false}
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]

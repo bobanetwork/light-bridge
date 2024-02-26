@@ -2,9 +2,6 @@ import { Bcfg } from '@eth-optimism/core-utils'
 import * as dotenv from 'dotenv'
 import Config from 'bcfg'
 
-/* Imports: Core */
-import { IAirdropConfig, LightBridgeService } from '../service'
-
 /* Imports: Config */
 import { BobaChains, IBobaChain } from '../utils/chains'
 
@@ -15,13 +12,10 @@ import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
 import { LastAirdrop } from '../entities/LastAirdrop.entity'
 import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
 import { ENetworkMode, ILightBridgeOpts } from './types'
-import path from 'path'
 import {
-  lightBridgeWorkerFileName,
   startLightBridgeForNetwork,
 } from './lightbridge-instance'
 import { ChainInfo } from '../utils/types'
-import { Chain } from '@ethereumjs/common'
 
 dotenv.config()
 
@@ -78,18 +72,6 @@ const main = async () => {
     'teleportation-aws-kms-endpoint',
     env.LIGHTBRIDGE_AWS_KMS_ENDPOINT
   )
-  const airdropAmountWei = config.str(
-    'teleportation-airdrop-gas-amount-wei',
-    env.LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI || '100000000000000' // 0.0001 eth
-  )
-  const airdropCooldownSeconds = config.str(
-    'teleportation-airdrop-cooldown-seconds',
-    env.LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS || '86400'
-  )
-  const airdropEnabled = config.bool(
-    'teleportation-airdrop-enabled',
-    env.LIGHTBRIDGE_AIRDROP_ENABLED?.toLowerCase() === 'true' || false
-  )
 
   // Optional
   const pollingInterval = config.uint(
@@ -139,11 +121,6 @@ const main = async () => {
       awsKmsKeyId,
       awsKmsRegion,
       awsKmsSecretKey,
-    },
-    airdropConfig: {
-      airdropAmountWei,
-      airdropEnabled,
-      airdropCooldownSeconds,
     },
   }
 

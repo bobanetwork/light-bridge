@@ -1,14 +1,8 @@
-export interface IBobaChain {
-  url: string
-  testnet: boolean
-  name: string
-  teleportationAddress: string
-  height: number
-  supportedAssets: {
-    [address: string]: string // symbol (MUST BE UNIQUE)
-  }
-}
+import {IAirdropConfig} from "../exec/types";
+import {ethers} from "ethers";
+import {ChainInfo} from "./types";
 
+export type IBobaChain = Omit<ChainInfo, 'chainId' | 'provider'>
 export interface IBobaChains {
   [chainId: number]: IBobaChain
 }
@@ -18,6 +12,18 @@ export enum Asset {
   BOBA = 'boba-network',
   USDT = 'tether',
   BNB = 'binancecoin',
+}
+
+/** @dev Sometimes Boba is the native asset. If airdrop is enabled is set on network config level. */
+const DefaultAirdropConfigs: {[asset: string]: Omit<IAirdropConfig, 'airdropEnabled'>} = {
+  [Asset.BOBA as string]: {
+    airdropAmountWei: ethers.utils.parseEther('0.5'),
+    airdropCooldownSeconds: 86400, // 1 day
+  },
+  [Asset.ETH as string]: {
+    airdropAmountWei: ethers.utils.parseEther('0.0005'),
+    airdropCooldownSeconds: 86400, // 1 day
+  },
 }
 
 /**
@@ -39,9 +45,8 @@ export const BobaChains: IBobaChains = {
     supportedAssets: {
       ['0xa18bF3994C0Cc6E3b63ac420308E5383f53120D7'.toLowerCase()]: Asset.BOBA,
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
-      //['0x5DE1677344D3Cb0D7D465c10b72A8f60699C062d'.toLowerCase()]: Asset.USDT,
-      //['0x68ac1623ACf9eB9F88b65B5F229fE3e2c0d5789e'.toLowerCase()]: Asset.BNB,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: true},
   },
   56288: {
     url:
@@ -55,6 +60,7 @@ export const BobaChains: IBobaChains = {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.BOBA,
       ['0x4200000000000000000000000000000000000023'.toLowerCase()]: Asset.BNB,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.BOBA], airdropEnabled: true},
   },
   2888: {
     url:
@@ -68,6 +74,7 @@ export const BobaChains: IBobaChains = {
       ['0x4200000000000000000000000000000000000023'.toLowerCase()]: Asset.BOBA,
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: true},
   },
   9728: {
     url:
@@ -82,6 +89,7 @@ export const BobaChains: IBobaChains = {
       ['0x4200000000000000000000000000000000000023'.toLowerCase()]: Asset.BNB,
       ['0xc614A66f82e71758Fa7735C91dAD1088c8362f15'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.BOBA], airdropEnabled: true},
   },
   421613: {
     url:
@@ -94,6 +102,7 @@ export const BobaChains: IBobaChains = {
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   420: {
     url:
@@ -106,6 +115,7 @@ export const BobaChains: IBobaChains = {
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   42161: {
     url:
@@ -118,6 +128,7 @@ export const BobaChains: IBobaChains = {
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   10: {
     url:
@@ -130,6 +141,7 @@ export const BobaChains: IBobaChains = {
     supportedAssets: {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   //#endregion
   //#region l1
@@ -145,6 +157,7 @@ export const BobaChains: IBobaChains = {
       ['0xdAC17F958D2ee523a2206206994597C13D831ec7'.toLowerCase()]: Asset.USDT,
       ['0xB8c77482e45F1F44dE1745F52C74426C631bDD52'.toLowerCase()]: Asset.BNB,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   56: {
     url: process.env.LIGHTBRIDGE_RPC_BNBMAINNET ?? 'https://rpc.ankr.com/bsc',
@@ -157,6 +170,7 @@ export const BobaChains: IBobaChains = {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.BNB,
       ['0x2170Ed0880ac9A755fd29B2688956BD959F933F8'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   // Sepolia
   11155111: {
@@ -171,6 +185,7 @@ export const BobaChains: IBobaChains = {
       ['0x33faF65b3DfcC6A1FccaD4531D9ce518F0FDc896'.toLowerCase()]: Asset.BOBA,
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   // Boba Sepolia
   28882: {
@@ -185,6 +200,7 @@ export const BobaChains: IBobaChains = {
       ['0x4200000000000000000000000000000000000023'.toLowerCase()]: Asset.BOBA,
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.ETH,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: true},
   },
   5: {
     url:
@@ -200,6 +216,7 @@ export const BobaChains: IBobaChains = {
       ['0xC2C527C0CACF457746Bd31B2a698Fe89de2b6d49'.toLowerCase()]: Asset.USDT,
       ['0xFC1C82c5EdeB51082CF30FDDb434D2cBDA1f6924'.toLowerCase()]: Asset.BNB,
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   97: {
     url:
@@ -214,6 +231,7 @@ export const BobaChains: IBobaChains = {
       ['0x0000000000000000000000000000000000000000'.toLowerCase()]: Asset.BNB,
       ['0xd66c6B4F0be8CE5b39D52E0Fd1344c389929B378'.toLowerCase()]: Asset.ETH, // WETH
     },
+    airdropConfig: {...DefaultAirdropConfigs[Asset.ETH], airdropEnabled: false},
   },
   //#endregion
 }

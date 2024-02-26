@@ -15,7 +15,6 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
     blockRangePerPolling,
     envModeIsDevelopment,
     awsKmsConfig,
-    airdropConfig,
     localNetworks,
   } = opts
 
@@ -78,7 +77,6 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
       awsKmsRegion: awsKmsConfig.awsKmsRegion,
       awsKmsEndpoint: envModeIsDevelopment ? awsKmsConfig.awsKmsEndpoint : null,
     },
-    airdropConfig,
   })
 
   await service.start()

@@ -30,8 +30,9 @@ import {
 import { HistoryData } from './entities/HistoryData.entity'
 import { historyDataRepository, lastAirdropRepository } from './data-source'
 import { IKMSSignerConfig, KMSSigner } from './utils/kms-signing'
-import { Asset, BobaChains } from './utils/chains'
+import {Asset, BobaChains} from './utils/chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
+import {IAirdropConfig} from "./exec/types";
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -52,17 +53,6 @@ interface TeleportationOptions {
   blockRangePerPolling: number
 
   awsConfig: IKMSSignerConfig
-
-  airdropConfig?: IAirdropConfig
-}
-
-export interface IAirdropConfig {
-  /** Amount of native gas airdropped to user when conditions are met */
-  airdropAmountWei?: BigNumberish
-  /** Amount of seconds to wait after previous airdrop */
-  airdropCooldownSeconds?: BigNumberish
-  /** Define if airdrop is enabled on this network */
-  airdropEnabled: boolean
 }
 
 const optionSettings = {}
@@ -108,14 +98,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     const disburserAddress = await this.state.Teleportation.disburser()
     const kmsSignerAddress = await this.state.KMSSigner.getSignerAddr()
 
-    /* TODO READD: if (
+    if (
       !this.options.awsConfig.disableDisburserCheck &&
       disburserAddress.toLowerCase() !== kmsSignerAddress.toLowerCase()
     ) {
       throw new Error(
         `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract ${disburserAddress}`
       )
-    }*/
+    }
     this.logger.info('Got disburser: ', {
       address: disburserAddress,
       serviceChainId: this.options.chainId,
@@ -438,7 +428,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       await this._putDepositInfo(depositChainId, latestBlock)
 
       // Only do on boba l2
-      if (this.options.airdropConfig?.airdropEnabled) {
+      if (this.getAirdropConfig()?.airdropEnabled) {
         await this._airdropGas(disbursement, latestBlock)
       } else {
         this.logger.info(
@@ -451,12 +441,15 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     }
   }
 
+  /** @dev Helper function to read airdropConfig for current service from bobaChains config. */
+  private getAirdropConfig = (): IAirdropConfig => BobaChains[this.options.chainId]?.airdropConfig
+
   /** @dev Checks if major airdrop eligibility criteria has been met such as not bridging native, has no gas on destination network, bridges enough value, .. */
   async _fulfillsAirdropConditions(disbursement: Disbursement) {
     const nativeBalance = await this.state.Teleportation.provider.getBalance(
       disbursement.addr
     )
-    if (nativeBalance.gt(this.options.airdropConfig.airdropAmountWei)) {
+    if (nativeBalance.gt(this.getAirdropConfig()?.airdropAmountWei)) {
       this.logger.info(
         `Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`,
         { serviceChainId: this.options.chainId }
@@ -488,14 +481,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const unixTimestamp = Math.floor(Date.now() / 1000)
 
         const airdropCooldownSeconds =
-          this.options.airdropConfig?.airdropCooldownSeconds ?? '86400'
+          this.getAirdropConfig()?.airdropCooldownSeconds ?? '86400'
         if (
           !lastAirdrop ||
           BigNumber.from(airdropCooldownSeconds).lt(
             unixTimestamp - lastAirdrop.blockTimestamp
           )
         ) {
-          let nativeAmount = this.options.airdropConfig?.airdropAmountWei
+          let nativeAmount = this.getAirdropConfig()?.airdropAmountWei
           if (!nativeAmount) {
             // default
             nativeAmount = ethers.utils.parseEther('0.0005')
