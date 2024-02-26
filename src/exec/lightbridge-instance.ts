@@ -5,8 +5,6 @@ import { LightBridgeService } from '../service'
 import { ENetworkMode, ILightBridgeOpts } from './types'
 import path from 'path'
 
-export const lightBridgeWorkerFileName = path.resolve(__filename)
-
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   const {
     rpcUrl,
@@ -23,15 +21,15 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   let teleportationAddress: string
 
   // get all boba chains and exclude the current chain
-  // TODO this always fetches the same chainId
   let chainId = (await l2RpcProvider.getNetwork()).chainId
 
   let selectedBobaChains = localNetworks.selectedBobaNetworks
 
   if (localNetworks && localNetworks.selectedBobaNetworks.length > 0) {
-    chainId = (localNetworks.mainNetwork as any).chainId
+    chainId = localNetworks.mainNetwork.chainId
     originSupportedAssets = localNetworks.mainNetwork.supportedAssets
     teleportationAddress = localNetworks.mainNetwork.teleportationAddress
+
   } else {
     const isTestnet = BobaChains[chainId].testnet
     if (
@@ -54,7 +52,6 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
       return acc
     }, [])
     teleportationAddress = BobaChains[chainId].teleportationAddress
-    // todo hint must match the tel addr inside test gen
   }
 
   console.log('creating lightbridge service with chainId: ', chainId)

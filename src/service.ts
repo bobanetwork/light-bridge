@@ -585,6 +585,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         return tokenSymbol === srcChainTokenSymbol
       }
     )
+    console.warn("get supportchain token: ", srcChain, srcChainTokenSymbol, supportedAsset, this.options.ownSupportedAssets)
+
     if (!supportedAsset) {
       throw new Error(
         `Asset ${srcChainTokenSymbol} on chain destinationChain not configured but possibly supported on-chain`

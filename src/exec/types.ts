@@ -16,7 +16,7 @@ export interface ILightBridgeOpts {
   blockRangePerPolling: number
   awsKmsConfig: IKMSSignerConfig
   localNetworks?: {
-    mainNetwork: IBobaChain
+    mainNetwork: ChainInfo
     selectedBobaNetworks: ChainInfo[]
   }
 }
