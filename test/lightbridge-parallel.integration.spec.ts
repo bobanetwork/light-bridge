@@ -78,17 +78,9 @@ describe('lightbridge parallel', () => {
     )
     address1 = wallet1.address
 
-    signerBnb = new Wallet(
-      process.env.PRIVATE_KEY_1 ??
-        '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
-      providerBnb
-    )
+    signerBnb = signer.connect(providerBnb)
     signerAddrBnb = await signerBnb.getAddress()
-    wallet1Bnb = new Wallet(
-      process.env.PRIVATE_KEY_2 ??
-        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-      providerBnb
-    )
+    wallet1Bnb = wallet1.connect(providerBnb)
     address1Bnb = wallet1Bnb.address
 
     await signer.sendTransaction({
@@ -109,7 +101,6 @@ describe('lightbridge parallel', () => {
   let L2BOBA: Contract
   let L2BOBA_BNB: Contract
   let __LOCAL_NETWORKS: ChainInfo[]
-  let lightBridgeServices: LightBridgeService[]
 
   // Here to have an easy way to modify globally
   const airdropConfig = {
@@ -128,17 +119,11 @@ describe('lightbridge parallel', () => {
     await LightBridge.deployTransaction.wait()
 
     LightBridgeBNB = await Factory__Teleportation.connect(wallet1Bnb).deploy()
-    await LightBridgeBNB.connect(wallet1Bnb).deployTransaction.wait()
+    await LightBridgeBNB.deployTransaction.wait()
 
     // intialize the teleportation contract
     await LightBridge.initialize()
     await LightBridgeBNB.initialize()
-
-    console.warn(
-      'Owner/Disburser for light bridge: ',
-      await LightBridge.disburser(),
-      await LightBridgeBNB.disburser()
-    )
 
     // BOBA TOKEN ---
     Factory__L2BOBA = new ethers.ContractFactory(
@@ -148,8 +133,8 @@ describe('lightbridge parallel', () => {
     )
     L2BOBA = await Factory__L2BOBA.deploy(
       utils.parseEther('100000000000'),
-      'BOBA BNB',
-      'BOBA BNB',
+      'BOBA',
+      'BOBA',
       18
     )
     await L2BOBA.deployTransaction.wait()
@@ -219,7 +204,7 @@ describe('lightbridge parallel', () => {
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
       },
       {
-        chainId: chainIdBnb, // 38
+        chainId: chainIdBnb,
         url: providerUrlBnb,
         provider: null, // not serializable
         testnet: true,

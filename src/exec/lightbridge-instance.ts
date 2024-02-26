@@ -29,7 +29,6 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
     chainId = localNetworks.mainNetwork.chainId
     originSupportedAssets = localNetworks.mainNetwork.supportedAssets
     teleportationAddress = localNetworks.mainNetwork.teleportationAddress
-
   } else {
     const isTestnet = BobaChains[chainId].testnet
     if (
