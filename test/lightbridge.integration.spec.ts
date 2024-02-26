@@ -1,7 +1,7 @@
 import { expect } from './setup'
 
 /* External Imports */
-import { ethers } from 'hardhat'
+import {ethers, network} from 'hardhat'
 import {
   BigNumber,
   Contract,
@@ -45,6 +45,13 @@ describe('lightbridge', () => {
   const defaultMinDepositAmount = utils.parseEther('1')
   const defaultMaxDepositAmount = utils.parseEther('100')
   const defaultMaxTransferPerDay = utils.parseEther('100000')
+
+  after(async () => {
+    await network.provider.request({
+      method: "hardhat_reset",
+      params: [],
+    });
+  })
 
   before(async () => {
     if (!AppDataSource.isInitialized) {
