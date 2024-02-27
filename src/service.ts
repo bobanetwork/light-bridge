@@ -123,14 +123,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       Object.keys(this.options.ownSupportedAssets).find(
         (k) => this.options.ownSupportedAssets[k?.toLowerCase()] === Asset.BOBA
       ) ?? '0x0000000000000000000000000000000000000000'
-    if (!defaultAssetAddr) {
-      this.logger.error(
-        `Could not find BOBA contract address to check for support: ${JSON.stringify(
-          this.options.ownSupportedAssets
-        )}`,
-        { serviceChainId: this.options.chainId }
-      )
-    }
 
     for (const chain of this.options.selectedBobaChains) {
       try {
