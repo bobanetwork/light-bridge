@@ -1,18 +1,25 @@
-import {expect} from './setup'
+import { expect } from './setup'
 
 /* External Imports */
-import {ethers, network} from 'hardhat'
-import {Contract, ContractFactory, providers, Signer, utils, Wallet,} from 'ethers'
+import { ethers, network } from 'hardhat'
+import {
+  Contract,
+  ContractFactory,
+  providers,
+  Signer,
+  utils,
+  Wallet,
+} from 'ethers'
 
 /* Imports: Artifacts */
 import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import {Asset, ChainInfo, ELayer} from '../src'
+import { Asset, ChainInfo, ELayer } from '../src'
 
 /* Imports: Core */
-import {AppDataSource} from '../src/data-source'
+import { AppDataSource } from '../src/data-source'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
 

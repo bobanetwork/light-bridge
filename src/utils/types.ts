@@ -1,5 +1,5 @@
-import {BigNumber, BigNumberish, Contract, providers} from 'ethers'
-import {IKMSSignerConfig} from "./kms-signing";
+import { BigNumber, BigNumberish, Contract, providers } from 'ethers'
+import { IKMSSignerConfig } from './kms-signing'
 
 export interface SupportedAssets {
   [address: string]: string // symbol (MUST BE UNIQUE)
@@ -18,7 +18,7 @@ export interface AssetReceivedEvent {
 
 export enum ELayer {
   Layer1 = 'L1',
-  Layer2 = 'L2'
+  Layer2 = 'L2',
 }
 
 export interface ChainInfo {
@@ -50,7 +50,6 @@ export interface Disbursement {
   sourceChainId: number | string
   depositId: number | string
 }
-
 
 export enum ENetworkMode {
   TESTNETS = 'testnets',

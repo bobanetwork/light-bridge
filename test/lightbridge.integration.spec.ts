@@ -18,7 +18,7 @@ import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import {ChainInfo, ELayer} from '../src'
+import { ChainInfo, ELayer } from '../src'
 
 /* Imports: Core */
 import { LightBridgeService } from '../src'

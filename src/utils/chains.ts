@@ -1,5 +1,5 @@
-import {ethers} from 'ethers'
-import {ChainInfo, ELayer, IAirdropConfig} from './types'
+import { ethers } from 'ethers'
+import { ChainInfo, ELayer, IAirdropConfig } from './types'
 
 export type IBobaChain = Omit<ChainInfo, 'chainId' | 'provider'>
 export interface IBobaChains {

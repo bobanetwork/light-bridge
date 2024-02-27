@@ -8,14 +8,14 @@ import {
   PopulatedTransaction,
   providers,
 } from 'ethers'
-import {orderBy} from 'lodash'
+import { orderBy } from 'lodash'
 import 'reflect-metadata'
 
 /* Imports: Internal */
-import {sleep} from '@eth-optimism/core-utils'
-import {BaseService} from '@eth-optimism/common-ts'
-import {getContractFactory} from '@bobanetwork/core_contracts'
-import {getBobaContractAt} from '@bobanetwork/contracts'
+import { sleep } from '@eth-optimism/core-utils'
+import { BaseService } from '@eth-optimism/common-ts'
+import { getContractFactory } from '@bobanetwork/core_contracts'
+import { getBobaContractAt } from '@bobanetwork/contracts'
 
 /* Imports: Interface */
 import {
@@ -27,11 +27,11 @@ import {
   IAirdropConfig,
   SupportedAssets,
 } from './utils/types'
-import {HistoryData} from './entities/HistoryData.entity'
-import {historyDataRepository, lastAirdropRepository} from './data-source'
-import {IKMSSignerConfig, KMSSigner} from './utils/kms-signing'
-import {Asset, BobaChains} from './utils/chains'
-import {LastAirdrop} from './entities/LastAirdrop.entity'
+import { HistoryData } from './entities/HistoryData.entity'
+import { historyDataRepository, lastAirdropRepository } from './data-source'
+import { IKMSSignerConfig, KMSSigner } from './utils/kms-signing'
+import { Asset, BobaChains } from './utils/chains'
+import { LastAirdrop } from './entities/LastAirdrop.entity'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -441,9 +441,16 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     const nativeBalance = await this.state.Teleportation.provider.getBalance(
       disbursement.addr
     )
-    const sourceLayer: ELayer = BobaChains[disbursement.sourceChainId]?.layer ?? this.options.selectedBobaChains.find(c => c.chainId === disbursement.sourceChainId)?.layer
+    const sourceLayer: ELayer =
+      BobaChains[disbursement.sourceChainId]?.layer ??
+      this.options.selectedBobaChains.find(
+        (c) => c.chainId === disbursement.sourceChainId
+      )?.layer
     if (sourceLayer === ELayer.Layer2) {
-      this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {sourceChainId: disbursement.sourceChainId, layer: sourceLayer})
+      this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {
+        sourceChainId: disbursement.sourceChainId,
+        layer: sourceLayer,
+      })
       return false
     }
 
