@@ -442,7 +442,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       disbursement.addr
     )
     const sourceLayer: ELayer = this.state.supportedChains.find(
-        (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
+      (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
     )?.layer
     if (sourceLayer === ELayer.Layer2) {
       this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {

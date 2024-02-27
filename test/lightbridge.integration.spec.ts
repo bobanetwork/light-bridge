@@ -171,14 +171,15 @@ describe('lightbridge', () => {
   const startLightBridgeService = async (
     useBnb?: boolean,
     airdropEnabled?: boolean,
-    sourceLayerOverride?: ELayer,
+    sourceLayerOverride?: ELayer
   ) => {
     const chainIdToUse = useBnb ? chainIdBobaBnb : chainId
-    const overridenBobaChains = (useBnb ? selectedBobaChainsBnb : selectedBobaChains)
-        .map(c => {
-          c.layer = sourceLayerOverride ?? c.layer
-          return c
-        })
+    const overridenBobaChains = (
+      useBnb ? selectedBobaChainsBnb : selectedBobaChains
+    ).map((c) => {
+      c.layer = sourceLayerOverride ?? c.layer
+      return c
+    })
 
     return new LightBridgeService({
       l2RpcProvider: provider,
@@ -1210,26 +1211,26 @@ describe('lightbridge', () => {
       // deposit token
       const preBlockNumber = await provider.getBlockNumber()
       await L2BNBOnBobaBnb.connect(signer).approve(
-          LightBridgeBNB.address,
-          utils.parseEther('10')
+        LightBridgeBNB.address,
+        utils.parseEther('10')
       )
       await LightBridgeBNB.connect(signer).teleportAsset(
-          L2BNBOnBobaBnb.address,
-          utils.parseEther('10'),
-          chainId // toChainId
+        L2BNBOnBobaBnb.address,
+        utils.parseEther('10'),
+        chainId // toChainId
       )
 
       const blockNumber = await provider.getBlockNumber()
       const events = await teleportationServiceBnb._getEvents(
-          LightBridgeBNB,
-          LightBridgeBNB.filters.AssetReceived(),
-          preBlockNumber,
-          blockNumber
+        LightBridgeBNB,
+        LightBridgeBNB.filters.AssetReceived(),
+        preBlockNumber,
+        blockNumber
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
-      const teleportationServiceEth = await startLightBridgeService(false, true) // todo , ELayer.Layer2
+      const teleportationServiceEth = await startLightBridgeService(false, true, ELayer.Layer2)
       await teleportationServiceEth.init()
 
       // random address to ensure balance = 0 to be eligible for airdrop
@@ -1243,13 +1244,13 @@ describe('lightbridge', () => {
       const emitter = lastEvent.args.emitter
 
       const receivingChainTokenAddr =
-          teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
-              token,
-              sourceChainId
-          )
+        teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
+          token,
+          sourceChainId
+        )
       expect(receivingChainTokenAddr).to.be.eq(
-          L2BNBOnBobaEth.address?.toLowerCase(),
-          'BNB token address on BNB not correctly routed'
+        L2BNBOnBobaEth.address?.toLowerCase(),
+        'BNB token address on BNB not correctly routed'
       )
 
       let disbursement = [
@@ -1272,9 +1273,9 @@ describe('lightbridge', () => {
       const preSignerTokenBalance = await L2BNBOnBobaBnb.balanceOf(randAddress)
 
       await teleportationServiceEth._disburseTx(
-          disbursement,
-          chainId,
-          blockNumber
+        disbursement,
+        chainId,
+        blockNumber
       )
 
       const postNativeBalance = await provider.getBalance(address1)
@@ -1283,19 +1284,19 @@ describe('lightbridge', () => {
       const postSignerTokenBalance = await L2BNBOnBobaEth.balanceOf(randAddress)
 
       expect(preTokenBalance.sub(postTokenBalance)).to.be.eq(
-          utils.parseEther('10')
+        utils.parseEther('10')
       )
       expect(postSignerTokenBalance.sub(preSignerTokenBalance)).to.be.eq(
-          utils.parseEther('10')
+        utils.parseEther('10')
       )
       const gasDelta = ethers.utils.parseEther('0.003')
       expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
-          '0',
-          gasDelta
+        '0',
+        gasDelta
       )
       expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.closeTo(
-          '0',
-          gasDelta
+        '0',
+        gasDelta
       )
     })
 
