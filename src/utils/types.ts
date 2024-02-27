@@ -1,5 +1,5 @@
-import { BigNumber, Contract, providers } from 'ethers'
-import { IAirdropConfig } from '../exec/types'
+import {BigNumber, BigNumberish, Contract, providers} from 'ethers'
+import {IKMSSignerConfig} from "./kms-signing";
 
 export interface SupportedAssets {
   [address: string]: string // symbol (MUST BE UNIQUE)
@@ -16,8 +16,14 @@ export interface AssetReceivedEvent {
   }
 }
 
+export enum ELayer {
+  Layer1 = 'L1',
+  Layer2 = 'L2'
+}
+
 export interface ChainInfo {
   chainId: number
+  layer: ELayer
   url: string
   provider: providers.StaticJsonRpcProvider
   testnet: boolean
@@ -43,4 +49,32 @@ export interface Disbursement {
   addr: string
   sourceChainId: number | string
   depositId: number | string
+}
+
+
+export enum ENetworkMode {
+  TESTNETS = 'testnets',
+  MAINNETS = 'mainnets',
+}
+
+export interface ILightBridgeOpts {
+  rpcUrl: string
+  envModeIsDevelopment: boolean
+  networkMode: ENetworkMode
+  pollingInterval: number
+  blockRangePerPolling: number
+  awsKmsConfig: IKMSSignerConfig
+  localNetworks?: {
+    mainNetwork: ChainInfo
+    selectedBobaNetworks: ChainInfo[]
+  }
+}
+
+export interface IAirdropConfig {
+  /** Amount of native gas airdropped to user when conditions are met, also used as threshold */
+  airdropAmountWei?: BigNumberish
+  /** Amount of seconds to wait after previous airdrop */
+  airdropCooldownSeconds?: BigNumberish
+  /** Define if airdrop is enabled on this network */
+  airdropEnabled: boolean
 }

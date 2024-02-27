@@ -1,9 +1,7 @@
 import { providers } from 'ethers'
 import { BobaChains } from '../utils/chains'
-import { ChainInfo, SupportedAssets } from '../utils/types'
+import {ENetworkMode, ILightBridgeOpts, SupportedAssets} from '../utils/types'
 import { LightBridgeService } from '../service'
-import { ENetworkMode, ILightBridgeOpts } from './types'
-import path from 'path'
 
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   const {

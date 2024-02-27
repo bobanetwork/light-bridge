@@ -1,26 +1,18 @@
-import { expect } from './setup'
+import {expect} from './setup'
 
 /* External Imports */
-import { ethers, network } from 'hardhat'
-import {
-  Contract,
-  ContractFactory,
-  providers,
-  Signer,
-  utils,
-  Wallet,
-} from 'ethers'
+import {ethers, network} from 'hardhat'
+import {Contract, ContractFactory, providers, Signer, utils, Wallet,} from 'ethers'
 
 /* Imports: Artifacts */
 import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import { ChainInfo, LightBridgeService } from '../src'
+import {Asset, ChainInfo, ELayer} from '../src'
 
 /* Imports: Core */
-import { AppDataSource } from '../src/data-source'
-import { Asset } from '../src'
+import {AppDataSource} from '../src/data-source'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
 
@@ -211,6 +203,7 @@ describe('lightbridge parallel', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
+        layer: ELayer.Layer2,
       },
       {
         chainId: chainIdBnb,
@@ -225,6 +218,7 @@ describe('lightbridge parallel', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
+        layer: ELayer.Layer2,
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]

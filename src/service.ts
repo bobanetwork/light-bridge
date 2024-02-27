@@ -1,23 +1,21 @@
 /* Imports: External */
 import {
   BigNumber,
-  BigNumberish,
   constants as ethersConstants,
   Contract,
   ethers,
   EventFilter,
   PopulatedTransaction,
   providers,
-  Wallet,
 } from 'ethers'
-import { orderBy } from 'lodash'
+import {orderBy} from 'lodash'
 import 'reflect-metadata'
 
 /* Imports: Internal */
-import { sleep } from '@eth-optimism/core-utils'
-import { BaseService } from '@eth-optimism/common-ts'
-import { getContractFactory } from '@bobanetwork/core_contracts'
-import { getBobaContractAt } from '@bobanetwork/contracts'
+import {sleep} from '@eth-optimism/core-utils'
+import {BaseService} from '@eth-optimism/common-ts'
+import {getContractFactory} from '@bobanetwork/core_contracts'
+import {getBobaContractAt} from '@bobanetwork/contracts'
 
 /* Imports: Interface */
 import {
@@ -25,14 +23,15 @@ import {
   ChainInfo,
   DepositTeleportations,
   Disbursement,
+  ELayer,
+  IAirdropConfig,
   SupportedAssets,
 } from './utils/types'
-import { HistoryData } from './entities/HistoryData.entity'
-import { historyDataRepository, lastAirdropRepository } from './data-source'
-import { IKMSSignerConfig, KMSSigner } from './utils/kms-signing'
-import { Asset, BobaChains } from './utils/chains'
-import { LastAirdrop } from './entities/LastAirdrop.entity'
-import { IAirdropConfig } from './exec/types'
+import {HistoryData} from './entities/HistoryData.entity'
+import {historyDataRepository, lastAirdropRepository} from './data-source'
+import {IKMSSignerConfig, KMSSigner} from './utils/kms-signing'
+import {Asset, BobaChains} from './utils/chains'
+import {LastAirdrop} from './entities/LastAirdrop.entity'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -179,7 +178,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           })
         }
       } catch (err) {
-        console.log('+++ ERR is:', err)
         this.logger.error(
           `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`,
           { serviceChainId: this.options.chainId, err }
@@ -443,6 +441,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     const nativeBalance = await this.state.Teleportation.provider.getBalance(
       disbursement.addr
     )
+    const sourceLayer: ELayer = BobaChains[disbursement.sourceChainId]?.layer ?? this.options.selectedBobaChains.find(c => c.chainId === disbursement.sourceChainId)?.layer
+    if (sourceLayer === ELayer.Layer2) {
+      this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {sourceChainId: disbursement.sourceChainId, layer: sourceLayer})
+      return false
+    }
+
     if (nativeBalance.gt(this.getAirdropConfig()?.airdropAmountWei)) {
       this.logger.info(
         `Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`,

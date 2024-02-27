@@ -18,7 +18,7 @@ import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import { ChainInfo } from '../src'
+import {ChainInfo, ELayer} from '../src'
 
 /* Imports: Core */
 import { LightBridgeService } from '../src'
@@ -161,6 +161,7 @@ describe('lightbridge', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
+        layer: ELayer.Layer2,
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]
@@ -695,6 +696,7 @@ describe('lightbridge', () => {
             [ethers.constants.AddressZero?.toLowerCase()]: Asset.BNB, // simulate BNB for native to token teleport
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
+          layer: ELayer.Layer2,
         },
       ]
       selectedBobaChainsBnb = [
@@ -712,6 +714,7 @@ describe('lightbridge', () => {
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
+          layer: ELayer.Layer2,
         },
       ]
     })
@@ -1075,6 +1078,7 @@ describe('lightbridge', () => {
             [ethers.constants.AddressZero]: Asset.BOBA, // simulate BNB for native to token teleport
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
+          layer: ELayer.Layer2,
         },
       ]
       selectedBobaChainsBnb = [
@@ -1092,6 +1096,7 @@ describe('lightbridge', () => {
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
+          layer: ELayer.Layer2,
         },
       ]
     })
