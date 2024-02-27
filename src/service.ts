@@ -441,11 +441,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     const nativeBalance = await this.state.Teleportation.provider.getBalance(
       disbursement.addr
     )
-    const sourceLayer: ELayer =
-      BobaChains[disbursement.sourceChainId]?.layer ??
-      this.options.selectedBobaChains.find(
-        (c) => c.chainId === disbursement.sourceChainId
-      )?.layer
+    const sourceLayer: ELayer = this.state.supportedChains.find(
+        (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
+    )?.layer
     if (sourceLayer === ELayer.Layer2) {
       this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {
         sourceChainId: disbursement.sourceChainId,
