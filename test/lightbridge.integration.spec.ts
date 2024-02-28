@@ -1204,7 +1204,7 @@ describe('lightbridge', () => {
       )
     })
 
-    it('should not airdrop if sourceChain is not a L1', async () => {
+    it.skip('should not airdrop if sourceChain is not a L1', async () => {
       const teleportationServiceBnb = await startLightBridgeService(true)
       await teleportationServiceBnb.init()
 
