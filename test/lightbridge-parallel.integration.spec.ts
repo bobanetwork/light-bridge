@@ -22,7 +22,7 @@ import { Asset, ChainInfo, ELayer } from '../src'
 import { AppDataSource } from '../src/data-source'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
-import {delay} from "./test.utils";
+import { delay } from './test.utils'
 
 dotenv.config()
 
@@ -75,12 +75,12 @@ describe('lightbridge parallel', () => {
     chainIdBnb = (await providerBnb.getNetwork()).chainId
 
     signer = new Wallet(
-        '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6',
+      '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6',
       provider
     )
     signerAddr = await signer.getAddress()
     wallet1 = new Wallet(
-        '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
+      '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a',
       provider
     )
     address1 = wallet1.address
