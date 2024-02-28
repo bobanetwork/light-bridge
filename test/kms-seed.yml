@@ -7,7 +7,15 @@ Keys:
           Description: Light bridge disburser key
         # public through anvil default private keys
         PrivateKeyHex: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - Metadata:
+          KeyId: lb_disburser_pk_2
+          KeyUsage: SIGN_VERIFY
+          Description: Light bridge disburser key 2
+        # public through anvil default private keys
+        PrivateKeyHex: 5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
 
 Aliases:
   - AliasName: alias/lb_disburser_pk
     TargetKeyId: lb_disburser_pk
+  - AliasName: alias/lb_disburser_pk_2
+    TargetKeyId: lb_disburser_pk_2

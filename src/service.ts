@@ -443,8 +443,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     )
     const sourceLayer: ELayer = this.state.supportedChains.find(
       (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
-    )?.layer
-    console.warn('##################', sourceLayer, disbursement.sourceChainId)
+    )?.layer ?? BobaChains[disbursement.sourceChainId]?.layer
     if (sourceLayer === ELayer.Layer2) {
       this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {
         sourceChainId: disbursement.sourceChainId,
