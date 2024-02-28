@@ -1230,7 +1230,11 @@ describe('lightbridge', () => {
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
-      const teleportationServiceEth = await startLightBridgeService(false, true, ELayer.Layer2)
+      const teleportationServiceEth = await startLightBridgeService(
+        false,
+        true,
+        ELayer.Layer2
+      )
       await teleportationServiceEth.init()
 
       // random address to ensure balance = 0 to be eligible for airdrop

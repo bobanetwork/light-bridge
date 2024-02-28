@@ -444,14 +444,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     const sourceLayer: ELayer = this.state.supportedChains.find(
       (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
     )?.layer
-    console.warn("##################", sourceLayer, disbursement.sourceChainId)
-    /* todo if (sourceLayer === ELayer.Layer2) {
+    console.warn('##################', sourceLayer, disbursement.sourceChainId)
+    if (sourceLayer === ELayer.Layer2) {
       this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {
         sourceChainId: disbursement.sourceChainId,
         layer: sourceLayer,
       })
       return false
-    }*/
+    }
 
     if (nativeBalance.gt(this.getAirdropConfig()?.airdropAmountWei)) {
       this.logger.info(

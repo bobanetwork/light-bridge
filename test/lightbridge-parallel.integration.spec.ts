@@ -210,7 +210,7 @@ describe('lightbridge parallel', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
-        layer: ELayer.Layer2,
+        layer: ELayer.Layer1,
       },
       {
         chainId: chainIdBnb,
@@ -225,7 +225,7 @@ describe('lightbridge parallel', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
-        layer: ELayer.Layer2,
+        layer: ELayer.Layer1,
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]
