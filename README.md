@@ -11,7 +11,6 @@ All configuration is done via environment variables. See all variables at [.env.
 
 |                                         | Description                                        | Default         |
 |-----------------------------------------|----------------------------------------------------|-----------------|
-| RPC_URL                                 | The endpoint of Layer 2                            |                 |
 | LIGHTBRIDGE_REJECT_UNAUTHORIZED         | Allows self-signed certificates if false (TypeORM) | true            |
 | LIGHTBRIDGE_DISBURSER_KEY               | The pk of disburser                                |                 |
 | LIGHTBRIDGE_POLLING_INTERVAL            | The polling interval of fetching events            | 60s             |
@@ -22,6 +21,7 @@ All configuration is done via environment variables. See all variables at [.env.
 | LIGHTBRIDGE_POSTGRES_DB                 | The database name                                  | postgres        |
 | LIGHTBRIDGE_POSTGRES_PORT               | The database port                                  | 5432            |
 | LIGHTBRIDGE_POSTGRES_USER               | The database user                                  | postgres        |
+| LIGHTBRIDGE_MODE                        | Which rpcUrls to use? testnets or mainnets         | testnets        |
 | LIGHTBRIDGE_ENV                         | The environment mode (dev or prod)                 | dev             |
 
 ## Building & Running
@@ -67,6 +67,9 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 - Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
 
+### BSC Boba Mainnet
+- LightBridge deployed to: `0x45B9877497d73C683D38e0C7FfCf089D5D9FDCDf`
+- Proxy__LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 
 ## Testnet deployments
 

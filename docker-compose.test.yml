@@ -1,27 +1,36 @@
 version: "3"
 
 services:
-  anvil:
+  anvil_bnb:
+    image: ghcr.io/foundry-rs/foundry:latest
+    command:
+      - "anvil --hardfork berlin --chain-id 31338" # use legacy tx to emulate boba network
+    environment:
+      - ANVIL_IP_ADDR=0.0.0.0
+#    ports:
+#      - "8546:8545"
+  anvil_eth:
     image: ghcr.io/foundry-rs/foundry:latest
     command:
       - "anvil --hardfork berlin" # use legacy tx to emulate boba network
     environment:
       - ANVIL_IP_ADDR=0.0.0.0
-    ports:
-      - "8545:8545"
+#    ports:
+#      - "8545:8545"
 
   lightbridge:
     depends_on:
       - lightbridge_db
       - kms
-      - anvil
+      - anvil_eth
+      - anvil_bnb
     image: bobanetwork/lightbridge:latest
     build:
       context: .
       dockerfile: ./Dockerfile
     command: bash -c "npm test"
     environment:
-      RPC_URL: "http://anvil:8545"
+      LIGHTBRIDGE_MODE: "testnets"
       LIGHTBRIDGE_REJECT_UNAUTHORIZED: "true"
       # KMS setup (incl. defaults)
       LIGHTBRIDGE_ENV: "dev"

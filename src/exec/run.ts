@@ -1,21 +1,18 @@
-import { Wallet, providers } from 'ethers'
 import { Bcfg } from '@eth-optimism/core-utils'
 import * as dotenv from 'dotenv'
 import Config from 'bcfg'
 
-/* Imports: Core */
-import { LightBridgeService } from '../service'
-
 /* Imports: Config */
-import { BobaChains } from '../utils/chains'
+import { BobaChains, IBobaChain } from '../utils/chains'
 
 /* Imports: Interface */
-import { ChainInfo, SupportedAssets } from '../utils/types'
 import { AppDataSource } from '../data-source'
 import { HistoryData } from '../entities/HistoryData.entity'
 import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
 import { LastAirdrop } from '../entities/LastAirdrop.entity'
 import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
+import { startLightBridgeForNetwork } from './lightbridge-instance'
+import { ChainInfo, ENetworkMode, ILightBridgeOpts } from '../utils/types'
 
 dotenv.config()
 
@@ -45,123 +42,116 @@ const main = async () => {
   }
 
   const envModeIsDevelopment = env.LIGHTBRIDGE_ENV === 'dev'
+  const networkMode = config.str(
+    'teleportation-network-mode',
+    env.LIGHTBRIDGE_MODE
+  )?.toLowerCase()
 
-  const RPC_URL = config.str('l2-node-web3-url', env.RPC_URL)
   // This private key is used to send funds to the contract and initiate the tx,
   // so it should have enough BOBA balance
-  const LIGHTBRIDGE_AWS_KMS_ACCESS_KEY = config.str(
+  const awsKmsAccessKey = config.str(
     'teleportation-aws-kms-access-key',
     env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY
   )
-  const LIGHTBRIDGE_AWS_KMS_SECRET_KEY = config.str(
+  const awsKmsSecretKey = config.str(
     'teleportation-aws-kms-secret-key',
     env.LIGHTBRIDGE_AWS_KMS_SECRET_KEY
   )
-  const LIGHTBRIDGE_AWS_KMS_KEY_ID = config.str(
+  const awsKmsKeyId = config.str(
     'teleportation-aws-kms-key-id',
     env.LIGHTBRIDGE_AWS_KMS_KEY_ID
   )
-  const LIGHTBRIDGE_AWS_KMS_REGION = config.str(
+  const awsKmsRegion = config.str(
     'teleportation-aws-kms-region',
     env.LIGHTBRIDGE_AWS_KMS_REGION
   )
-  const LIGHTBRIDGE_AWS_KMS_ENDPOINT = config.str(
+  const awsKmsEndpoint = config.str(
     'teleportation-aws-kms-endpoint',
     env.LIGHTBRIDGE_AWS_KMS_ENDPOINT
   )
-  const LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI = config.str(
-    'teleportation-airdrop-gas-amount-wei',
-    env.LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI || '100000000000000' // 0.0001 eth
-  )
-  const LIGHTBRIDGE_AIRDROP_MIN_USD_VALUE = config.str(
-    'teleportation-airdrop-min-usd-value',
-    env.LIGHTBRIDGE_AIRDROP_MIN_USD_VALUE || '15'
-  )
-  const LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS = config.str(
-    'teleportation-airdrop-cooldown-seconds',
-    env.LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS || '86400'
-  )
-  const LIGHTBRIDGE_AIRDROP_ENABLED = config.bool(
-    'teleportation-airdrop-enabled',
-    env.LIGHTBRIDGE_AIRDROP_ENABLED?.toLowerCase() === 'true' || false
-  )
 
   // Optional
-  const POLLING_INTERVAL = config.uint(
+  const pollingInterval = config.uint(
     'polling-interval',
-    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 1000 * 60
+    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 100 * 60
   )
-  const BLOCK_RANGE_PER_POLLING = config.uint(
+  const blockRangePerPolling = config.uint(
     'block-range-per-polling',
     parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000
   )
 
-  if (!RPC_URL) {
-    throw new Error('Must pass RPC_URL')
-  }
+  // only for testing (integration tests, otherwise real networks are being used)
+  const localNetworks = env.__LOCAL_NETWORKS
+    ? (JSON.parse(env.__LOCAL_NETWORKS) as ChainInfo[])
+    : undefined
+
   if (
     envModeIsDevelopment &&
-    (!LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ||
-      !LIGHTBRIDGE_AWS_KMS_SECRET_KEY ||
-      !LIGHTBRIDGE_AWS_KMS_KEY_ID ||
-      !LIGHTBRIDGE_AWS_KMS_ENDPOINT ||
-      !LIGHTBRIDGE_AWS_KMS_REGION)
+    (!awsKmsAccessKey ||
+      !awsKmsSecretKey ||
+      !awsKmsKeyId ||
+      !awsKmsEndpoint ||
+      !awsKmsRegion)
   ) {
-    throw new Error('Must pass TELEPORTATION AWS CONFIG ENV')
+    throw new Error('Must pass LIGHTBRIDGE AWS CONFIG ENV')
   }
 
-  const l2Provider = new providers.StaticJsonRpcProvider(RPC_URL)
-
-  // get all boba chains and exclude the current chain
-  const chainId = (await l2Provider.getNetwork()).chainId
-  const isTestnet = BobaChains[chainId].testnet
-  let originSupportedAssets: SupportedAssets
-  const selectedBobaChains: ChainInfo[] = Object.keys(BobaChains).reduce(
-    (acc, cur) => {
-      const chain = BobaChains[cur]
-      if (isTestnet === chain.testnet) {
-        if (Number(cur) !== chainId) {
-          chain.provider = new providers.StaticJsonRpcProvider(chain.url)
-          acc.push({ chainId: cur, ...chain })
-        } else {
-          originSupportedAssets = chain.supportedAssets
-        }
-      }
-      return acc
+  if (!networkMode) {
+    throw new Error(
+      'Must pass LIGHTBRIDGE_MODE, either testnets or mainnets explicitly'
+    )
+  }
+  const baseOpts: Omit<ILightBridgeOpts, 'rpcUrl'> = {
+    networkMode:
+      networkMode === ENetworkMode.TESTNETS
+        ? ENetworkMode.TESTNETS
+        : ENetworkMode.MAINNETS,
+    blockRangePerPolling,
+    pollingInterval,
+    envModeIsDevelopment,
+    awsKmsConfig: {
+      awsKmsAccessKey,
+      awsKmsEndpoint,
+      awsKmsKeyId,
+      awsKmsRegion,
+      awsKmsSecretKey,
     },
-    []
+  }
+
+  const isTestnetMode = ENetworkMode.TESTNETS === networkMode
+  // filter out the own chainid
+  const networksToWatch: IBobaChain[] = localNetworks
+    ? localNetworks
+    : Object.values(BobaChains).filter(
+        (n: IBobaChain) => n.testnet === isTestnetMode
+      )
+  console.log(
+    'Watching networks:',
+    networkMode,
+    networksToWatch.map((n) => n.name)
   )
-  const LIGHTBRIDGE_ADDRESS = BobaChains[chainId].teleportationAddress
 
-  const service = new LightBridgeService({
-    l2RpcProvider: l2Provider,
-    chainId,
-    teleportationAddress: LIGHTBRIDGE_ADDRESS,
-    selectedBobaChains,
-    ownSupportedAssets: originSupportedAssets,
-    pollingInterval: POLLING_INTERVAL,
-    blockRangePerPolling: BLOCK_RANGE_PER_POLLING,
-    awsConfig: {
-      awsKmsAccessKey: envModeIsDevelopment
-        ? LIGHTBRIDGE_AWS_KMS_ACCESS_KEY
-        : null,
-      awsKmsSecretKey: envModeIsDevelopment
-        ? LIGHTBRIDGE_AWS_KMS_SECRET_KEY
-        : null,
-      awsKmsKeyId: LIGHTBRIDGE_AWS_KMS_KEY_ID,
-      awsKmsRegion: LIGHTBRIDGE_AWS_KMS_REGION,
-      awsKmsEndpoint: envModeIsDevelopment
-        ? LIGHTBRIDGE_AWS_KMS_ENDPOINT
-        : null,
-    },
-    airdropConfig: {
-      airdropAmountWei: LIGHTBRIDGE_AIRDROP_GAS_AMOUNT_WEI,
-      airdropCooldownSeconds: LIGHTBRIDGE_AIRDROP_COOLDOWN_SECONDS,
-      airdropEnabled: LIGHTBRIDGE_AIRDROP_ENABLED,
-    },
-  })
+  const serviceWorkers = []
+  for (const network of networksToWatch) {
+    // base options hat localnetworks property
+    // hier filtern, nach nur den anderen
+    const networkConfig: ILightBridgeOpts = {
+      ...baseOpts,
+      rpcUrl: network.url,
+      localNetworks: {
+        mainNetwork: network as ChainInfo, // only applies to localNetwork
+        selectedBobaNetworks: localNetworks.filter(
+          (f) => network.name !== f.name
+        ),
+      },
+    }
 
-  await service.start()
+    serviceWorkers.push(startLightBridgeForNetwork(networkConfig))
+    console.log('Started light bridge service for network: ', network.name)
+  }
+  // TODO: For now just failing in general, reconsider this and introduce fallbacks? But maybe it's a good idea to just fail for all networks when one service fails
+  await Promise.all(serviceWorkers)
+  console.log('Ran all light bridge services.')
 }
 
 if (require.main === module) {
