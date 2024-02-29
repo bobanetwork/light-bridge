@@ -446,7 +446,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
       )?.layer ?? BobaChains[disbursement.sourceChainId]?.layer
     if (sourceLayer === EAirdropSource.PROHIBIT) {
-      this.logger.info(`Not airdropping as sourceNetwork is a L2.`, {
+      this.logger.info(`Not airdropping as sourceNetwork is prohibited.`, {
         sourceChainId: disbursement.sourceChainId,
         layer: sourceLayer,
       })
