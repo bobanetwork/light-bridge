@@ -22,7 +22,7 @@ import { Asset, ChainInfo, EAirdropSource } from '../src'
 import { AppDataSource } from '../src/data-source'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
-import { delay } from './test.utils'
+import { delay } from '../src/utils/misc.utils'
 
 dotenv.config()
 

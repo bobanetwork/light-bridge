@@ -2,6 +2,7 @@ import { providers } from 'ethers'
 import { BobaChains } from '../utils/chains'
 import { ENetworkMode, ILightBridgeOpts, SupportedAssets } from '../utils/types'
 import { LightBridgeService } from '../service'
+import {delay} from "../utils/misc.utils";
 
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   const {
@@ -73,5 +74,13 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
     },
   })
 
-  await service.start()
+  while (true) {
+    try {
+      console.log(`Starting up new Lightbridge instance for ${chainId} (chainId), ${l2RpcProvider} (provider).`)
+      await service.start()
+    } catch (err) {
+      console.error(`Lightbridge instance failed for ${chainId} (chainId), ${l2RpcProvider} (provider). Retrying in 30 seconds`, err?.message, err)
+    }
+    await delay(30000)
+  }
 }
