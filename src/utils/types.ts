@@ -16,14 +16,15 @@ export interface AssetReceivedEvent {
   }
 }
 
-export enum ELayer {
-  Layer1 = 'L1',
-  Layer2 = 'L2',
+/** @dev Allow airdropping gas only when the sourceNetwork is eligible (security check to avoid arbitrage). */
+export enum EAirdropSource {
+  ALLOW = 'allow',
+  PROHIBIT = 'prohibit',
 }
 
 export interface ChainInfo {
   chainId: number
-  layer: ELayer
+  layer: EAirdropSource
   url: string
   provider: providers.StaticJsonRpcProvider
   testnet: boolean

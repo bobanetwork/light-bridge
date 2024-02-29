@@ -16,7 +16,7 @@ import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import { Asset, ChainInfo, ELayer } from '../src'
+import { Asset, ChainInfo, EAirdropSource } from '../src'
 
 /* Imports: Core */
 import { AppDataSource } from '../src/data-source'
@@ -209,7 +209,7 @@ describe('lightbridge parallel', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
-        layer: ELayer.Layer1,
+        layer: EAirdropSource.ALLOW,
       },
       {
         chainId: chainIdBnb,
@@ -224,7 +224,7 @@ describe('lightbridge parallel', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
-        layer: ELayer.Layer1,
+        layer: EAirdropSource.ALLOW,
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]

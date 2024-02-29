@@ -18,7 +18,7 @@ import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
 /* Imports: Interface */
-import { ChainInfo, ELayer } from '../src'
+import { ChainInfo, EAirdropSource } from '../src'
 
 /* Imports: Core */
 import { LightBridgeService } from '../src'
@@ -159,7 +159,7 @@ describe.only('lightbridge', () => {
           [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
         },
         airdropConfig: { ...airdropConfig, airdropEnabled: false },
-        layer: ELayer.Layer1,
+        layer: EAirdropSource.ALLOW,
       },
       // bnb will be added in routing tests to have cleaner before hooks
     ]
@@ -169,7 +169,7 @@ describe.only('lightbridge', () => {
   const startLightBridgeService = async (
     useBnb?: boolean,
     airdropEnabled?: boolean,
-    sourceLayerOverride?: ELayer
+    sourceLayerOverride?: EAirdropSource
   ) => {
     const chainIdToUse = useBnb ? chainIdBobaBnb : chainId
     const overridenBobaChains = (
@@ -701,7 +701,7 @@ describe.only('lightbridge', () => {
             [ethers.constants.AddressZero?.toLowerCase()]: Asset.BNB, // simulate BNB for native to token teleport
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
-          layer: ELayer.Layer1,
+          layer: EAirdropSource.ALLOW,
         },
       ]
       selectedBobaChainsBnb = [
@@ -719,7 +719,7 @@ describe.only('lightbridge', () => {
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
-          layer: ELayer.Layer1,
+          layer: EAirdropSource.ALLOW,
         },
       ]
     })
@@ -1083,7 +1083,7 @@ describe.only('lightbridge', () => {
             [ethers.constants.AddressZero]: Asset.BOBA, // simulate BNB for native to token teleport
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
-          layer: ELayer.Layer1,
+          layer: EAirdropSource.ALLOW,
         },
       ]
       selectedBobaChainsBnb = [
@@ -1101,7 +1101,7 @@ describe.only('lightbridge', () => {
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
-          layer: ELayer.Layer1,
+          layer: EAirdropSource.ALLOW,
         },
       ]
     })
@@ -1136,7 +1136,7 @@ describe.only('lightbridge', () => {
       const teleportationServiceEth = await startLightBridgeService(
         false,
         true,
-        ELayer.Layer2
+        EAirdropSource.PROHIBIT
       )
       await teleportationServiceEth.init()
 
@@ -1585,7 +1585,7 @@ describe.only('lightbridge', () => {
             [ethers.constants.AddressZero]: Asset.BOBA, // simulate BNB for native to token teleport
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
-          layer: ELayer.Layer1,
+          layer: EAirdropSource.ALLOW,
         },
       ]
       selectedBobaChainsBnb = [
@@ -1603,7 +1603,7 @@ describe.only('lightbridge', () => {
             [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
           },
           airdropConfig: { ...airdropConfig, airdropEnabled: false },
-          layer: ELayer.Layer1,
+          layer: EAirdropSource.ALLOW,
         },
       ]
     })
