@@ -50,6 +50,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Ethereum Mainnet (L1)
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+- Owner transferred to multisig `0x56121a8612474C3eB65D69a3b871f284705b9bC4` [Tx](https://bobascan.com/tx/0xc42037c770cd88d73ee49c8daffc9c27da5f79d7d2fb0c6f307cc37a9bc850c1)
 
 ### Optimism Mainnet
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
