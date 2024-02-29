@@ -140,7 +140,7 @@ const main = async () => {
       rpcUrl: network.url,
       localNetworks: {
         mainNetwork: network as ChainInfo, // only applies to localNetwork
-        selectedBobaNetworks: localNetworks.filter(
+        selectedBobaNetworks: localNetworks?.filter(
           (f) => network.name !== f.name
         ),
       },
