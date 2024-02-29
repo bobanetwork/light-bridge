@@ -42,10 +42,9 @@ const main = async () => {
   }
 
   const envModeIsDevelopment = env.LIGHTBRIDGE_ENV === 'dev'
-  const networkMode = config.str(
-    'teleportation-network-mode',
-    env.LIGHTBRIDGE_MODE
-  )?.toLowerCase()
+  const networkMode = config
+    .str('teleportation-network-mode', env.LIGHTBRIDGE_MODE)
+    ?.toLowerCase()
 
   // This private key is used to send funds to the contract and initiate the tx,
   // so it should have enough BOBA balance

@@ -23,7 +23,7 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
 
   let selectedBobaChains = localNetworks.selectedBobaNetworks
 
-  if (localNetworks && localNetworks.selectedBobaNetworks.length > 0) {
+  if (localNetworks && localNetworks?.selectedBobaNetworks?.length > 0) {
     chainId = localNetworks.mainNetwork.chainId
     originSupportedAssets = localNetworks.mainNetwork.supportedAssets
     teleportationAddress = localNetworks.mainNetwork.teleportationAddress

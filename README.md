@@ -110,6 +110,18 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x885bfeC3D89755d2bCc1e73b6EeEEae94D54eBE4`
 - Proxy__LightBridge deployed to: `0xC226F132A686A08018431C913d87693396246024`
 
+---
+
+## Supported routes
+
+### BOBA
+- `BOBA BNB Mainnet` -> `BNB Mainnet`
+- `BOBA BNB Mainnet` -> `BOBA ETH Mainnet`
+
+### BNB
+- `BOBA BNB Mainnet` -> `BNB Mainnet`
+- 
+
 
 ---
 
