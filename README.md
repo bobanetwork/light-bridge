@@ -115,12 +115,19 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ## Supported routes
 
 ### BOBA
-- `BOBA BNB Mainnet` -> `BNB Mainnet`
-- `BOBA BNB Mainnet` -> `BOBA ETH Mainnet`
+- `BOBA BNB Mainnet` <-> `BNB Mainnet`
+- `BOBA BNB Mainnet` <-> `BOBA ETH Mainnet`
+- `ETH Mainnet` <-> `BOBA ETH Mainnet`
+- `BOBA ETH Mainnet` <-> `BNB Mainnet`
 
 ### BNB
-- `BOBA BNB Mainnet` -> `BNB Mainnet`
-- 
+- `BOBA BNB Mainnet` <-> `BNB Mainnet`
+
+### ETH
+- `Arbitrum Mainnet` -> `BOBA ETH Mainnet`
+- `Optimism Mainnet` -> `BOBA ETH Mainnet`
+- `ETH Mainnet` <-> `BOBA ETH Mainnet`
+
 
 
 ---
