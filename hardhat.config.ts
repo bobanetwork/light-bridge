@@ -48,6 +48,22 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       url: 'https://ethereum-sepolia.publicnode.com',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
+    arb_goerli: {
+      url: 'https://arbitrum-goerli-rpc.publicnode.com',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
+    bsc_testnet: {
+      url: 'https://bsc-testnet.blockpi.network/v1/rpc/public',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
+    boba_bnb_testnet: {
+      url: 'https://boba-bnb-testnet.gateway.tenderly.co',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
+    op_goerli: {
+      url: 'https://optimism-goerli-rpc.publicnode.com',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
     boba_goerli: {
       url: 'https://goerli.boba.network',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
