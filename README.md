@@ -62,6 +62,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Boba ETH Mainnet
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 - Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
+- Owner transferred to multisig `0x1C03e7e6db3174f0C68b245FF8c81e9Cfa1EE2e0` [Tx](https://bobascan.com/tx/0x5003543d7cd1ce7748883343dba5f3db55ec2e8493d1f88acd5f17ebd0ad9775)
 
 ### BSC Mainnet
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
