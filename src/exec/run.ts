@@ -45,7 +45,7 @@ const main = async () => {
   const networkMode = config.str(
     'teleportation-network-mode',
     env.LIGHTBRIDGE_MODE
-  )
+  )?.toLowerCase()
 
   // This private key is used to send funds to the contract and initiate the tx,
   // so it should have enough BOBA balance
@@ -103,7 +103,7 @@ const main = async () => {
   }
   const baseOpts: Omit<ILightBridgeOpts, 'rpcUrl'> = {
     networkMode:
-      networkMode?.toLowerCase() === ENetworkMode.TESTNETS
+      networkMode === ENetworkMode.TESTNETS
         ? ENetworkMode.TESTNETS
         : ENetworkMode.MAINNETS,
     blockRangePerPolling,
