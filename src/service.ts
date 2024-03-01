@@ -72,6 +72,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     depositTeleportations: DepositTeleportations[]
     // AWS KMS Signer for disburser key, ..
     KMSSigner: KMSSigner
+    disburserAddress: string
   } = {} as any
 
   protected async _init(): Promise<void> {
@@ -108,6 +109,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract ${disburserAddress}`
       )
     }
+    this.state.disburserAddress = kmsSignerAddress;
+
     this.logger.info('Got disburser: ', {
       address: disburserAddress,
       serviceChainId: this.options.chainId,
@@ -366,18 +369,24 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             const contract = getContractFactory('L2StandardERC20').attach(
               token[0]
             )
-            const approveTxUnsigned =
-              await contract.populateTransaction.approve(
-                this.state.Teleportation.address,
-                token[1]
+            const approvedAmount: BigNumber = await contract.allowance(this.state.disburserAddress, this.state.Teleportation.address)
+
+            if (approvedAmount.gte(token[1])) {
+              const approveTxUnsigned =
+                  await contract.populateTransaction.approve(
+                      this.state.Teleportation.address,
+                      ethers.constants.MaxUint256
+                  )
+              const approveTx = await this.state.KMSSigner.sendTxViaKMS(
+                  this.state.Teleportation.provider,
+                  token[0],
+                  BigNumber.from('0'),
+                  approveTxUnsigned
               )
-            const approveTx = await this.state.KMSSigner.sendTxViaKMS(
-              this.state.Teleportation.provider,
-              token[0],
-              BigNumber.from('0'),
-              approveTxUnsigned
-            )
-            approvePending.push(approveTx.wait())
+              approvePending.push(approveTx.wait())
+            } else {
+              this.logger.info(`Not triggering new approve function, since already approved: ${approvedAmount} for token ${token[0]}`)
+            }
           }
         }
         await Promise.all(approvePending)
