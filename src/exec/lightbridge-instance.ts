@@ -18,7 +18,7 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
         err
       )
     }
-    await delay(30000)
+    await delay(opts.retryIntervalMs ?? 30000)
   }
 }
 

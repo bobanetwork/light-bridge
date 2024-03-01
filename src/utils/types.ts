@@ -68,6 +68,7 @@ export interface ILightBridgeOpts {
     mainNetwork: ChainInfo
     selectedBobaNetworks: ChainInfo[]
   }
+  retryIntervalMs?: number
 }
 
 export interface IAirdropConfig {
