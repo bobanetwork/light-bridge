@@ -439,7 +439,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         )
       }
     } catch (e) {
-      this.logger.error(e, { serviceChainId: this.options.chainId })
+      this.logger.error(`Disbursement failed: `, { errorMsg: e?.message, e, serviceChainId: this.options.chainId })
     }
   }
 
@@ -448,7 +448,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     // prefer override via opts, right now just used for tests but might be set via env again in future
     return (
       this.options.airdropConfig ??
-      BobaChains[this.options.chainId].airdropConfig
+      BobaChains[this.options.chainId]?.airdropConfig
     )
   }
 
