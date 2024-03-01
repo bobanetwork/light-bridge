@@ -28,7 +28,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-describe.only('lightbridge', () => {
+describe('lightbridge', () => {
   let providerUrl: string
   let provider: providers.JsonRpcProvider
   let signer: Signer

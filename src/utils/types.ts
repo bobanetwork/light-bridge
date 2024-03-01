@@ -67,7 +67,7 @@ export interface ILightBridgeOpts {
   localNetworks?: {
     mainNetwork: ChainInfo
     selectedBobaNetworks: ChainInfo[]
-  },
+  }
   retryIntervalMs?: number
 }
 

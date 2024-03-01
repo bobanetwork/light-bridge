@@ -79,9 +79,9 @@ const main = async () => {
     parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000
   )
   const retryIntervalMs = config.uint(
-      'retry-interval-ms',
-      parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 30_000
-      )
+    'retry-interval-ms',
+    parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 30_000
+  )
 
   // only for testing (integration tests, otherwise real networks are being used)
   const localNetworks = env.__LOCAL_NETWORKS
