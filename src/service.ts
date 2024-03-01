@@ -17,6 +17,8 @@ import { BaseService } from '@eth-optimism/common-ts'
 import { getContractFactory } from '@bobanetwork/core_contracts'
 import { getBobaContractAt } from '@bobanetwork/contracts'
 
+import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
+
 /* Imports: Interface */
 import {
   AssetReceivedEvent,
@@ -109,7 +111,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract ${disburserAddress}`
       )
     }
-    this.state.disburserAddress = kmsSignerAddress;
+    this.state.disburserAddress = kmsSignerAddress
 
     this.logger.info('Got disburser: ', {
       address: disburserAddress,
@@ -366,26 +368,26 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           if (token[0] === ethersConstants.AddressZero) {
             nativeValue = nativeValue.add(token[1])
           } else {
-            const contract = getContractFactory('L2StandardERC20').attach(
-              token[0]
-            )
-            const approvedAmount: BigNumber = await contract.allowance(this.state.disburserAddress, this.state.Teleportation.address)
+            const contract = new Contract(token[0], L1ERC20Json.abi).connect(this.state.Teleportation.provider) // getContractFactory('L1ERC20').attach(token[0])
+            const approvedAmount = await contract.allowance(this.state.disburserAddress, this.state.Teleportation.address);
 
-            if (approvedAmount.gte(token[1])) {
+            if (approvedAmount.lt(token[1])) {
               const approveTxUnsigned =
-                  await contract.populateTransaction.approve(
-                      this.state.Teleportation.address,
-                      ethers.constants.MaxUint256
-                  )
+                await contract.populateTransaction.approve(
+                  this.state.Teleportation.address,
+                  ethers.constants.MaxUint256
+                )
               const approveTx = await this.state.KMSSigner.sendTxViaKMS(
-                  this.state.Teleportation.provider,
-                  token[0],
-                  BigNumber.from('0'),
-                  approveTxUnsigned
+                this.state.Teleportation.provider,
+                token[0],
+                BigNumber.from('0'),
+                approveTxUnsigned
               )
               approvePending.push(approveTx.wait())
             } else {
-              this.logger.info(`Not triggering new approve function, since already approved: ${approvedAmount} for token ${token[0]}`)
+              this.logger.info(
+                `Not triggering new approve function, since already approved: ${approvedAmount} for token ${token[0]}`
+              )
             }
           }
         }
