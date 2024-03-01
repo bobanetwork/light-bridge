@@ -5,7 +5,6 @@ import { LightBridgeService } from '../service'
 import { delay } from '../utils/misc.utils'
 
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
-
   while (true) {
     try {
       console.log(
@@ -50,8 +49,8 @@ const runService = async (opts: ILightBridgeOpts) => {
   } else {
     const isTestnet = BobaChains[chainId].testnet
     if (
-        (isTestnet && networkMode === ENetworkMode.MAINNETS) ||
-        (!isTestnet && networkMode === ENetworkMode.TESTNETS)
+      (isTestnet && networkMode === ENetworkMode.MAINNETS) ||
+      (!isTestnet && networkMode === ENetworkMode.TESTNETS)
     ) {
       throw new Error('FATAL error: Network Mode and chainConfig do not match!')
     }
@@ -82,11 +81,11 @@ const runService = async (opts: ILightBridgeOpts) => {
     blockRangePerPolling: blockRangePerPolling,
     awsConfig: {
       awsKmsAccessKey: envModeIsDevelopment
-          ? awsKmsConfig.awsKmsAccessKey
-          : null,
+        ? awsKmsConfig.awsKmsAccessKey
+        : null,
       awsKmsSecretKey: envModeIsDevelopment
-          ? awsKmsConfig.awsKmsSecretKey
-          : null,
+        ? awsKmsConfig.awsKmsSecretKey
+        : null,
       awsKmsKeyId: awsKmsConfig.awsKmsKeyId,
       awsKmsRegion: awsKmsConfig.awsKmsRegion,
       awsKmsEndpoint: envModeIsDevelopment ? awsKmsConfig.awsKmsEndpoint : null,

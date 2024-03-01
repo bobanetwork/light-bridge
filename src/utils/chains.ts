@@ -274,7 +274,7 @@ export const BobaChains: IBobaChains = {
   97: {
     url:
       process.env.LIGHTBRIDGE_RPC_BNBTESTNET ??
-      'https://api.zan.top/node/v1/bsc/testnet/public',
+      'https://bsc-testnet-rpc.publicnode.com',
     testnet: true,
     layer: EAirdropSource.PROHIBIT,
     name: 'BNB Testnet',
