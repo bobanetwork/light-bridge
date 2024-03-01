@@ -9,20 +9,21 @@ Example: `npx hardhat run ./deploy/transfer-ownership.ts --network boba_goerli`
 
 All configuration is done via environment variables. See all variables at [.env.example](.env.example); copy into a `.env` file before running.
 
-|                                         | Description                                        | Default         |
-|-----------------------------------------|----------------------------------------------------|-----------------|
-| LIGHTBRIDGE_REJECT_UNAUTHORIZED         | Allows self-signed certificates if false (TypeORM) | true            |
-| LIGHTBRIDGE_DISBURSER_KEY               | The pk of disburser                                |                 |
-| LIGHTBRIDGE_POLLING_INTERVAL            | The polling interval of fetching events            | 60s             |
-| LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING     | The blcock range of each polling                   | 1000            |
-| LIGHTBRIDGE_POSTGRES_CONNECT_TIMEOUT_MS | DB connect timeout in ms                           | Typeorm default |
-| LIGHTBRIDGE_POSTGRES_PASSWORD           | The database password                              | abcdef          |
-| LIGHTBRIDGE_POSTGRES_DB_HOST            | The database host                                  | LIGHTBRIDGE_db  |
-| LIGHTBRIDGE_POSTGRES_DB                 | The database name                                  | postgres        |
-| LIGHTBRIDGE_POSTGRES_PORT               | The database port                                  | 5432            |
-| LIGHTBRIDGE_POSTGRES_USER               | The database user                                  | postgres        |
-| LIGHTBRIDGE_MODE                        | Which rpcUrls to use? testnets or mainnets         | testnets        |
-| LIGHTBRIDGE_ENV                         | The environment mode (dev or prod)                 | dev             |
+|                                         | Description                                              | Default             |
+|-----------------------------------------|----------------------------------------------------------|---------------------|
+| LIGHTBRIDGE_REJECT_UNAUTHORIZED         | Allows self-signed certificates if false (TypeORM)       | true                |
+| LIGHTBRIDGE_DISBURSER_KEY               | The pk of disburser                                      |                     |
+| LIGHTBRIDGE_POLLING_INTERVAL            | The polling interval of fetching events                  | 60s                 |
+| LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING     | The blcock range of each polling                         | 1000                |
+| LIGHTBRIDGE_POSTGRES_CONNECT_TIMEOUT_MS | DB connect timeout in ms                                 | Typeorm default     |
+| LIGHTBRIDGE_RETRY_INTERVAL_MS           | Lightbridge retry interval ms in error cases per service | 30_000 milliseconds |
+| LIGHTBRIDGE_POSTGRES_PASSWORD           | The database password                                    | abcdef              |
+| LIGHTBRIDGE_POSTGRES_DB_HOST            | The database host                                        | LIGHTBRIDGE_db      |
+| LIGHTBRIDGE_POSTGRES_DB                 | The database name                                        | postgres            |
+| LIGHTBRIDGE_POSTGRES_PORT               | The database port                                        | 5432                |
+| LIGHTBRIDGE_POSTGRES_USER               | The database user                                        | postgres            |
+| LIGHTBRIDGE_MODE                        | Which rpcUrls to use? testnets or mainnets               | testnets            |
+| LIGHTBRIDGE_ENV                         | The environment mode (dev or prod)                       | dev                 |
 
 ## Building & Running
 
