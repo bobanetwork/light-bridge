@@ -368,8 +368,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           if (token[0] === ethersConstants.AddressZero) {
             nativeValue = nativeValue.add(token[1])
           } else {
-            const contract = new Contract(token[0], L1ERC20Json.abi).connect(this.state.Teleportation.provider) // getContractFactory('L1ERC20').attach(token[0])
-            const approvedAmount = await contract.allowance(this.state.disburserAddress, this.state.Teleportation.address);
+            const contract = new Contract(token[0], L1ERC20Json.abi).connect(
+              this.state.Teleportation.provider
+            ) // getContractFactory('L1ERC20').attach(token[0])
+            const approvedAmount = await contract.allowance(
+              this.state.disburserAddress,
+              this.state.Teleportation.address
+            )
 
             if (approvedAmount.lt(token[1])) {
               const approveTxUnsigned =

@@ -30,7 +30,7 @@ import { delay } from '../src/utils/misc.utils'
 
 dotenv.config()
 
-describe.only('lightbridge', () => {
+describe('lightbridge', () => {
   let providerUrl: string
   let provider: providers.JsonRpcProvider
   let signer: Signer
