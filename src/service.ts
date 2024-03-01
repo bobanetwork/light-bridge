@@ -429,17 +429,17 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       if (this.getAirdropConfig()?.airdropEnabled) {
         await this._airdropGas(disbursement, latestBlock)
       } else {
-        this.logger.warn('issue airdrop: ', {
-          configTest: this.getAirdropConfig() ?? { empty: true },
-          test: 'hello',
-        })
         this.logger.info(
           `Gas airdrop is disabled on chainId: ${this.options.chainId}.`,
           { serviceChainId: this.options.chainId }
         )
       }
     } catch (e) {
-      this.logger.error(`Disbursement failed: `, { errorMsg: e?.message, e, serviceChainId: this.options.chainId })
+      this.logger.error(`Disbursement failed: `, {
+        errorMsg: e?.message,
+        e,
+        serviceChainId: this.options.chainId,
+      })
     }
   }
 
