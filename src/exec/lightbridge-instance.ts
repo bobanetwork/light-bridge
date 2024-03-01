@@ -2,9 +2,28 @@ import { providers } from 'ethers'
 import { BobaChains } from '../utils/chains'
 import { ENetworkMode, ILightBridgeOpts, SupportedAssets } from '../utils/types'
 import { LightBridgeService } from '../service'
-import {delay} from "../utils/misc.utils";
+import { delay } from '../utils/misc.utils'
 
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
+
+  while (true) {
+    try {
+      console.log(
+        `Starting up new Lightbridge instance for ${opts.rpcUrl} (rpcUrl), ${opts.envModeIsDevelopment} (envMode), ${opts.networkMode} (networkMode).`
+      )
+      await runService(opts)
+    } catch (err) {
+      console.error(
+        `Lightbridge instance failed for ${opts.rpcUrl} (rpcUrl), ${opts.envModeIsDevelopment} (envMode), ${opts.networkMode} (networkMode). Retrying in 30 seconds`,
+        err?.message,
+        err
+      )
+    }
+    await delay(30000)
+  }
+}
+
+const runService = async (opts: ILightBridgeOpts) => {
   const {
     rpcUrl,
     networkMode,
@@ -31,8 +50,8 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   } else {
     const isTestnet = BobaChains[chainId].testnet
     if (
-      (isTestnet && networkMode === ENetworkMode.MAINNETS) ||
-      (!isTestnet && networkMode === ENetworkMode.TESTNETS)
+        (isTestnet && networkMode === ENetworkMode.MAINNETS) ||
+        (!isTestnet && networkMode === ENetworkMode.TESTNETS)
     ) {
       throw new Error('FATAL error: Network Mode and chainConfig do not match!')
     }
@@ -63,24 +82,15 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
     blockRangePerPolling: blockRangePerPolling,
     awsConfig: {
       awsKmsAccessKey: envModeIsDevelopment
-        ? awsKmsConfig.awsKmsAccessKey
-        : null,
+          ? awsKmsConfig.awsKmsAccessKey
+          : null,
       awsKmsSecretKey: envModeIsDevelopment
-        ? awsKmsConfig.awsKmsSecretKey
-        : null,
+          ? awsKmsConfig.awsKmsSecretKey
+          : null,
       awsKmsKeyId: awsKmsConfig.awsKmsKeyId,
       awsKmsRegion: awsKmsConfig.awsKmsRegion,
       awsKmsEndpoint: envModeIsDevelopment ? awsKmsConfig.awsKmsEndpoint : null,
     },
   })
-
-  while (true) {
-    try {
-      console.log(`Starting up new Lightbridge instance for ${chainId} (chainId), ${l2RpcProvider} (provider).`)
-      await service.start()
-    } catch (err) {
-      console.error(`Lightbridge instance failed for ${chainId} (chainId), ${l2RpcProvider} (provider). Retrying in 30 seconds`, err?.message, err)
-    }
-    await delay(30000)
-  }
+  await service.start()
 }
