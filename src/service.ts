@@ -334,7 +334,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         // Catch outside loop to stop at first failing depositID as all subsequent disbursements as depositId = amountDisbursements and would fail when disbursing
         this.logger.error(`Fatal disbursement error: `, {
           errorMsg: e?.message,
-          err: e,
+          err: JSON.stringify(e),
           serviceChainId: this.options.chainId,
         })
       }
@@ -445,7 +445,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     } catch (e) {
       this.logger.error(`Disbursement failed: `, {
         errorMsg: e?.message,
-        e,
+        err: JSON.stringify(e),
         serviceChainId: this.options.chainId,
       })
     }

@@ -188,7 +188,7 @@ export class KMSSigner {
 
     // if defined, then supports 1559
     const feeDataGasPrice = await provider.getFeeData()
-    const supportsEIP1559 = !!feeDataGasPrice.maxFeePerGas
+    const supportsEIP1559 = false // TODO: !!feeDataGasPrice.maxFeePerGas (BNB e.g. does support it, but library says not)
 
     const ethAddr = await this.getSignerAddr()
     const ethAddrHash = ethutil.keccak(Buffer.from(ethAddr))

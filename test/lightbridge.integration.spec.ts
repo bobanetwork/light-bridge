@@ -828,7 +828,7 @@ describe('lightbridge', () => {
         LightBridgeBNB,
         LightBridgeBNB.filters.AssetReceived(),
         preBlockNumber,
-        blockNumber+10
+        blockNumber + 10
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
