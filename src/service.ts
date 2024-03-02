@@ -319,8 +319,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
 
         if (disbursement?.length) {
-          // sort disbursement
-          disbursement = orderBy(disbursement, ['depositId'], ['asc'])
           // disbure the token but only if all disbursements could have been processed to avoid missing events due to updating the latestBlock
           await this._disburseTx(disbursement, depositChainId, latestBlock)
         } else {
@@ -349,6 +347,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     try {
       // build payload for the disbursement
       // the maximum number of disbursement is 10
+      disbursement = await this.filterForNewDisbursements(disbursement) // filter for latest depositId for DB recovery
+      // sort disbursement
+      disbursement = orderBy(disbursement, ['depositId'], ['asc'])
+
       const numberOfDisbursement = disbursement.length
       let sliceStart = 0
       let sliceEnd = numberOfDisbursement > 10 ? 10 : numberOfDisbursement
@@ -450,6 +452,36 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       })
     }
   }
+
+  /** @dev When the database state gets lost for some reason, the service needs to be able to pick the latest depositId up */
+  private filterForNewDisbursements = async (disbursements: Disbursement[]): Promise<Disbursement[]> => {
+    // totalDisbursements[sourceChainId]
+    const nextDepositIds: {[sourceChainId: number]: number} = {}
+    return disbursements.filter(async d => {
+      if (!nextDepositIds[d.sourceChainId]) {
+        // load into mapping if not yet done
+        nextDepositIds[d.sourceChainId] = await this.state.Teleportation.totalDisbursements(d.sourceChainId)
+      }
+      // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
+      return d.depositId >= nextDepositIds[d.sourceChainId]
+    })
+  }
+
+  /*todo private retryNativeDisbursement = async (depositIds: number[]) => {
+    // totalDisbursements[_sourceChainId]
+    const disburseTxUnsigned =
+        await this.state.Teleportation.populateTransaction.retryDisburseNative(
+            depositIds,
+            { value: nativeValue }
+        )
+    const disburseTx = await this.state.KMSSigner.sendTxViaKMS(
+        this.state.Teleportation.provider,
+        this.state.Teleportation.address,
+        nativeValue,
+        disburseTxUnsigned
+    )
+    await disburseTx.wait()
+  }*/
 
   /** @dev Helper function to read airdropConfig for current service from bobaChains config. */
   private getAirdropConfig = (): IAirdropConfig => {
