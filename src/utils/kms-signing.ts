@@ -200,7 +200,9 @@ export class KMSSigner {
       ethAddr,
       supportsEIP1559
     )
-    console.log(`Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`)
+    console.log(
+      `Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`
+    )
 
     const chainId = (await provider.getNetwork()).chainId
 
@@ -292,7 +294,11 @@ export class KMSSigner {
       .toBuffer()
       .toString('hex')
 
-    console.log(`Checking sender address for KMS disburser: `, senderAddr, recoveredPubAddr?.pubKey)
+    console.log(
+      `Checking sender address for KMS disburser: `,
+      senderAddr,
+      recoveredPubAddr?.pubKey
+    )
     if (`0x${senderAddr}` !== recoveredPubAddr.pubKey) {
       throw new Error(
         'Signature invalid, recovered this sender address: ' + senderAddr

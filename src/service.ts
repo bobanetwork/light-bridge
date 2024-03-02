@@ -332,7 +332,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
       } catch (e) {
         // Catch outside loop to stop at first failing depositID as all subsequent disbursements as depositId = amountDisbursements and would fail when disbursing
-        this.logger.error(`Fatal disbursement error: `, { errorMsg: e?.message, err: e, serviceChainId: this.options.chainId })
+        this.logger.error(`Fatal disbursement error: `, {
+          errorMsg: e?.message,
+          err: e,
+          serviceChainId: this.options.chainId,
+        })
       }
     }
   }
@@ -413,7 +417,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
         sliceStart = sliceEnd
         sliceEnd = Math.min(sliceEnd + 10, numberOfDisbursement)
-        this.logger.debug(`Disbursement Slice disbursed: `, {disburseTx: disburseTx?.hash, chainId: disburseTx?.chainId})
+        this.logger.debug(`Disbursement Slice disbursed: `, {
+          disburseTx: disburseTx?.hash,
+          chainId: disburseTx?.chainId,
+        })
       }
       this.logger.info(
         `Disbursement successful - serviceChainId: ${
