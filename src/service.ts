@@ -467,18 +467,23 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         disbursement: d,
         sourceChain: d.sourceChainId,
         nextDepositIds,
+        depositIdLoaded: d.sourceChainId in nextDepositIds,
+        depositIdLoaded2: nextDepositIds[d.sourceChainId],
       })
-      if (!nextDepositIds[d.sourceChainId]) {
+      if (!(d.sourceChainId in nextDepositIds)) {
         // load into mapping if not yet done
+        this.logger.info(`nextDepositId not yet loaded for sourceChainId: `, {sourceChainId: d.sourceChainId})
         nextDepositIds[d.sourceChainId] =
           await this.state.Teleportation.totalDisbursements(d.sourceChainId)
       }
+      this.logger.info(`Filter iteration END: next deposit id: `, {nextDepositIds, sourceChainId: d.sourceChainId})
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
     this.logger.info(`Filtered disbursements for db recovery: `, {
       disbursements,
       nextDepositIdsKeys: Object.keys(nextDepositIds),
+      nextDepositIds,
     })
 
     for (const sourceChainId of Object.keys(nextDepositIds)) {
