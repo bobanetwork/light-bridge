@@ -459,7 +459,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   ): Promise<Disbursement[]> => {
     // totalDisbursements[sourceChainId]
     const nextDepositIds: { [sourceChainId: number]: number } = {}
+    this.logger.debug(`Unfiltered disbursements for db recovery: `, {disbursements})
     disbursements = disbursements.filter(async (d) => {
+      this.logger.debug(`Filter iteration for new disbursements (db recover)`, {disbursement: d, sourceChain: d.sourceChainId, nextDepositIds})
       if (!nextDepositIds[d.sourceChainId]) {
         // load into mapping if not yet done
         nextDepositIds[d.sourceChainId] =
@@ -468,9 +470,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
+    this.logger.debug(`Filtered disbursements for db recovery: `, {disbursements, nextDepositIdsKeys: Object.keys(nextDepositIds)})
 
     for (const sourceChainId of Object.keys(nextDepositIds)) {
-      const nextDisbursement = disbursements.find((d) => nextDepositIds[sourceChainId] === d.depositId)
+      const nextDisbursement = disbursements.find(
+        (d) => nextDepositIds[sourceChainId] === d.depositId
+      )
       if (!nextDisbursement) {
         this.logger.error(
           `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`
@@ -482,8 +487,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         this.logger.warn(
           `Deposit info has ben RESET back to block: ${BobaChains[sourceChainId].height} for chainId ${sourceChainId}`
         )
+        throw new Error('Could not recover DB state, service reset initiated..')
       } else {
-        this.logger.info(`Found correct disbursement to be used next: `, {nextDisbursement})
+        this.logger.info(`Found correct disbursement to be used next: `, {
+          nextDisbursement,
+        })
       }
     }
     return disbursements
