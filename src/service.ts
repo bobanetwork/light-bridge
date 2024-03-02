@@ -454,17 +454,29 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   /** @dev When the database state gets lost for some reason, the service needs to be able to pick the latest depositId up */
-  private filterForNewDisbursements = async (disbursements: Disbursement[]): Promise<Disbursement[]> => {
+  private filterForNewDisbursements = async (
+    disbursements: Disbursement[]
+  ): Promise<Disbursement[]> => {
     // totalDisbursements[sourceChainId]
-    const nextDepositIds: {[sourceChainId: number]: number} = {}
-    return disbursements.filter(async d => {
+    const nextDepositIds: { [sourceChainId: number]: number } = {}
+    disbursements = disbursements.filter(async (d) => {
       if (!nextDepositIds[d.sourceChainId]) {
         // load into mapping if not yet done
-        nextDepositIds[d.sourceChainId] = await this.state.Teleportation.totalDisbursements(d.sourceChainId)
+        nextDepositIds[d.sourceChainId] =
+          await this.state.Teleportation.totalDisbursements(d.sourceChainId)
       }
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
+
+    for (const sourceChainId of Object.keys(nextDepositIds)) {
+      if (!disbursements.find(d => nextDepositIds[sourceChainId] === d.depositId)) {
+        this.logger.error(`Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`)
+        await this._putDepositInfo(sourceChainId, BobaChains[sourceChainId].height);
+        this.logger.warn(`Deposit info has ben RESET back to block: ${BobaChains[sourceChainId].height} for chainId ${sourceChainId}`)
+      }
+    }
+    return disbursements
   }
 
   /*todo private retryNativeDisbursement = async (depositIds: number[]) => {
