@@ -396,7 +396,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
               )
               approvePending.push(approveTx.wait())
             } else {
-              this.logger.debug(
+              this.logger.info(
                 `Not triggering new approve function, since already approved: ${approvedAmount} for token ${token[0]}`
               )
             }
@@ -419,7 +419,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
         sliceStart = sliceEnd
         sliceEnd = Math.min(sliceEnd + 10, numberOfDisbursement)
-        this.logger.debug(`Disbursement Slice disbursed: `, {
+        this.logger.info(`Disbursement Slice disbursed: `, {
           disburseTx: disburseTx?.hash,
           chainId: disburseTx?.chainId,
         })
@@ -459,9 +459,15 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   ): Promise<Disbursement[]> => {
     // totalDisbursements[sourceChainId]
     const nextDepositIds: { [sourceChainId: number]: number } = {}
-    this.logger.debug(`Unfiltered disbursements for db recovery: `, {disbursements})
+    this.logger.info(`Unfiltered disbursements for db recovery: `, {
+      disbursements,
+    })
     disbursements = disbursements.filter(async (d) => {
-      this.logger.debug(`Filter iteration for new disbursements (db recover)`, {disbursement: d, sourceChain: d.sourceChainId, nextDepositIds})
+      this.logger.info(`Filter iteration for new disbursements (db recover)`, {
+        disbursement: d,
+        sourceChain: d.sourceChainId,
+        nextDepositIds,
+      })
       if (!nextDepositIds[d.sourceChainId]) {
         // load into mapping if not yet done
         nextDepositIds[d.sourceChainId] =
@@ -470,7 +476,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
-    this.logger.debug(`Filtered disbursements for db recovery: `, {disbursements, nextDepositIdsKeys: Object.keys(nextDepositIds)})
+    this.logger.info(`Filtered disbursements for db recovery: `, {
+      disbursements,
+      nextDepositIdsKeys: Object.keys(nextDepositIds),
+    })
 
     for (const sourceChainId of Object.keys(nextDepositIds)) {
       const nextDisbursement = disbursements.find(
