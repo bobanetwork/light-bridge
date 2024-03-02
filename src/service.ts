@@ -332,7 +332,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
       } catch (e) {
         // Catch outside loop to stop at first failing depositID as all subsequent disbursements as depositId = amountDisbursements and would fail when disbursing
-        this.logger.error(e.message, { serviceChainId: this.options.chainId })
+        this.logger.error(`Fatal disbursement error: `, { errorMsg: e?.message, err: e, serviceChainId: this.options.chainId })
       }
     }
   }
@@ -370,7 +370,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           } else {
             const contract = new Contract(token[0], L1ERC20Json.abi).connect(
               this.state.Teleportation.provider
-            ) // getContractFactory('L1ERC20').attach(token[0])
+            ) // getContractFactory('L2StandardERC20').attach(token[0])
             const approvedAmount = await contract.allowance(
               this.state.disburserAddress,
               this.state.Teleportation.address
@@ -390,7 +390,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
               )
               approvePending.push(approveTx.wait())
             } else {
-              this.logger.info(
+              this.logger.debug(
                 `Not triggering new approve function, since already approved: ${approvedAmount} for token ${token[0]}`
               )
             }
@@ -413,6 +413,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
         sliceStart = sliceEnd
         sliceEnd = Math.min(sliceEnd + 10, numberOfDisbursement)
+        this.logger.debug(`Disbursement Slice disbursed: `, {disburseTx: disburseTx?.hash, chainId: disburseTx?.chainId})
       }
       this.logger.info(
         `Disbursement successful - serviceChainId: ${

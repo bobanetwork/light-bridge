@@ -200,6 +200,7 @@ export class KMSSigner {
       ethAddr,
       supportsEIP1559
     )
+    console.log(`Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`)
 
     const chainId = (await provider.getNetwork()).chainId
 
@@ -214,6 +215,7 @@ export class KMSSigner {
       data: Buffer.from(unsignedTx.data.slice('0x'.length), 'hex'),
     }
 
+    console.log(`Building disbursementTx..`, chainId, baseTxObj?.nonce)
     let tx: Transaction | FeeMarketEIP1559Transaction
 
     if (supportsEIP1559) {
@@ -274,6 +276,8 @@ export class KMSSigner {
     const s = sig.s.toBuffer()
     const v = new BN(recoveredPubAddr.v).toBuffer()
 
+    console.log(`Sending raw KMS tx..`, recoveredPubAddr.pubKey)
+
     const signedTx: Transaction | FeeMarketEIP1559Transaction = supportsEIP1559
       ? new FeeMarketEIP1559Transaction({
           ...(tx as FeeMarketEIP1559Transaction),
@@ -288,6 +292,7 @@ export class KMSSigner {
       .toBuffer()
       .toString('hex')
 
+    console.log(`Checking sender address for KMS disburser: `, senderAddr, recoveredPubAddr?.pubKey)
     if (`0x${senderAddr}` !== recoveredPubAddr.pubKey) {
       throw new Error(
         'Signature invalid, recovered this sender address: ' + senderAddr
