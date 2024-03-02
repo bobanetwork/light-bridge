@@ -458,11 +458,15 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     disbursements: Disbursement[]
   ): Promise<Disbursement[]> => {
     // totalDisbursements[sourceChainId]
-    const nextDepositIds: { [sourceChainId: number]: number } = {}
+    const nextDepositIds: { [sourceChainId: number]: BigNumber } = {};
+    await Promise.all(disbursements.map(async d => {
+      nextDepositIds[d.sourceChainId as number] = await this.state.Teleportation.totalDisbursements(d.sourceChainId);
+    }));
     this.logger.info(`Unfiltered disbursements for db recovery: `, {
       disbursements,
     })
-    disbursements = disbursements.filter(async (d) => {
+    disbursements = disbursements.filter((d) => {
+      // NOTE: Filter does not work with async, since a Promise object always gets interpreted as true
       this.logger.info(`Filter iteration for new disbursements (db recover)`, {
         disbursement: d,
         sourceChain: d.sourceChainId,
@@ -470,13 +474,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         depositIdLoaded: d.sourceChainId in nextDepositIds,
         depositIdLoaded2: nextDepositIds[d.sourceChainId],
       })
-      if (!(d.sourceChainId in nextDepositIds)) {
-        // load into mapping if not yet done
-        this.logger.info(`nextDepositId not yet loaded for sourceChainId: `, {sourceChainId: d.sourceChainId})
-        nextDepositIds[d.sourceChainId] =
-          await this.state.Teleportation.totalDisbursements(d.sourceChainId)
-      }
-      this.logger.info(`Filter iteration END: next deposit id: `, {nextDepositIds, sourceChainId: d.sourceChainId})
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
