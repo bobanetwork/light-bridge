@@ -470,10 +470,20 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     })
 
     for (const sourceChainId of Object.keys(nextDepositIds)) {
-      if (!disbursements.find(d => nextDepositIds[sourceChainId] === d.depositId)) {
-        this.logger.error(`Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`)
-        await this._putDepositInfo(sourceChainId, BobaChains[sourceChainId].height);
-        this.logger.warn(`Deposit info has ben RESET back to block: ${BobaChains[sourceChainId].height} for chainId ${sourceChainId}`)
+      const nextDisbursement = disbursements.find((d) => nextDepositIds[sourceChainId] === d.depositId)
+      if (!nextDisbursement) {
+        this.logger.error(
+          `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`
+        )
+        await this._putDepositInfo(
+          sourceChainId,
+          BobaChains[sourceChainId].height
+        )
+        this.logger.warn(
+          `Deposit info has ben RESET back to block: ${BobaChains[sourceChainId].height} for chainId ${sourceChainId}`
+        )
+      } else {
+        this.logger.info(`Found correct disbursement to be used next: `, {nextDisbursement})
       }
     }
     return disbursements
