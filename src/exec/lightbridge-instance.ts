@@ -6,17 +6,20 @@ import { delay } from '../utils/misc.utils'
 
 export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   while (true) {
+    let service: LightBridgeService
     try {
       console.log(
         `Starting up new Lightbridge instance for ${opts.rpcUrl} (rpcUrl), ${opts.envModeIsDevelopment} (envMode), ${opts.networkMode} (networkMode).`
       )
-      await runService(opts)
+      service = await runService(opts)
     } catch (err) {
       console.error(
         `Lightbridge instance failed for ${opts.rpcUrl} (rpcUrl), ${opts.envModeIsDevelopment} (envMode), ${opts.networkMode} (networkMode). Retrying in 30 seconds`,
         err?.message,
         err
       )
+    } finally {
+      await service.stop()
     }
     await delay(opts.retryIntervalMs ?? 120000)
   }
@@ -92,4 +95,5 @@ const runService = async (opts: ILightBridgeOpts) => {
     },
   })
   await service.start()
+  return service;
 }

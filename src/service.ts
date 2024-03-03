@@ -18,6 +18,7 @@ import { getContractFactory } from '@bobanetwork/core_contracts'
 import { getBobaContractAt } from '@bobanetwork/contracts'
 
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
+import LightBridgeABI from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
 
 /* Imports: Interface */
 import {
@@ -87,11 +88,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       process.env.LIGHTBRIDGE_ENV?.toLowerCase() === 'dev'
     )
 
-    this.state.Teleportation = await getBobaContractAt(
+    this.state.Teleportation = new Contract(this.options.teleportationAddress, LightBridgeABI.abi, this.options.l2RpcProvider) /*await getBobaContractAt(
       'Teleportation',
       this.options.teleportationAddress,
       this.options.l2RpcProvider
-    )
+    )*/
 
     this.logger.info('Connected to Teleportation', {
       address: this.state.Teleportation.address,
@@ -458,10 +459,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     disbursements: Disbursement[]
   ): Promise<Disbursement[]> => {
     // totalDisbursements[sourceChainId]
-    const nextDepositIds: { [sourceChainId: number]: BigNumber } = {};
-    await Promise.all(disbursements.map(async d => {
-      nextDepositIds[d.sourceChainId as number] = await this.state.Teleportation.totalDisbursements(d.sourceChainId);
-    }));
+    const nextDepositIds: { [sourceChainId: number]: string } = {}
+    await Promise.all(
+      disbursements.map(async (d) => {
+        nextDepositIds[d.sourceChainId as number] =
+            (await this.state.Teleportation.totalDisbursements(d.sourceChainId.toString()))?.toString()
+      })
+    )
     this.logger.info(`Unfiltered disbursements for db recovery: `, {
       disbursements,
     })
@@ -485,7 +489,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
     for (const sourceChainId of Object.keys(nextDepositIds)) {
       const nextDisbursement = disbursements.find(
-        (d) => nextDepositIds[sourceChainId] === d.depositId
+        (d) => nextDepositIds[sourceChainId] === d.depositId.toString()
       )
       if (!nextDisbursement) {
         this.logger.error(
