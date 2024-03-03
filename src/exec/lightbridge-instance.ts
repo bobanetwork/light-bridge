@@ -95,5 +95,5 @@ const runService = async (opts: ILightBridgeOpts) => {
     },
   })
   await service.start()
-  return service;
+  return service
 }

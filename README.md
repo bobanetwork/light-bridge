@@ -95,7 +95,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Boba Sepolia
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
-- Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
+- Disburser transferred to AWS KMS managed wallet on 3 March 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
 - Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
 - No alerts set yet, since no Tenderly support available (14 Feb 2024)
 

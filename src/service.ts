@@ -88,7 +88,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       process.env.LIGHTBRIDGE_ENV?.toLowerCase() === 'dev'
     )
 
-    this.state.Teleportation = new Contract(this.options.teleportationAddress, LightBridgeABI.abi, this.options.l2RpcProvider) /*await getBobaContractAt(
+    this.state.Teleportation = new Contract(
+      this.options.teleportationAddress,
+      LightBridgeABI.abi,
+      this.options.l2RpcProvider
+    ) /*await getBobaContractAt(
       'Teleportation',
       this.options.teleportationAddress,
       this.options.l2RpcProvider
@@ -109,7 +113,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       disburserAddress.toLowerCase() !== kmsSignerAddress.toLowerCase()
     ) {
       throw new Error(
-        `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract ${disburserAddress}`
+        `Disburser wallet ${kmsSignerAddress} is not the disburser of the contract, disburser from contract: ${disburserAddress}`
       )
     }
     this.state.disburserAddress = kmsSignerAddress
@@ -462,8 +466,11 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     const nextDepositIds: { [sourceChainId: number]: string } = {}
     await Promise.all(
       disbursements.map(async (d) => {
-        nextDepositIds[d.sourceChainId as number] =
-            (await this.state.Teleportation.totalDisbursements(d.sourceChainId.toString()))?.toString()
+        nextDepositIds[d.sourceChainId as number] = (
+          await this.state.Teleportation.totalDisbursements(
+            d.sourceChainId.toString()
+          )
+        )?.toString()
       })
     )
     this.logger.info(`Unfiltered disbursements for db recovery: `, {
