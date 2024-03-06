@@ -71,6 +71,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### BSC Boba Mainnet
 - LightBridge deployed to: `0x45B9877497d73C683D38e0C7FfCf089D5D9FDCDf`
 - Proxy__LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
+- Disburser transferred on 06 March 2024 to AWS KMS managed key: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
 
 ## Testnet deployments
 
