@@ -1,6 +1,10 @@
 import { providers } from 'ethers'
 import { BobaChains } from '@bobanetwork/light-bridge-chains'
-import { ENetworkMode, ILightBridgeOpts, SupportedAssets } from '@bobanetwork/light-bridge-chains'
+import {
+  ENetworkMode,
+  ILightBridgeOpts,
+  SupportedAssets,
+} from '@bobanetwork/light-bridge-chains'
 import { LightBridgeService } from '../service'
 import { delay } from '../utils/misc.utils'
 

@@ -3,7 +3,13 @@ import * as dotenv from 'dotenv'
 import Config from 'bcfg'
 
 /* Imports: Config */
-import { BobaChains, IBobaChain, ChainInfo, ENetworkMode, ILightBridgeOpts } from '@bobanetwork/light-bridge-chains'
+import {
+  BobaChains,
+  IBobaChain,
+  ChainInfo,
+  ENetworkMode,
+  ILightBridgeOpts,
+} from '@bobanetwork/light-bridge-chains'
 
 /* Imports: Interface */
 import { AppDataSource } from '../data-source'

@@ -20,7 +20,11 @@ import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20
 /* Imports: Core */
 import { LightBridgeService } from '../src'
 import { AppDataSource, historyDataRepository } from '../src/data-source'
-import { Asset, EAirdropSource, ChainInfo } from '@bobanetwork/light-bridge-chains'
+import {
+  Asset,
+  EAirdropSource,
+  ChainInfo,
+} from '@bobanetwork/light-bridge-chains'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
 import { delay } from '../src/utils/misc.utils'
