@@ -33,7 +33,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_bnb_mainnet: {
-      url: 'https://gateway.tenderly.co/public/boba-bnb',
+      url: 'https://boba-bnb.gateway.tenderly.co/2AxEAq0m880KJmS2KicNRf',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_sepolia: {

@@ -36,10 +36,9 @@ All configuration is done via environment variables. See all variables at [.env.
 Connect to Postgres on CLI:
 `psql --username postgres -d postgres --password`
 
-
 ## Deployments
 
-Contract audited.
+Contract audited [here](https://github.com/bobanetwork/boba/blob/develop/boba_audits/Boba%20Network%202%20%26%203%20-%20Quantstamp%20Final%20Report.pdf).
 
 ## Wallets
 Make sure disbursers have enough liquidity in form of the native asset (such as ETH) and in form of supported tokens (such as BOBA).
@@ -51,6 +50,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Ethereum Mainnet (L1)
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+- Disburser transferred by Multisig to AWS KMS managed key: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
 - Owner transferred to multisig `0x56121a8612474C3eB65D69a3b871f284705b9bC4` [Tx](https://bobascan.com/tx/0xc42037c770cd88d73ee49c8daffc9c27da5f79d7d2fb0c6f307cc37a9bc850c1)
 
 ### Optimism Mainnet
@@ -64,6 +64,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Boba ETH Mainnet
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 - Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
+- Disburser transferred by Multisig to AWS KMS managed key: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
 - Owner transferred to multisig `0x1C03e7e6db3174f0C68b245FF8c81e9Cfa1EE2e0` [Tx](https://bobascan.com/tx/0x5003543d7cd1ce7748883343dba5f3db55ec2e8493d1f88acd5f17ebd0ad9775)
 
 ### BSC Mainnet
@@ -74,6 +75,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x45B9877497d73C683D38e0C7FfCf089D5D9FDCDf`
 - Proxy__LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 - Disburser transferred on 06 March 2024 to AWS KMS managed key: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
+- Owner transferred on 08 March 2024 to Multisig: `0x8d89a7570bE8F43c7f4124F044bCAd98f72e7057`
 
 ## Testnet deployments
 
