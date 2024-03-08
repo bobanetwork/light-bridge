@@ -101,6 +101,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       boba_bnb_mainnet: "boba", // not required, set placeholder
       boba_goerli: "boba", // not required, set placeholder
       boba_bnb_testnet: "boba", // not required, set placeholder
+      boba_sepolia: "boba", // not required, set placeholder
     },
     customChains: [
       {
@@ -124,6 +125,14 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
         chainId: 2888,
         urls: {
           apiURL: "https://api.routescan.io/v2/network/testnet/evm/2888/etherscan",
+          browserURL: "https://testnet.bobascan.com"
+        },
+      },
+      {
+        network: "boba_sepolia",
+        chainId: 28882,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/testnet/evm/28882/etherscan",
           browserURL: "https://testnet.bobascan.com"
         },
       },

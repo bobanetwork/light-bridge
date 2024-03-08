@@ -17,16 +17,7 @@ import {
   PopulatedTransaction,
   providers,
 } from 'ethers'
-
-export interface IKMSSignerConfig {
-  awsKmsEndpoint: string
-  awsKmsRegion: string
-  awsKmsAccessKey?: string
-  awsKmsSecretKey?: string
-  awsKmsKeyId: string
-  /** @dev Should always be enabled, but can be helpful for debugging and unit tests, .. */
-  disableDisburserCheck?: boolean
-}
+import { IKMSSignerConfig } from '@bobanetwork/light-bridge-chains'
 
 export class KMSSigner {
   private kmsClient: KMSClient

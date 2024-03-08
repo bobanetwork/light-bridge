@@ -29,11 +29,12 @@ import {
   EAirdropSource,
   IAirdropConfig,
   SupportedAssets,
-} from './utils/types'
+  IKMSSignerConfig,
+} from '@bobanetwork/light-bridge-chains'
 import { HistoryData } from './entities/HistoryData.entity'
 import { historyDataRepository, lastAirdropRepository } from './data-source'
-import { IKMSSignerConfig, KMSSigner } from './utils/kms-signing'
-import { Asset, BobaChains } from './utils/chains'
+import { KMSSigner } from './utils/kms-signing'
+import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
 
 interface TeleportationOptions {

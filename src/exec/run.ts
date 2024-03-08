@@ -3,7 +3,13 @@ import * as dotenv from 'dotenv'
 import Config from 'bcfg'
 
 /* Imports: Config */
-import { BobaChains, IBobaChain } from '../utils/chains'
+import {
+  BobaChains,
+  IBobaChain,
+  ChainInfo,
+  ENetworkMode,
+  ILightBridgeOpts,
+} from '@bobanetwork/light-bridge-chains'
 
 /* Imports: Interface */
 import { AppDataSource } from '../data-source'
@@ -12,7 +18,6 @@ import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
 import { LastAirdrop } from '../entities/LastAirdrop.entity'
 import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
 import { startLightBridgeForNetwork } from './lightbridge-instance'
-import { ChainInfo, ENetworkMode, ILightBridgeOpts } from '../utils/types'
 
 dotenv.config()
 

@@ -1,4 +1,7 @@
 /*
+
+TODO: Also add to boba-chains npm package
+
 import {
     ApolloClient,
     DocumentNode,
