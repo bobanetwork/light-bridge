@@ -17,13 +17,10 @@ import { orderBy } from 'lodash'
 import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
 
-/* Imports: Interface */
-import { ChainInfo, EAirdropSource } from '../src'
-
 /* Imports: Core */
 import { LightBridgeService } from '../src'
 import { AppDataSource, historyDataRepository } from '../src/data-source'
-import { Asset } from '../src'
+import { Asset, EAirdropSource, ChainInfo } from '@bobanetwork/light-bridge-chains'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
 import { delay } from '../src/utils/misc.utils'

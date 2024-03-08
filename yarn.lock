@@ -528,6 +528,14 @@
     "@ethersproject/abstract-signer" "^5.5.0"
     "@ethersproject/hardware-wallets" "^5.5.0"
 
+"@bobanetwork/light-bridge-chains@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@bobanetwork/light-bridge-chains/-/light-bridge-chains-1.0.9.tgz#e99d9a3147e1442dbaaae20d1e88ddc2b8e95647"
+  integrity sha512-La1/89Yq5e5nhhkgK6c5H//qKf9OXVUgQB6zMmz6U0PtMtWvU3GkI9KPY/ucWRtu2bTA1u3HlUhCprxCGIwsSg==
+  dependencies:
+    dotenv "^8.6.0"
+    ethers "^5.5.4"
+
 "@bobanetwork/turing-hybrid-compute@0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@bobanetwork/turing-hybrid-compute/-/turing-hybrid-compute-0.2.0.tgz#b84600a2faa13e9dbcfca50178f1a834893bbb3d"
