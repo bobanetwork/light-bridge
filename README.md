@@ -195,3 +195,38 @@ You will need a disburser key managed through KMS with the following configurati
 Advanced Options:
 - Origin: `KMS`
 - Regionality: `Multi Region Key`
+
+---
+
+## Storage slot
+Storage slot for the proxyTarget: `0x77c70ab2411972e3fdfbab35b6ae1519d867baa21725dd08c381964443dcc9aa`
+
+```shell
+
+curl https://api.tenderly.co/api/v1/account/$ACCOUNT_SLUG/project/$PROJECT_SLUG/contracts/encode-states -H "X-Access-Key: $API_KEY" \
+-d '{
+  "networkID":"1",
+  "stateOverrides": {
+    "0x2de73bd1660fbf4d521a52ec2a91ccc106113801": {
+      "value": {
+        "addressManager[\"proxyTarget\"]": "0x0000000000000000000000000000000000000000"
+      }
+    }
+  }
+}' | jq
+```
+
+Result: 
+```json 
+
+{
+  "stateOverrides": {
+    "0x2de73bd1660fbf4d521a52ec2a91ccc106113801": {
+      "value": {
+        "0x77c70ab2411972e3fdfbab35b6ae1519d867baa21725dd08c381964443dcc9aa": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  }
+}
+
+```
