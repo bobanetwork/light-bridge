@@ -56,10 +56,14 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### Optimism Mainnet
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+- Disburser transferred to AWS KMS managed key on 12 March 2024: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
+- Owner transferred to multisig on 12 March 2024: `0x8d89a7570bE8F43c7f4124F044bCAd98f72e7057`
 
 ### Arbitrum Mainnet
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
+- Disburser transferred to AWS KMS managed key on 12 March 2024: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
+- Owner transferred to multisig on 12 March 2024: `0x30687BDFA9CbEE46EBc7D0acA148971203C17ef8`
 
 ### Boba ETH Mainnet
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
@@ -70,6 +74,8 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ### BSC Mainnet
 - LightBridge deployed to: `0x670b130112C6f03E17192e63c67866e67D77c3ee`
 - Proxy__LightBridge deployed to: `0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5`
+- Disburser transferred by Multisig to AWS KMS managed key on 12 March 2024: `0x2d02ce7ef2f359bdcf86e44f66345660725e5cce`
+- Onwer transferred to multisig on 12 March 2024: `0x30687BDFA9CbEE46EBc7D0acA148971203C17ef8`
 
 ### BSC Boba Mainnet
 - LightBridge deployed to: `0x45B9877497d73C683D38e0C7FfCf089D5D9FDCDf`
