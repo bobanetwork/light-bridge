@@ -216,10 +216,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             events,
             latestBlock
           )
-          this.logger.info('Disbursed teleportations for network', {
-            latestBlock,
-            serviceChainId: this.options.chainId,
-          })
         } catch (err) {
           this.logger.error('Error while running teleportation', {
             err,
@@ -228,6 +224,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
       }
       await sleep(this.options.pollingInterval)
+      this.logger.info('Disbursed teleportations for networks', {
+        chainIds: this.state.depositTeleportations.map(c => c.chainId),
+        serviceChainId: this.options.chainId,
+      })
     }
   }
 
