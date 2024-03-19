@@ -12,7 +12,7 @@ import {
   Paused as PausedEvent,
   TokenSupported as TokenSupportedEvent,
   Unpaused as UnpausedEvent
-} from "../generated/LightBridge/LightBridge"
+} from "../generated/Teleportation/Teleportation"
 import {
   AssetBalanceWithdrawn,
   AssetReceived,
@@ -39,9 +39,9 @@ export function handleAssetBalanceWithdrawn(
   entity.owner = event.params.owner
   entity.balance = event.params.balance
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -57,9 +57,9 @@ export function handleAssetReceived(event: AssetReceivedEvent): void {
   entity.emitter = event.params.emitter
   entity.amount = event.params.amount
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -73,9 +73,9 @@ export function handleDisbursementFailed(event: DisbursementFailedEvent): void {
   entity.amount = event.params.amount
   entity.sourceChainId = event.params.sourceChainId
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -91,9 +91,9 @@ export function handleDisbursementRetrySuccess(
   entity.amount = event.params.amount
   entity.sourceChainId = event.params.sourceChainId
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -110,9 +110,9 @@ export function handleDisbursementSuccess(
   entity.amount = event.params.amount
   entity.sourceChainId = event.params.sourceChainId
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -125,9 +125,9 @@ export function handleDisburserTransferred(
   )
   entity.newDisburser = event.params.newDisburser
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -143,9 +143,9 @@ export function handleMaxDepositAmountSet(
   entity.previousAmount = event.params.previousAmount
   entity.newAmount = event.params.newAmount
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -161,9 +161,9 @@ export function handleMaxTransferAmountPerDaySet(
   entity.previousAmount = event.params.previousAmount
   entity.newAmount = event.params.newAmount
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -179,9 +179,9 @@ export function handleMinDepositAmountSet(
   entity.previousAmount = event.params.previousAmount
   entity.newAmount = event.params.newAmount
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -194,9 +194,9 @@ export function handleOwnershipTransferred(
   )
   entity.newOwner = event.params.newOwner
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -207,9 +207,9 @@ export function handlePaused(event: PausedEvent): void {
   )
   entity.account = event.params.account
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -222,9 +222,9 @@ export function handleTokenSupported(event: TokenSupportedEvent): void {
   entity.toChainId = event.params.toChainId
   entity.supported = event.params.supported
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }
@@ -235,9 +235,9 @@ export function handleUnpaused(event: UnpausedEvent): void {
   )
   entity.account = event.params.account
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.block_number = event.block.number
+  entity.timestamp_ = event.block.timestamp
+  entity.transactionHash_ = event.transaction.hash
 
   entity.save()
 }

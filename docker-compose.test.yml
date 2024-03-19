@@ -14,6 +14,12 @@ services:
 
   graph-node_eth:
     image: graphprotocol/graph-node
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
     depends_on:
       - ipfs_eth
       - postgres_eth

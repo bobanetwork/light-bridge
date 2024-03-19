@@ -5,11 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: LightBridge
+    name: Teleportation
     network: local
     source:
       address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-      abi: LightBridge
+      abi: Teleportation
       startBlock: 0
     mapping:
       kind: ethereum/events
@@ -30,8 +30,8 @@ dataSources:
         - TokenSupported
         - Unpaused
       abis:
-        - name: LightBridge
-          file: ./abis/LightBridge.json
+        - name: Teleportation
+          file: ./abis/Teleportation.json
       eventHandlers:
         - event: AssetBalanceWithdrawn(indexed address,indexed address,uint256)
           handler: handleAssetBalanceWithdrawn
@@ -59,4 +59,4 @@ dataSources:
           handler: handleTokenSupported
         - event: Unpaused(address)
           handler: handleUnpaused
-      file: ./src/light-bridge.ts
+      file: ./src/teleportation.ts
