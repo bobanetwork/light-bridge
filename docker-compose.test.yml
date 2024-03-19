@@ -17,6 +17,7 @@ services:
     depends_on:
       - ipfs_eth
       - postgres_eth
+      - subgraph_deployer
     extra_hosts:
       - host.docker.internal:host-gateway
     environment:
@@ -52,6 +53,7 @@ services:
     depends_on:
       - ipfs_bnb
       - postgres_bnb
+      - subgraph_deployer
     extra_hosts:
       - host.docker.internal:host-gateway
     environment:
@@ -106,7 +108,6 @@ services:
       - kms
       - anvil_eth
       - anvil_bnb
-      - subgraph_deployer
     image: bobanetwork/lightbridge:latest
     build:
       context: .
