@@ -23,7 +23,15 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
         err
       )
     } finally {
-      await service.stop()
+      try {
+        await service?.stop()
+      } catch(err) {
+        console.error(
+          `Could not stop Lightbridge instance for ${opts.rpcUrl} (rpcUrl), ${opts.envModeIsDevelopment} (envMode), ${opts.networkMode} (networkMode).`,
+          err?.message,
+          err
+        )
+      }
     }
     await delay(opts.retryIntervalMs ?? 120000)
   }
