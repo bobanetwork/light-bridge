@@ -36,7 +36,10 @@ import { historyDataRepository, lastAirdropRepository } from './data-source'
 import { KMSSigner } from './utils/kms-signing'
 import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
-import { LightBridgeAssetReceivedEvent, lightBridgeGraphQLService } from '@bobanetwork/graphql-utils'
+import {
+  LightBridgeAssetReceivedEvent,
+  lightBridgeGraphQLService,
+} from '@bobanetwork/graphql-utils'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -208,10 +211,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const latestBlock =
           await depositTeleportation.Teleportation.provider.getBlockNumber()
         try {
-          const events: LightBridgeAssetReceivedEvent[] = await this._watchTeleportation(
-            depositTeleportation,
-            latestBlock
-          )
+          const events: LightBridgeAssetReceivedEvent[] =
+            await this._watchTeleportation(depositTeleportation, latestBlock)
           await this._disburseTeleportation(
             depositTeleportation,
             events,
@@ -653,7 +654,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     toBlock: number
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     return lightBridgeGraphQLService.queryAssetReceivedEvent(
-      sourceChainId, this.options.chainId.toString(), null, fromBlock?.toString(), toBlock?.toString())
+      sourceChainId,
+      this.options.chainId.toString(),
+      null,
+      fromBlock?.toString(),
+      toBlock?.toString()
+    )
   }
 
   /**
