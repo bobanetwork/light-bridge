@@ -36,6 +36,7 @@ import { historyDataRepository, lastAirdropRepository } from './data-source'
 import { KMSSigner } from './utils/kms-signing'
 import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
+import { LightBridgeAssetReceivedEvent, lightBridgeGraphQLService } from '@bobanetwork/graphql-utils'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -207,7 +208,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const latestBlock =
           await depositTeleportation.Teleportation.provider.getBlockNumber()
         try {
-          const events: AssetReceivedEvent[] = await this._watchTeleportation(
+          const events: LightBridgeAssetReceivedEvent[] = await this._watchTeleportation(
             depositTeleportation,
             latestBlock
           )
@@ -234,7 +235,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   async _watchTeleportation(
     depositTeleportation: DepositTeleportations,
     latestBlock: number
-  ): Promise<AssetReceivedEvent[]> {
+  ): Promise<LightBridgeAssetReceivedEvent[]> {
     let lastBlock: number
     const depositChainId = depositTeleportation.chainId.toString()
     try {
@@ -247,9 +248,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // store the new deposit info
       await this._putDepositInfo(depositChainId, lastBlock)
     }
-    return this._getEvents(
-      depositTeleportation.Teleportation,
-      this.state.Teleportation.filters.AssetReceived(),
+    return this._getAssetReceivedEvents(
+      depositTeleportation.chainId,
       lastBlock,
       latestBlock
     )
@@ -257,7 +257,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
   async _disburseTeleportation(
     depositTeleportation: DepositTeleportations,
-    events: AssetReceivedEvent[],
+    events: LightBridgeAssetReceivedEvent[],
     latestBlock: number
   ): Promise<void> {
     const depositChainId = depositTeleportation.chainId
@@ -266,19 +266,19 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // update the deposit info if no events are found
       await this._putDepositInfo(depositChainId, latestBlock)
     } else {
-      const lastDisbursement =
+      const lastDisbursement: BigNumber =
         await this.state.Teleportation.totalDisbursements(depositChainId)
       // eslint-disable-next-line prefer-const
       let disbursement: Disbursement[] = []
 
       try {
         for (const event of events) {
-          const sourceChainId: BigNumber = event.args.sourceChainId
-          const depositId = event.args.depositId
-          const amount = event.args.amount
-          const sourceChainTokenAddr = event.args.token
-          const emitter = event.args.emitter
-          const destChainId = event.args.toChainId
+          const sourceChainId = event.sourceChainId
+          const depositId = event.depositId
+          const amount = event.amount
+          const sourceChainTokenAddr = event.token
+          const emitter = event.emitter
+          const destChainId = event.toChainId
 
           if (destChainId.toString() !== this.options.chainId.toString()) {
             this.logger.info(
@@ -289,7 +289,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           }
 
           // we disburse tokens only if depositId is greater or equal to the last disbursement
-          if (depositId.gte(lastDisbursement)) {
+          if (parseInt(depositId) >= lastDisbursement.toNumber()) {
             const destChainTokenAddr =
               this._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
                 sourceChainTokenAddr,
@@ -312,12 +312,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
                   amount: amount.toString(),
                   addr: emitter,
-                  depositId: depositId.toNumber(),
+                  depositId: depositId,
                   sourceChainId: sourceChainId.toString(),
                 },
               ]
               this.logger.info(
-                `Found a new deposit - sourceChainId: ${sourceChainId.toString()} - depositId: ${depositId.toNumber()} - amount: ${amount.toString()} - emitter: ${emitter} - token/native: ${sourceChainTokenAddr}`,
+                `Found a new deposit - sourceChainId: ${sourceChainId.toString()} - depositId: ${depositId} - amount: ${amount.toString()} - emitter: ${emitter} - token/native: ${sourceChainTokenAddr}`,
                 { serviceChainId: this.options.chainId }
               )
             }
@@ -647,26 +647,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   // get events from the contract
-  async _getEvents(
-    contract: Contract,
-    event: EventFilter,
+  async _getAssetReceivedEvents(
+    sourceChainId: number,
     fromBlock: number,
     toBlock: number
-  ): Promise<any> {
-    let events = []
-    let startBlock = fromBlock
-    while (startBlock < toBlock) {
-      const endBlock =
-        Math.min(startBlock + this.options.blockRangePerPolling, toBlock) + 1 // also include toBlock
-      const partialEvents = await contract.queryFilter(
-        event,
-        startBlock,
-        endBlock
-      )
-      events = [...events, ...partialEvents]
-      startBlock = endBlock
-    }
-    return events
+  ): Promise<LightBridgeAssetReceivedEvent[]> {
+    return lightBridgeGraphQLService.queryAssetReceivedEvent(
+      sourceChainId, this.options.chainId.toString(), null, fromBlock?.toString(), toBlock?.toString())
   }
 
   /**
@@ -676,7 +663,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
    **/
   _getSupportedDestChainTokenAddrBySourceChainTokenAddr(
     sourceChainTokenAddr: string,
-    sourceChainId: BigNumber | number
+    sourceChainId: string | number
   ) {
     const srcChain: ChainInfo = this.state.supportedChains.find(
       (c) => c.chainId.toString() === sourceChainId.toString()

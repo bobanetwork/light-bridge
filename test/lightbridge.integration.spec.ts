@@ -226,9 +226,8 @@ describe('lightbridge', () => {
 
       const blockNumber = await provider.getBlockNumber()
 
-      const events = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const events = await teleportationService._getAssetReceivedEvents(
+        chainId,
         0,
         blockNumber
       )
@@ -244,19 +243,18 @@ describe('lightbridge', () => {
       await res.wait()
 
       const latestBlockNumber = await provider.getBlockNumber()
-      const latestEvents = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const latestEvents = await teleportationService._getAssetReceivedEvents(
+        chainId,
         0,
         latestBlockNumber
       )
 
       expect(latestEvents.length).to.be.eq(1)
-      expect(latestEvents[0].args.sourceChainId).to.be.eq(chainId)
-      expect(latestEvents[0].args.toChainId).to.be.eq(chainId)
-      expect(latestEvents[0].args.depositId).to.be.eq(0)
-      expect(latestEvents[0].args.emitter).to.be.eq(signerAddr)
-      expect(latestEvents[0].args.amount).to.be.eq(utils.parseEther('10'))
+      expect(latestEvents[0].sourceChainId).to.be.eq(chainId)
+      expect(latestEvents[0].toChainId).to.be.eq(chainId)
+      expect(latestEvents[0].depositId).to.be.eq(0)
+      expect(latestEvents[0].emitter).to.be.eq(signerAddr)
+      expect(latestEvents[0].amount).to.be.eq(utils.parseEther('10'))
     })
 
     it('should send a disbursement TX for a single event', async () => {
@@ -264,9 +262,8 @@ describe('lightbridge', () => {
       await teleportationService.init()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const events = await teleportationService._getAssetReceivedEvents(
+        chainId,
         0,
         blockNumber
       )
@@ -275,11 +272,11 @@ describe('lightbridge', () => {
 
       let disbursement = []
       for (const event of events) {
-        const sourceChainId = event.args.sourceChainId
-        const depositId = event.args.depositId
-        const amount = event.args.amount
-        const token = event.args.token
-        const emitter = event.args.emitter
+        const sourceChainId = event.sourceChainId
+        const depositId = event.depositId
+        const amount = event.amount
+        const token = event.token
+        const emitter = event.emitter
 
         disbursement = [
           ...disbursement,
@@ -287,7 +284,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId,
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -322,20 +319,19 @@ describe('lightbridge', () => {
       await teleportationService.init()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const events = await teleportationService._getAssetReceivedEvents(
+        chainId,
         0,
         blockNumber
       )
 
       let disbursement = []
       for (const event of events) {
-        const sourceChainId = event.args.sourceChainId
-        const depositId = event.args.depositId
-        const amount = event.args.amount
-        const emitter = event.args.emitter
-        const token = event.args.token
+        const sourceChainId = event.sourceChainId
+        const depositId = event.depositId
+        const amount = event.amount
+        const emitter = event.emitter
+        const token = event.token
 
         disbursement = [
           ...disbursement,
@@ -343,7 +339,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId,
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -380,9 +376,8 @@ describe('lightbridge', () => {
       }
 
       const endBlockNumber = await provider.getBlockNumber()
-      const latestEvents = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const latestEvents = await teleportationService._getAssetReceivedEvents(
+        chainId,
         startBlockNumber,
         endBlockNumber
       )
@@ -395,9 +390,8 @@ describe('lightbridge', () => {
       await teleportationService.init()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const events = await teleportationService._getAssetReceivedEvents(
+        chainId,
         0,
         blockNumber
       )
@@ -405,20 +399,20 @@ describe('lightbridge', () => {
 
       let disbursement = []
       for (const event of events) {
-        const token = event.args.token
-        const sourceChainId = event.args.sourceChainId
-        const depositId = event.args.depositId
-        const amount = event.args.amount
-        const emitter = event.args.emitter
+        const token = event.token
+        const sourceChainId = event.sourceChainId
+        const depositId = event.depositId
+        const amount = event.amount
+        const emitter = event.emitter
 
-        if (depositId.gte(lastDisbursement)) {
+        if (depositId >= lastDisbursement.toNumber()) {
           disbursement = [
             ...disbursement,
             {
               token,
               amount: amount.toString(),
               addr: emitter,
-              depositId: depositId.toNumber(),
+              depositId: depositId,
               sourceChainId: sourceChainId.toString(),
             },
           ]
@@ -474,12 +468,12 @@ describe('lightbridge', () => {
         latestBlock
       )
       expect(events.length).to.be.eq(2)
-      expect(events[1].args.token).to.be.eq(L2BOBA.address)
-      expect(events[1].args.sourceChainId).to.be.eq(chainId)
-      expect(events[1].args.toChainId).to.be.eq(chainId)
-      expect(events[1].args.depositId).to.be.eq(16)
-      expect(events[1].args.emitter).to.be.eq(signerAddr)
-      expect(events[1].args.amount).to.be.eq(utils.parseEther('11'))
+      expect(events[1].token).to.be.eq(L2BOBA.address)
+      expect(events[1].sourceChainId).to.be.eq(chainId)
+      expect(events[1].toChainId).to.be.eq(chainId)
+      expect(events[1].depositId).to.be.eq(16)
+      expect(events[1].emitter).to.be.eq(signerAddr)
+      expect(events[1].amount).to.be.eq(utils.parseEther('11'))
     })
 
     it('should disburse BOBA token for a single event', async () => {
@@ -745,9 +739,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceBnb._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber
       )
@@ -759,11 +752,11 @@ describe('lightbridge', () => {
 
       let disbursement = []
       for (const event of events) {
-        const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-        const depositId = event.args.depositId
-        const amount = event.args.amount
-        const token = event.args.token
-        const emitter = event.args.emitter
+        const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+        const depositId = event.depositId
+        const amount = event.amount
+        const token = event.token
+        const emitter = event.emitter
 
         const receivingChainTokenAddr =
           teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -781,7 +774,7 @@ describe('lightbridge', () => {
             token: receivingChainTokenAddr,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId,
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -825,9 +818,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationService._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber + 10
       )
@@ -839,11 +831,11 @@ describe('lightbridge', () => {
 
       let disbursement = []
       for (const event of events) {
-        const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-        const depositId = event.args.depositId
-        const amount = event.args.amount
-        const token = event.args.token
-        const emitter = event.args.emitter
+        const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+        const depositId = event.depositId
+        const amount = event.amount
+        const token = event.token
+        const emitter = event.emitter
 
         const receivingChainTokenAddr =
           teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -861,7 +853,7 @@ describe('lightbridge', () => {
             token: receivingChainTokenAddr,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId,
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -904,9 +896,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const events = await teleportationService._getAssetReceivedEvents(
+        chainId,
         preBlockNumber,
         blockNumber
       )
@@ -918,11 +909,11 @@ describe('lightbridge', () => {
 
       let disbursement = []
       for (const event of events) {
-        const sourceChainId = event.args.sourceChainId
-        const depositId = await LightBridgeBNB.totalDisbursements(chainId) // event.args.depositId --> correct, but we used a fake chainId to simulate Bnb so we need to correct depositId here
-        const amount = event.args.amount
-        const token = event.args.token
-        const emitter = event.args.emitter
+        const sourceChainId = event.sourceChainId
+        const depositId = await LightBridgeBNB.totalDisbursements(chainId) // event.depositId --> correct, but we used a fake chainId to simulate Bnb so we need to correct depositId here
+        const amount = event.amount
+        const token = event.token
+        const emitter = event.emitter
 
         const receivingChainTokenAddr =
           teleportationServiceBnb._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1128,9 +1119,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceBnb._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber
       )
@@ -1148,11 +1138,11 @@ describe('lightbridge', () => {
       const randAddress = ethers.Wallet.createRandom().address
 
       const lastEvent = events[events.length - 1]
-      const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-      const depositId = lastEvent.args.depositId
-      const amount = lastEvent.args.amount
-      const token = lastEvent.args.token
-      const emitter = lastEvent.args.emitter
+      const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+      const emitter = lastEvent.emitter
 
       const receivingChainTokenAddr =
         teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1169,7 +1159,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId,
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1226,9 +1216,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceBnb._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber
       )
@@ -1245,11 +1234,11 @@ describe('lightbridge', () => {
       const randAddress = ethers.Wallet.createRandom().address
 
       const lastEvent = events[events.length - 1]
-      const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-      const depositId = lastEvent.args.depositId
-      const amount = lastEvent.args.amount
-      const token = lastEvent.args.token
-      const emitter = lastEvent.args.emitter
+      const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+      const emitter = lastEvent.emitter
 
       const receivingChainTokenAddr =
         teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1266,7 +1255,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId,
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1325,9 +1314,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceBnb._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber
       )
@@ -1338,11 +1326,11 @@ describe('lightbridge', () => {
       await teleportationServiceEth.init()
 
       const lastEvent = events[events.length - 1]
-      const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-      const depositId = lastEvent.args.depositId
-      const amount = lastEvent.args.amount
-      const token = lastEvent.args.token
-      const emitter = lastEvent.args.emitter
+      const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+      const emitter = lastEvent.emitter
 
       const receivingChainTokenAddr =
         teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1359,7 +1347,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: depositId,
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1416,9 +1404,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceETH._getEvents(
-        LightBridge,
-        LightBridge.filters.AssetReceived(),
+      const events = await teleportationServiceETH._getAssetReceivedEvents(
+        chainId,
         preBlockNumber,
         blockNumber
       )
@@ -1431,11 +1418,11 @@ describe('lightbridge', () => {
       // random address to ensure balance = 0 to be eligible for airdrop
       const randAddress = ethers.Wallet.createRandom().address
       const lastEvent = events[events.length - 1]
-      const sourceChainId = lastEvent.args.sourceChainId
-      const depositId = lastEvent.args.depositId
-      const amount = lastEvent.args.amount
-      const token = lastEvent.args.token
-      const emitter = lastEvent.args.emitter
+      const sourceChainId = lastEvent.sourceChainId
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+      const emitter = lastEvent.emitter
 
       const receivingChainTokenAddr =
         teleportationServiceBnb._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1452,7 +1439,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId,
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1629,9 +1616,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceBnb._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber
       )
@@ -1645,11 +1631,11 @@ describe('lightbridge', () => {
       const randAddress = ethers.Wallet.createRandom().address
 
       const lastEvent = events[events.length - 1]
-      const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-      const depositId = lastEvent.args.depositId
-      const amount = lastEvent.args.amount
-      const token = lastEvent.args.token
-      const emitter = lastEvent.args.emitter
+      const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+      const emitter = lastEvent.emitter
 
       const receivingChainTokenAddr =
         teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1666,7 +1652,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId,
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1725,9 +1711,8 @@ describe('lightbridge', () => {
       )
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceBnb._getEvents(
-        LightBridgeBNB,
-        LightBridgeBNB.filters.AssetReceived(),
+      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+        chainIdBobaBnb,
         preBlockNumber,
         blockNumber
       )
@@ -1742,11 +1727,11 @@ describe('lightbridge', () => {
         LightBridge.provider
       )
       const randAddress = randWallet.address
-      const sourceChainId = chainIdBobaBnb // event.args.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
-      const depositId = lastEvent.args.depositId
-      const amount = lastEvent.args.amount
-      const token = lastEvent.args.token
-      const emitter = lastEvent.args.emitter
+      const sourceChainId = chainIdBobaBnb // event.sourceChainId -> (is correct, but we were mocking a fake chainId for testing)
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+      const emitter = lastEvent.emitter
 
       const receivingChainTokenAddr =
         teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
@@ -1763,7 +1748,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId,
           sourceChainId: sourceChainId.toString(),
         },
       ]
