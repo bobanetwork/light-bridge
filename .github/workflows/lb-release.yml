@@ -30,10 +30,10 @@ jobs:
       #    echo "version=$(cat ./package.json | jq ".version" | tr -d '"\r\n')" >> $GITHUB_OUTPUT
       #  id: version
       - name: Build version specific docker image
-        run: docker build . --file ./Dockerfile.prod --tag bobanetwork/lightbridge:${{ github.ref_name }}
+        run: docker build . --file ./Dockerfile.eth.prod --tag bobanetwork/lightbridge:${{ github.ref_name }}
       - name: Push version specific docker image
         run: docker push bobanetwork/lightbridge:${{ github.ref_name }}
       - name: Build stable docker image
-        run: docker build . --file ./Dockerfile.prod --tag bobanetwork/lightbridge:stable
+        run: docker build . --file ./Dockerfile.eth.prod --tag bobanetwork/lightbridge:stable
       - name: Push stable docker image
         run: docker push bobanetwork/lightbridge:stable

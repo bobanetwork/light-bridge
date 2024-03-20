@@ -274,12 +274,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
       try {
         for (const event of events) {
-          const sourceChainId = event.sourceChainId
-          const depositId = event.depositId
-          const amount = event.amount
+          const sourceChainId = event.sourceChainId.toString()
+          const depositId = event.depositId.toString()
+          const amount = event.amount.toString()
           const sourceChainTokenAddr = event.token
           const emitter = event.emitter
-          const destChainId = event.toChainId
+          const destChainId = event.toChainId.toString()
 
           if (destChainId.toString() !== this.options.chainId.toString()) {
             this.logger.info(
@@ -311,10 +311,10 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: amount.toString(),
+                  amount: amount,
                   addr: emitter,
                   depositId: depositId,
-                  sourceChainId: sourceChainId.toString(),
+                  sourceChainId: sourceChainId,
                 },
               ]
               this.logger.info(

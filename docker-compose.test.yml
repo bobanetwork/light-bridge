@@ -1,16 +1,24 @@
-version: "3"
+version: "3.8"
 
 services:
-  subgraph_deployer:
-    image: subgraph_deployer
+  subgraph_deployer_eth:
+    image: subgraph_deployer_eth
+    depends_on:
+      - graph-node_eth
+      - ipfs_eth
+      - postgres_eth
+    build:
+      context: ./local-subgraphs/light-bridge
+      dockerfile: Dockerfile.eth
+  subgraph_deployer_bnb:
+    image: subgraph_deployer_bnb
     depends_on:
       - graph-node_bnb
-      - graph-node_eth
       - ipfs_bnb
-      - ipfs_eth
       - postgres_bnb
-      - postgres_eth
-    build: ./local-subgraphs/light-bridge
+    build:
+      context: ./local-subgraphs/light-bridge
+      dockerfile: Dockerfile.bnb
 
   graph-node_eth:
     image: graphprotocol/graph-node
@@ -25,13 +33,19 @@ services:
       - postgres_eth
     extra_hosts:
       - host.docker.internal:host-gateway
+    healthcheck:
+      test: [ "CMD", "curl -f http://localhost:8000/subgraphs/name/light-bridge/graphql || exit 1" ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 2m
     environment:
       postgres_host: postgres_eth
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs_eth:5001"
-      ethereum: "local:http://anvil_eth:8545"
+      ethereum: "local_eth:http://anvil_eth:8545"
       GRAPH_LOG: info
   ipfs_eth:
     image: ipfs/kubo:v0.17.0
@@ -60,13 +74,19 @@ services:
       - postgres_bnb
     extra_hosts:
       - host.docker.internal:host-gateway
+    healthcheck:
+      test: [ "CMD", "curl -f http://localhost:8000/subgraphs/name/light-bridge/graphql || exit 1" ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 2m
     environment:
       postgres_host: postgres_bnb
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs_bnb:5001"
-      ethereum: "local:http://anvil_bnb:8545"
+      ethereum: "local_bnb:http://anvil_bnb:8545"
       GRAPH_LOG: info
   ipfs_bnb:
     image: ipfs/kubo:v0.17.0
@@ -87,7 +107,6 @@ services:
       # workaround for https://github.com/docker/for-mac/issues/6270?
       PGDATA: "/var/lib/postgresql/data"
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
-
 
   anvil_bnb:
     image: ghcr.io/foundry-rs/foundry:latest
@@ -112,11 +131,14 @@ services:
       - kms
       - anvil_eth
       - anvil_bnb
+      - graph-node_eth
+      - graph-node_bnb
     image: bobanetwork/lightbridge:latest
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: bash -c "npm test"
+    command: bash -c "sleep 60; npm test"
+    #command: bash -c "npm test"
     environment:
       LIGHTBRIDGE_MODE: "testnets"
       LIGHTBRIDGE_REJECT_UNAUTHORIZED: "true"
