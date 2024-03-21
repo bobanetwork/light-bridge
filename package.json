@@ -18,7 +18,7 @@
       "lint:check": "tslint --format stylish --project .",
       "db:start": "docker run -e POSTGRES_DB=lightbridge -e POSTGRES_PASSWORD=abcdef -p 5432:5432 postgres",
       "test": "hardhat test --show-stack-traces",
-      "test:docker": "docker-compose -f docker-compose.test.yml up --abort-on-container-exit",
+      "test:docker": "docker-compose -f docker-compose.test.yml up",
       "test:coverage": "nyc hardhat test && nyc merge .nyc_output coverage.json",
       "typeorm": "typeorm-ts-node-commonjs",
       "depcheck": "npx depcheck",
@@ -49,7 +49,7 @@
    "dependencies": {
       "@aws-sdk/client-kms": "^3.363.0",
       "@bobanetwork/core_contracts": "0.5.12",
-      "@bobanetwork/graphql-utils": "^1.0.24",
+      "@bobanetwork/graphql-utils": "^1.0.26",
       "@bobanetwork/light-bridge-chains": "^1.0.9",
       "@eth-optimism/common-ts": "0.2.2",
       "@ethereumjs/common": "^3.2.0",

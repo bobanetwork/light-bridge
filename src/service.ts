@@ -251,6 +251,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     }
     return this._getAssetReceivedEvents(
       depositTeleportation.chainId,
+      this.options.chainId,
       lastBlock,
       latestBlock
     )
@@ -650,16 +651,21 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   // get events from the contract
   async _getAssetReceivedEvents(
     sourceChainId: number,
+    targetChainId: number,
     fromBlock: number,
     toBlock: number
   ): Promise<LightBridgeAssetReceivedEvent[]> {
-    return lightBridgeGraphQLService.queryAssetReceivedEvent(
-      sourceChainId,
-      this.options.chainId.toString(),
+    const events = await lightBridgeGraphQLService.queryAssetReceivedEvent(
+      sourceChainId.toString(),
+      targetChainId.toString(),
       null,
       fromBlock?.toString(),
       toBlock?.toString()
     )
+
+    console.warn("Got EVENTS: ", JSON.stringify(events), sourceChainId, this.options.chainId.toString(), targetChainId, fromBlock.toString(), toBlock.toString())
+
+    return events
   }
 
   /**
@@ -692,6 +698,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     )
 
     if (!supportedAsset) {
+      console.error(`Could not get supportedAsset: `, srcChainTokenSymbol, sourceChainTokenAddr, JSON.stringify(this.options.ownSupportedAssets), JSON.stringify(srcChain.supportedAssets))
       throw new Error(
         `Asset ${srcChainTokenSymbol} on chain destinationChain not configured but possibly supported on-chain`
       )
