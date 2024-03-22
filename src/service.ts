@@ -249,11 +249,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // store the new deposit info
       await this._putDepositInfo(depositChainId, lastBlock)
     }
+    const lastDisbursement: BigNumber =
+      await this.state.Teleportation.totalDisbursements(depositChainId)
     return this._getAssetReceivedEvents(
       depositTeleportation.chainId,
       this.options.chainId,
       lastBlock,
-      latestBlock
+      latestBlock,
+      lastDisbursement,
     )
   }
 
@@ -653,17 +656,28 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     sourceChainId: number,
     targetChainId: number,
     fromBlock: number,
-    toBlock: number
+    toBlock: number,
+    minDepositId: BigNumber,
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     const events = await lightBridgeGraphQLService.queryAssetReceivedEvent(
       sourceChainId.toString(),
       targetChainId.toString(),
       null,
-      fromBlock?.toString(),
-      toBlock?.toString()
+      fromBlock.toString(),
+      toBlock.toString(),
+      minDepositId.toNumber(),
     )
 
-    console.warn("Got EVENTS: ", JSON.stringify(events), sourceChainId, this.options.chainId.toString(), targetChainId, fromBlock.toString(), toBlock.toString())
+    console.warn(
+      'Got EVENTS: ',
+      JSON.stringify(events),
+      sourceChainId,
+      this.options.chainId.toString(),
+      targetChainId,
+      fromBlock?.toString(),
+      toBlock?.toString(),
+      minDepositId
+    )
 
     return events
   }
@@ -698,7 +712,13 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     )
 
     if (!supportedAsset) {
-      console.error(`Could not get supportedAsset: `, srcChainTokenSymbol, sourceChainTokenAddr, JSON.stringify(this.options.ownSupportedAssets), JSON.stringify(srcChain.supportedAssets))
+      console.error(
+        `Could not get supportedAsset: `,
+        srcChainTokenSymbol,
+        sourceChainTokenAddr,
+        JSON.stringify(this.options.ownSupportedAssets),
+        JSON.stringify(srcChain.supportedAssets)
+      )
       throw new Error(
         `Asset ${srcChainTokenSymbol} on chain destinationChain not configured but possibly supported on-chain`
       )
