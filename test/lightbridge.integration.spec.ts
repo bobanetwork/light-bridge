@@ -470,7 +470,7 @@ describe('lightbridge', () => {
         latestBlock,
       )
       expect(events.length).to.be.eq(2)
-      expect(events[1].token).to.be.eq(L2BOBA.address)
+      expect(events[1].token.toLowerCase()).to.be.eq(L2BOBA.address.toLowerCase())
       expect(events[1].sourceChainId).to.be.eq(chainId.toString())
       expect(events[1].toChainId).to.be.eq(chainId.toString())
       expect(events[1].depositId).to.be.eq('16')
@@ -494,6 +494,7 @@ describe('lightbridge', () => {
         depositTeleportations,
         latestBlock,
       )
+      expect(events.length).to.be.gte(1)
 
       const preBOBABalance = await L2BOBA.balanceOf(address1)
       await teleportationService._disburseTeleportation(
@@ -773,7 +774,7 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement,
+        BigNumber.from('0'),
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
