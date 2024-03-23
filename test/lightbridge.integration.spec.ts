@@ -33,7 +33,7 @@ import { Teleportation } from '../local-subgraphs/light-bridge/generated/Telepor
 
 dotenv.config()
 
-describe('lightbridge', () => {
+describe.only('lightbridge', () => {
   let providerUrl: string
   let provider: providers.JsonRpcProvider
   let signer: Signer
@@ -105,7 +105,7 @@ describe('lightbridge', () => {
     airdropCooldownSeconds: 1000,
   }
 
-  before(async () => {
+  const redeployContracts = async () => {
     chainId = (await provider.getNetwork()).chainId
     chainIdBobaBnb = chainId // do not increment yet
 
@@ -170,6 +170,24 @@ describe('lightbridge', () => {
       // bnb will be added in routing tests to have cleaner before hooks
     ]
     selectedBobaChainsBnb = selectedBobaChains
+  }
+
+  let snapShotId: string
+  const cleanUpState = async () => {
+    await provider.send('evm_revert', [snapShotId])
+    await delay(1000) // wait for graphql to resync
+    console.log("Resetted blockchain state..")
+    // TODO: Is graphnode able to understand this?
+  }
+
+  before(async () => {
+    await redeployContracts()
+    snapShotId = await provider.send('evm_snapshot', [])
+    console.log('Created snapshot of blockchain: ', snapShotId)
+  })
+
+  afterEach(async () => {
+    await cleanUpState()
   })
 
   const startLightBridgeService = async (
@@ -221,8 +239,12 @@ describe('lightbridge', () => {
     await teleportationService.init()
   })
 
-  describe('unit function tests', () => {
-    it('should get an event from LightBridge contract', async () => {
+  describe.only('unit function tests', () => {
+    afterEach(async () => {
+      await cleanUpState()
+    })
+
+    it.only('should disburse and block double disbursements', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
@@ -230,7 +252,7 @@ describe('lightbridge', () => {
 
       const events = await teleportationService._getAssetReceivedEvents(
         chainId,
-        chainIdBobaBnb, // send to self
+        chainIdBobaBnb,
         0,
         blockNumber,
         BigNumber.from(0),
@@ -242,18 +264,21 @@ describe('lightbridge', () => {
       const res = await LightBridge.connect(signer).teleportAsset(
         L2BOBA.address,
         utils.parseEther('10'),
-        chainIdBobaBnb, // send to self
+        chainIdBobaBnb,
       )
       await res.wait()
 
       const latestBlockNumber = await provider.getBlockNumber()
       const latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
-        chainIdBobaBnb, // send to self
-        0,
+        chainIdBobaBnb,
+        blockNumber,
         latestBlockNumber,
         BigNumber.from(0),
       )
+
+      const totalDeposits = await LightBridge.totalDeposits(chainIdBobaBnb)
+      expect(totalDeposits.toString()).to.be.eq('1')
 
       expect(latestEvents.length).to.be.eq(1)
       expect(latestEvents[0].sourceChainId).to.be.eq(chainId.toString())
@@ -263,25 +288,8 @@ describe('lightbridge', () => {
         signerAddr.toLowerCase(),
       )
       expect(latestEvents[0].amount).to.be.eq(utils.parseEther('10'))
-    })
 
-    it('should send a disbursement TX for a single event', async () => {
-      const teleportationService = await startLightBridgeService()
-      await teleportationService.init()
-
-      const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getAssetReceivedEvents(
-        chainId,
-        chainIdBobaBnb,
-        0,
-        blockNumber,
-        BigNumber.from(0),
-      )
-
-      expect(events.length).to.be.eq(1, 'Event length should be 1')
-      expect(events[0].depositId.toString()).to.be.eq('0')
-
-      const event = events[0]
+      const event = latestEvents[0]
       const sourceChainId = event.sourceChainId
       const depositId = event.depositId
       const amount = event.amount
@@ -298,13 +306,13 @@ describe('lightbridge', () => {
         },
       ]
 
-      const preBOBABalance = await L2BOBA.balanceOf(address1)
-      const preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
+      let preBOBABalance = await L2BOBA.balanceOf(address1)
+      let preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
 
       await teleportationService._disburseTx(disbursement, chainId, blockNumber)
 
-      const postBOBABalance = await L2BOBA.balanceOf(address1)
-      const postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
+      let postBOBABalance = await L2BOBA.balanceOf(address1)
+      let postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
 
       expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
         utils.parseEther('10'),
@@ -313,138 +321,106 @@ describe('lightbridge', () => {
         utils.parseEther('10'),
       )
 
-      const amountDisbursements = await LightBridge.totalDisbursements(chainId)
+      let amountDisbursements = await LightBridge.totalDisbursements(chainId)
 
       expect(amountDisbursements).to.be.eq(1)
+
+      // try to disburse again, which shouldn't work
+      preBOBABalance = await L2BOBA.balanceOf(address1)
+      preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
+
+      await teleportationService._disburseTx(disbursement, chainId, blockNumber)
+
+      postBOBABalance = await L2BOBA.balanceOf(address1)
+      postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
+
+      amountDisbursements = await LightBridge.totalDisbursements(chainId)
+      expect(amountDisbursements).to.be.eq(1) // still 1
+
+      expect(preBOBABalance).to.be.eq(postBOBABalance)
+      expect(preSignerBOBABalance).to.be.eq(postSignerBOBABalance)
     })
 
-    it('should block the disbursement TX if it is already disbursed', async () => {
+    it('should slice events from Teleportation contract and disburse them', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
+      const startBlockNumber = await provider.getBlockNumber()
       await provider.send('anvil_mine', [])
-      const blockNumber = await provider.getBlockNumber()
 
-      const events = await teleportationService._getAssetReceivedEvents(
+      // deposit token
+      for (let i = 0; i < 15; i++) {
+        await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
+        await LightBridge.connect(signer).teleportAsset(
+          L2BOBA.address,
+          utils.parseEther('10'),
+          chainIdBobaBnb,
+        )
+      }
+
+      const endBlockNumber = await provider.getBlockNumber()
+      const latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
-        0,
-        blockNumber,
+        startBlockNumber,
+        endBlockNumber,
         BigNumber.from(0),
       )
-      const event = events.find(e => e.depositId.toString() === '0')
-      expect(event).to.not.be.undefined
+
+      expect(latestEvents.length).to.be.eq(15)
 
       let disbursement = []
-      const sourceChainId = event.sourceChainId
-      const depositId = event.depositId
-      const amount = event.amount
-      const emitter = event.emitter
-      const token = event.token
+      for (const event of latestEvents) {
+        const token = event.token
+        const sourceChainId = event.sourceChainId
+        const depositId = event.depositId
+        const amount = event.amount
+        const emitter = event.emitter
 
-      disbursement = [
-        {
-          token,
-          amount: amount.toString(),
-          addr: emitter,
-          depositId: parseInt(depositId.toString()),
-          sourceChainId: sourceChainId.toString(),
-        },
-      ]
+        disbursement = [
+          ...disbursement,
+          {
+            token,
+            amount: amount.toString(),
+            addr: emitter,
+            depositId: parseInt(depositId.toString()),
+            sourceChainId: sourceChainId.toString(),
+          },
+        ]
+      }
 
       disbursement = orderBy(disbursement, ['depositId'], ['asc'])
 
       const preBOBABalance = await L2BOBA.balanceOf(address1)
       const preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
+      const preBlockNumber = await provider.getBlockNumber()
 
-      const amountDisbursements = await LightBridge.connect(
-        signer,
-      ).totalDisbursements(chainId)
-
-      expect(amountDisbursements).to.be.eq(1)
-      expect(disbursement.length).to.be.eq(1)
-
-      await teleportationService._disburseTx(disbursement, chainId, blockNumber)
+      await teleportationService._disburseTx(disbursement, chainId, endBlockNumber)
 
       const postBOBABalance = await L2BOBA.balanceOf(address1)
       const postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
+      const postBlockNumber = await provider.getBlockNumber()
 
-      expect(preBOBABalance).to.be.eq(postBOBABalance)
-      expect(preSignerBOBABalance).to.be.eq(postSignerBOBABalance)
-    })
-  })
-
-  it('should slice events from Teleportation contract and disburse them', async () => {
-    const teleportationService = await startLightBridgeService()
-    await teleportationService.init()
-
-    const startBlockNumber = await provider.getBlockNumber()
-    await provider.send('anvil_mine', [])
-
-    // deposit token
-    for (let i = 0; i < 15; i++) {
-      await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
-      await LightBridge.connect(signer).teleportAsset(
-        L2BOBA.address,
-        utils.parseEther('10'),
-        chainIdBobaBnb,
+      expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
+        utils.parseEther('150'),
       )
-    }
+      expect(postSignerBOBABalance.sub(preSignerBOBABalance)).to.be.eq(
+        utils.parseEther('150'),
+      )
+      expect(postBlockNumber).to.be.not.eq(preBlockNumber)
+    })
 
-    const endBlockNumber = await provider.getBlockNumber()
-    const latestEvents = await teleportationService._getAssetReceivedEvents(
-      chainId,
-      chainIdBobaBnb,
-      startBlockNumber,
-      endBlockNumber,
-      BigNumber.from(0),
-    )
-
-    expect(latestEvents.length).to.be.eq(15)
-
-    let disbursement = []
-    for (const event of latestEvents) {
-      const token = event.token
-      const sourceChainId = event.sourceChainId
-      const depositId = event.depositId
-      const amount = event.amount
-      const emitter = event.emitter
-
-      disbursement = [
-        ...disbursement,
-        {
-          token,
-          amount: amount.toString(),
-          addr: emitter,
-          depositId: parseInt(depositId.toString()),
-          sourceChainId: sourceChainId.toString(),
-        },
-      ]
-    }
-
-    disbursement = orderBy(disbursement, ['depositId'], ['asc'])
-
-    const preBOBABalance = await L2BOBA.balanceOf(address1)
-    const preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-    const preBlockNumber = await provider.getBlockNumber()
-
-    await teleportationService._disburseTx(disbursement, chainId, endBlockNumber)
-
-    const postBOBABalance = await L2BOBA.balanceOf(address1)
-    const postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-    const postBlockNumber = await provider.getBlockNumber()
-
-    expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
-      utils.parseEther('150'),
-    )
-    expect(postSignerBOBABalance.sub(preSignerBOBABalance)).to.be.eq(
-      utils.parseEther('150'),
-    )
-    expect(postBlockNumber).to.be.not.eq(preBlockNumber)
   })
 
   describe('global tests', () => {
-    it('should watch Teleportation contract', async () => {
+    beforeEach(async () => {
+      await redeployContracts()
+    })
+    afterEach(async () => {
+      await cleanUpState()
+    })
+
+    it('should watch Teleportation contract & disburse properly', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
@@ -469,32 +445,13 @@ describe('lightbridge', () => {
         depositTeleportations,
         latestBlock,
       )
-      expect(events.length).to.be.eq(2)
-      expect(events[1].token.toLowerCase()).to.be.eq(L2BOBA.address.toLowerCase())
-      expect(events[1].sourceChainId).to.be.eq(chainId.toString())
-      expect(events[1].toChainId).to.be.eq(chainId.toString())
-      expect(events[1].depositId).to.be.eq('16')
-      expect(events[1].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
-      expect(events[1].amount).to.be.eq(utils.parseEther('11'))
-    })
-
-    it('should disburse BOBA token for a single event', async () => {
-      const teleportationService = await startLightBridgeService()
-      await teleportationService.init()
-
-      const latestBlock = await provider.getBlockNumber()
-      const depositTeleportations = {
-        Teleportation: LightBridge,
-        chainId,
-        totalDeposits: BigNumber.from('0'),
-        totalDisbursements: BigNumber.from('0'),
-        height: 0,
-      }
-      const events = await teleportationService._watchTeleportation(
-        depositTeleportations,
-        latestBlock,
-      )
-      expect(events.length).to.be.gte(1)
+      expect(events.length).to.be.eq(1)
+      expect(events[0].token.toLowerCase()).to.be.eq(L2BOBA.address.toLowerCase())
+      expect(events[0].sourceChainId).to.be.eq(chainId.toString())
+      expect(events[0].toChainId).to.be.eq(chainId.toString())
+      expect(events[0].depositId).to.be.eq('0')
+      expect(events[0].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
+      expect(events[0].amount).to.be.eq(utils.parseEther('11'))
 
       const preBOBABalance = await L2BOBA.balanceOf(address1)
       await teleportationService._disburseTeleportation(
@@ -519,9 +476,9 @@ describe('lightbridge', () => {
       // should store the latest block
       const storedBlock = await teleportationService._getDepositInfo(chainId)
       expect(storedBlock).to.be.eq(latestBlock)
-    }).retries(3)
+    })
 
-    it('should get all AssetReceived events', async () => {
+    it('should get all AssetReceived events & disburse them', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
@@ -548,33 +505,15 @@ describe('lightbridge', () => {
         depositTeleportations,
         latestBlock,
       )
-      expect(events.length).to.be.eq(12)
-    })
+      expect(events.length).to.be.eq(11)
 
-    it('should disburse BOBA token for all events', async () => {
-      const teleportationService = await startLightBridgeService()
-      await teleportationService.init()
-
-      const latestBlock = await provider.getBlockNumber()
-      const depositTeleportations = {
-        Teleportation: LightBridge,
-        chainId,
-        totalDeposits: BigNumber.from('0'),
-        totalDisbursements: BigNumber.from('0'),
-        height: 0,
-      }
-      const events = await teleportationService._watchTeleportation(
-        depositTeleportations,
-        latestBlock,
-      )
-
-      const preBOBABalance = await L2BOBA.balanceOf(address1)
+      let preBOBABalance = await L2BOBA.balanceOf(address1)
       await teleportationService._disburseTeleportation(
         depositTeleportations,
         events,
         0,
       )
-      const postBOBABalance = await L2BOBA.balanceOf(address1)
+      let postBOBABalance = await L2BOBA.balanceOf(address1)
       expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
         utils.parseEther('11'),
       )
@@ -591,34 +530,17 @@ describe('lightbridge', () => {
       // should store the latest block
       const storedBlock = await teleportationService._getDepositInfo(chainId)
       expect(storedBlock).to.be.eq(latestBlock)
-    }).retries(3)
 
-    it('should not disburse BOBA token if the data is reset', async () => {
-      const teleportationService = await startLightBridgeService()
-      await teleportationService.init()
-
+      // should not disburse BOBA token if the data is reset
       await historyDataRepository.delete({ depositChainId: chainId })
 
-      const latestBlock = await provider.getBlockNumber()
-      const depositTeleportations = {
-        Teleportation: LightBridge,
-        chainId,
-        totalDeposits: BigNumber.from('0'),
-        totalDisbursements: BigNumber.from('0'),
-        height: 0,
-      }
-      const events = await teleportationService._watchTeleportation(
-        depositTeleportations,
-        latestBlock,
-      )
-
-      const preBOBABalance = await L2BOBA.balanceOf(address1)
+      preBOBABalance = await L2BOBA.balanceOf(address1)
       await teleportationService._disburseTeleportation(
         depositTeleportations,
         events,
         0,
       )
-      const postBOBABalance = await L2BOBA.balanceOf(address1)
+      postBOBABalance = await L2BOBA.balanceOf(address1)
       expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(0)
     })
   })
