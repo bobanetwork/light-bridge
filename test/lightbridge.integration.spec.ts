@@ -175,10 +175,10 @@ describe.only('lightbridge', () => {
   let snapShotId: string
   const cleanUpState = async (snapShotIdOverride?: string) => {
     await provider.send('evm_revert', [snapShotIdOverride ? snapShotIdOverride : snapShotId])
-    await historyDataRepository.delete({})
+    await historyDataRepository.clear()
 
     await delay(1000) // wait for graphql to resync
-    console.log("Resetted blockchain state..")
+    console.log("Resetted blockchain state..", snapShotIdOverride ? snapShotIdOverride : snapShotId)
   }
 
   const waitForSubgraph = async () => {
@@ -240,14 +240,14 @@ describe.only('lightbridge', () => {
     })
   }
 
-  it('should create LightBridgeService', async () => {
-    const teleportationService = await startLightBridgeService()
-    await teleportationService.init()
-  })
-
   describe.only('unit function tests', () => {
     afterEach(async () => {
       await cleanUpState()
+    })
+
+    it('should create LightBridgeService', async () => {
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
     })
 
     it('should disburse and block double disbursements', async () => {
@@ -355,21 +355,34 @@ describe.only('lightbridge', () => {
 
       await provider.send('anvil_mine', [])
 
+      let endBlockNumber = await provider.getBlockNumber()
+      let latestEvents = await teleportationService._getAssetReceivedEvents(
+        chainId,
+        chainIdBobaBnb,
+        0,
+        endBlockNumber,
+        BigNumber.from(0),
+      )
+
+      expect(latestEvents.length).to.be.eq(0)
+
       // deposit token
+      const txPromises = []
       for (let i = 0; i < 15; i++) {
         await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
-        const res = await LightBridge.connect(signer).teleportAsset(
+        txPromises.push(await LightBridge.connect(signer).teleportAsset(
           L2BOBA.address,
           utils.parseEther('10'),
           chainIdBobaBnb,
-        )
-        await res.wait()
-      }
+        ))
+              }
+      await Promise.all(txPromises.map(async (tx) => tx.wait()))
+      console.log("Waited for tx..")
 
       await waitForSubgraph()
 
-      const endBlockNumber = await provider.getBlockNumber()
-      const latestEvents = await teleportationService._getAssetReceivedEvents(
+      endBlockNumber = await provider.getBlockNumber()
+      latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
         0,

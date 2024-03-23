@@ -6,3 +6,6 @@ nyc_output
 .git
 .env
 artifacts
+local-subgraphs
+.husky
+.github
