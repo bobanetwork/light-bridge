@@ -10,3 +10,7 @@ cache
 nyc_output
 dist/
 artifacts/
+local-subgraphs/**/data
+local-subgraphs/**/generated
+local-subgraphs/**/build
+data/

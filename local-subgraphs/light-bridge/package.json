@@ -1,0 +1,20 @@
+{
+  "name": "light-bridge",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "create-local-eth": "graph create --node http://graph-node_eth:8020/ light-bridge",
+    "remove-local-eth": "graph remove --node http://graph-node_eth:8020/ light-bridge",
+    "deploy-local-eth": "graph deploy --node http://graph-node_eth:8020/ --ipfs http://ipfs_eth:5001 --version-label v1.0.0 light-bridge",
+    "create-local-bnb": "graph create --node http://graph-node_bnb:8020/ light-bridge",
+    "remove-local-bnb": "graph remove --node http://graph-node_bnb:8020/ light-bridge",
+    "deploy-local-bnb": "graph deploy --node http://graph-node_bnb:8020/ --ipfs http://ipfs_bnb:5001 --version-label v1.0.0 light-bridge",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.69.0",
+    "@graphprotocol/graph-ts": "0.32.0"
+  },
+  "devDependencies": { "matchstick-as": "0.5.0" }
+}
