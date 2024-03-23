@@ -22,7 +22,6 @@ import LightBridgeABI from '../artifacts/contracts/LightBridge.sol/LightBridge.j
 
 /* Imports: Interface */
 import {
-  AssetReceivedEvent,
   ChainInfo,
   DepositTeleportations,
   Disbursement,
@@ -36,6 +35,10 @@ import { historyDataRepository, lastAirdropRepository } from './data-source'
 import { KMSSigner } from './utils/kms-signing'
 import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
+import {
+  LightBridgeAssetReceivedEvent,
+  lightBridgeGraphQLService,
+} from '@bobanetwork/graphql-utils'
 
 interface TeleportationOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -207,10 +210,8 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const latestBlock =
           await depositTeleportation.Teleportation.provider.getBlockNumber()
         try {
-          const events: AssetReceivedEvent[] = await this._watchTeleportation(
-            depositTeleportation,
-            latestBlock
-          )
+          const events: LightBridgeAssetReceivedEvent[] =
+            await this._watchTeleportation(depositTeleportation, latestBlock)
           await this._disburseTeleportation(
             depositTeleportation,
             events,
@@ -234,7 +235,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   async _watchTeleportation(
     depositTeleportation: DepositTeleportations,
     latestBlock: number
-  ): Promise<AssetReceivedEvent[]> {
+  ): Promise<LightBridgeAssetReceivedEvent[]> {
     let lastBlock: number
     const depositChainId = depositTeleportation.chainId.toString()
     try {
@@ -247,17 +248,20 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // store the new deposit info
       await this._putDepositInfo(depositChainId, lastBlock)
     }
-    return this._getEvents(
-      depositTeleportation.Teleportation,
-      this.state.Teleportation.filters.AssetReceived(),
+
+    return this._getAssetReceivedEvents(
+      depositTeleportation.chainId,
+      this.options.chainId,
       lastBlock,
-      latestBlock
+      latestBlock,
+      depositTeleportation.totalDisbursements
+      // do not provide contract as only supported locally to avoid subgraph collisions
     )
   }
 
   async _disburseTeleportation(
     depositTeleportation: DepositTeleportations,
-    events: AssetReceivedEvent[],
+    events: LightBridgeAssetReceivedEvent[],
     latestBlock: number
   ): Promise<void> {
     const depositChainId = depositTeleportation.chainId
@@ -273,12 +277,18 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
       try {
         for (const event of events) {
-          const sourceChainId: BigNumber = event.args.sourceChainId
-          const depositId = event.args.depositId
-          const amount = event.args.amount
-          const sourceChainTokenAddr = event.args.token
-          const emitter = event.args.emitter
-          const destChainId = event.args.toChainId
+          const sourceChainId: BigNumber = BigNumber.from(
+            event.sourceChainId.toString()
+          )
+          const depositId: BigNumber = BigNumber.from(
+            event.depositId.toString()
+          )
+          const amount: BigNumber = BigNumber.from(event.amount.toString())
+          const sourceChainTokenAddr = event.token
+          const emitter = event.emitter
+          const destChainId: BigNumber = BigNumber.from(
+            event.toChainId.toString()
+          )
 
           if (destChainId.toString() !== this.options.chainId.toString()) {
             this.logger.info(
@@ -499,16 +509,18 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       const nextDisbursement = disbursements.find(
         (d) => nextDepositIds[sourceChainId] === d.depositId.toString()
       )
-      if (!nextDisbursement) {
+      if (disbursements.length > 0 && !nextDisbursement) {
         this.logger.error(
           `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`
         )
         await this._putDepositInfo(
           sourceChainId,
-          BobaChains[sourceChainId].height
+          BobaChains[sourceChainId]?.height ?? 0 // for local
         )
         this.logger.warn(
-          `Deposit info has ben RESET back to block: ${BobaChains[sourceChainId].height} for chainId ${sourceChainId}`
+          `Deposit info has ben RESET back to block: ${
+            BobaChains[sourceChainId]?.height ?? 0
+          } for chainId ${sourceChainId}`
         )
         throw new Error('Could not recover DB state, service reset initiated..')
       } else {
@@ -647,26 +659,35 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
   }
 
   // get events from the contract
-  async _getEvents(
-    contract: Contract,
-    event: EventFilter,
+  async _getAssetReceivedEvents(
+    sourceChainId: number,
+    targetChainId: number,
     fromBlock: number,
-    toBlock: number
-  ): Promise<any> {
-    let events = []
-    let startBlock = fromBlock
-    while (startBlock < toBlock) {
-      const endBlock =
-        Math.min(startBlock + this.options.blockRangePerPolling, toBlock) + 1 // also include toBlock
-      const partialEvents = await contract.queryFilter(
-        event,
-        startBlock,
-        endBlock
+    toBlock: number,
+    minDepositId?: BigNumber,
+    contract?: string
+  ): Promise<LightBridgeAssetReceivedEvent[]> {
+    const events: LightBridgeAssetReceivedEvent[] =
+      await lightBridgeGraphQLService.queryAssetReceivedEvent(
+        sourceChainId,
+        targetChainId,
+        null,
+        fromBlock,
+        toBlock,
+        minDepositId?.toNumber()
       )
-      events = [...events, ...partialEvents]
-      startBlock = endBlock
-    }
-    return events
+    return events.map((e) => {
+      // make sure typings are correct
+      return {
+        ...e,
+        sourceChainId: BigNumber.from(e.sourceChainId.toString()),
+        toChainId: BigNumber.from(e.toChainId.toString()),
+        depositId: BigNumber.from(e.depositId.toString()),
+        amount: BigNumber.from(e.amount.toString()),
+        block_number: BigNumber.from(e.block_number.toString()),
+        timestamp_: BigNumber.from(e.timestamp_.toString()),
+      }
+    })
   }
 
   /**
@@ -700,7 +721,9 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
     if (!supportedAsset) {
       throw new Error(
-        `Asset ${srcChainTokenSymbol} on chain destinationChain not configured but possibly supported on-chain`
+        `Asset ${srcChainTokenSymbol} on chain destinationChain not configured but possibly supported on-chain: ${sourceChainTokenAddr} - ${sourceChainId} - supported: ${JSON.stringify(
+          srcChain.supportedAssets
+        )}`
       )
     }
     return supportedAsset[0] // return only address
