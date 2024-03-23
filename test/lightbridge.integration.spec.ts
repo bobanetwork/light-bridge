@@ -53,7 +53,7 @@ describe.only('lightbridge', () => {
 
   after(async () => {
     // Reset blockchain state
-    await provider.send('evm_revert', ['0x1'])
+    //await provider.send('evm_revert', ['0x1'])
   })
 
   before(async () => {
@@ -173,11 +173,17 @@ describe.only('lightbridge', () => {
   }
 
   let snapShotId: string
-  const cleanUpState = async () => {
-    await provider.send('evm_revert', [snapShotId])
+  const cleanUpState = async (snapShotIdOverride?: string) => {
+    await provider.send('evm_revert', [snapShotIdOverride ? snapShotIdOverride : snapShotId])
+    await historyDataRepository.delete({})
+
     await delay(1000) // wait for graphql to resync
     console.log("Resetted blockchain state..")
-    // TODO: Is graphnode able to understand this?
+  }
+
+  const waitForSubgraph = async () => {
+    await provider.send('anvil_mine', [])
+    await delay(4000)
   }
 
   before(async () => {
@@ -244,7 +250,7 @@ describe.only('lightbridge', () => {
       await cleanUpState()
     })
 
-    it.only('should disburse and block double disbursements', async () => {
+    it('should disburse and block double disbursements', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
@@ -268,17 +274,19 @@ describe.only('lightbridge', () => {
       )
       await res.wait()
 
+      const totalDeposits = await LightBridge.totalDeposits(chainIdBobaBnb)
+      expect(totalDeposits.toString()).to.be.eq('1')
+
+      await waitForSubgraph()
+
       const latestBlockNumber = await provider.getBlockNumber()
       const latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
-        blockNumber,
+        0,
         latestBlockNumber,
         BigNumber.from(0),
       )
-
-      const totalDeposits = await LightBridge.totalDeposits(chainIdBobaBnb)
-      expect(totalDeposits.toString()).to.be.eq('1')
 
       expect(latestEvents.length).to.be.eq(1)
       expect(latestEvents[0].sourceChainId).to.be.eq(chainId.toString())
@@ -345,24 +353,26 @@ describe.only('lightbridge', () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
-      const startBlockNumber = await provider.getBlockNumber()
       await provider.send('anvil_mine', [])
 
       // deposit token
       for (let i = 0; i < 15; i++) {
         await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
-        await LightBridge.connect(signer).teleportAsset(
+        const res = await LightBridge.connect(signer).teleportAsset(
           L2BOBA.address,
           utils.parseEther('10'),
           chainIdBobaBnb,
         )
+        await res.wait()
       }
+
+      await waitForSubgraph()
 
       const endBlockNumber = await provider.getBlockNumber()
       const latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
-        startBlockNumber,
+        0,
         endBlockNumber,
         BigNumber.from(0),
       )
@@ -413,9 +423,6 @@ describe.only('lightbridge', () => {
   })
 
   describe('global tests', () => {
-    beforeEach(async () => {
-      await redeployContracts()
-    })
     afterEach(async () => {
       await cleanUpState()
     })
@@ -426,17 +433,19 @@ describe.only('lightbridge', () => {
 
       // deposit token
       await L2BOBA.approve(LightBridge.address, utils.parseEther('11'))
-      await LightBridge.connect(signer).teleportAsset(
+      const res = await LightBridge.connect(signer).teleportAsset(
         L2BOBA.address,
         utils.parseEther('11'),
-        chainId,
+        chainIdBobaBnb,
       )
+      await res.wait()
+      await waitForSubgraph()
 
       // check events
       const latestBlock = await provider.getBlockNumber()
       const depositTeleportations = {
         Teleportation: LightBridge,
-        chainId,
+        chainId: chainIdBobaBnb,
         totalDeposits: BigNumber.from('0'),
         totalDisbursements: BigNumber.from('0'),
         height: 0,
@@ -485,18 +494,20 @@ describe.only('lightbridge', () => {
       // deposit token
       await L2BOBA.approve(LightBridge.address, utils.parseEther('100'))
       for (let i = 0; i < 11; i++) {
-        await LightBridge.connect(signer).teleportAsset(
+        const res = await LightBridge.connect(signer).teleportAsset(
           L2BOBA.address,
           utils.parseEther('1'),
-          chainId,
+          chainIdBobaBnb,
         )
+        await res.wait()
       }
+      await waitForSubgraph()
 
       // check events
       const latestBlock = await provider.getBlockNumber()
       const depositTeleportations = {
         Teleportation: LightBridge,
-        chainId,
+        chainId: chainIdBobaBnb,
         totalDeposits: BigNumber.from('0'),
         totalDisbursements: BigNumber.from('0'),
         height: 0,
@@ -546,6 +557,12 @@ describe.only('lightbridge', () => {
   })
 
   describe('asset routing', () => {
+    let assetRoutingSnapshotId: string
+
+    afterEach(async () => {
+      await cleanUpState(assetRoutingSnapshotId)
+    })
+
     before(async () => {
       LightBridgeBNB = await Factory__Teleportation.deploy()
       await LightBridge.deployTransaction.wait()
@@ -671,6 +688,9 @@ describe.only('lightbridge', () => {
           layer: EAirdropSource.ALLOW,
         },
       ]
+
+      assetRoutingSnapshotId = await provider.send('evm_snapshot', [])
+      console.log('Created snapshot of blockchain for asset routing: ', assetRoutingSnapshotId)
     })
 
     it('teleport BOBA as token from chain A (e.g. BNB) to chain B (ETH)', async () => {

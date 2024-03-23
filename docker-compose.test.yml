@@ -47,6 +47,8 @@ services:
       ipfs: "ipfs_eth:5001"
       ethereum: "local_eth:http://anvil_eth:8545"
       GRAPH_LOG: info
+      ETHEREUM_REORG_THRESHOLD: 1
+      ETHEREUM_ANCESTOR_COUNT: 1
   ipfs_eth:
     image: ipfs/kubo:v0.17.0
   postgres_eth:
@@ -88,6 +90,8 @@ services:
       ipfs: "ipfs_bnb:5001"
       ethereum: "local_bnb:http://anvil_bnb:8545"
       GRAPH_LOG: info
+      ETHEREUM_REORG_THRESHOLD: 1
+      ETHEREUM_ANCESTOR_COUNT: 1
   ipfs_bnb:
     image: ipfs/kubo:v0.17.0
   postgres_bnb:
