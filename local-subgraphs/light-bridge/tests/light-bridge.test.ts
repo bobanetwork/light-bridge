@@ -9,7 +9,7 @@ import {
 import { Address, BigInt } from "@graphprotocol/graph-ts"
 import { AssetBalanceWithdrawn } from "../generated/schema"
 import { AssetBalanceWithdrawn as AssetBalanceWithdrawnEvent } from "../generated/LightBridge/LightBridge"
-import { handleAssetBalanceWithdrawn } from "../src/light-bridge"
+import { handleAssetBalanceWithdrawn } from "../src/teleportation"
 import { createAssetBalanceWithdrawnEvent } from "./light-bridge-utils"
 
 // Tests structure (matchstick-as >=0.5.0)

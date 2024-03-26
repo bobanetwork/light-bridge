@@ -1,0 +1,7 @@
+FROM node:lts-alpine3.18
+COPY package.json ./
+RUN npm install
+COPY . .
+RUN npm run codegen-eth && npm run build-eth
+RUN ["chmod", "+x", "./deploy-eth.sh"]
+ENTRYPOINT ["./deploy-eth.sh"]

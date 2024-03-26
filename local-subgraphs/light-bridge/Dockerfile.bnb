@@ -1,0 +1,7 @@
+FROM node:lts-alpine3.18
+COPY package.json ./
+RUN npm install
+COPY . .
+RUN npm run codegen-bnb && npm run build-bnb
+RUN ["chmod", "+x", "./deploy-bnb.sh"]
+ENTRYPOINT ["./deploy-bnb.sh"]

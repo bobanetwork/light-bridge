@@ -2,14 +2,16 @@
   "name": "light-bridge",
   "license": "UNLICENSED",
   "scripts": {
-    "codegen": "graph codegen",
-    "build": "graph build",
+    "codegen-eth": "graph codegen ./subgraph_eth.yaml",
+    "codegen-bnb": "graph codegen ./subgraph_bnb.yaml",
+    "build-eth": "graph build ./subgraph_eth.yaml",
+    "build-bnb": "graph build ./subgraph_bnb.yaml",
     "create-local-eth": "graph create --node http://graph-node_eth:8020/ light-bridge",
     "remove-local-eth": "graph remove --node http://graph-node_eth:8020/ light-bridge",
-    "deploy-local-eth": "graph deploy --node http://graph-node_eth:8020/ --ipfs http://ipfs_eth:5001 --version-label v1.0.0 light-bridge",
+    "deploy-local-eth": "graph deploy --node http://graph-node_eth:8020/ --ipfs http://ipfs_eth:5001 --version-label v1.0.0 light-bridge ./subgraph_eth.yaml",
     "create-local-bnb": "graph create --node http://graph-node_bnb:8020/ light-bridge",
     "remove-local-bnb": "graph remove --node http://graph-node_bnb:8020/ light-bridge",
-    "deploy-local-bnb": "graph deploy --node http://graph-node_bnb:8020/ --ipfs http://ipfs_bnb:5001 --version-label v1.0.0 light-bridge",
+    "deploy-local-bnb": "graph deploy --node http://graph-node_bnb:8020/ --ipfs http://ipfs_bnb:5001 --version-label v1.0.0 light-bridge ./subgraph_bnb.yaml",
     "test": "graph test"
   },
   "dependencies": {
