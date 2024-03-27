@@ -93,11 +93,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       this.options.teleportationAddress,
       LightBridgeABI.abi,
       this.options.l2RpcProvider
-    ) /*await getBobaContractAt(
-      'Teleportation',
-      this.options.teleportationAddress,
-      this.options.l2RpcProvider
-    )*/
+    )
 
     this.logger.info('Connected to Teleportation', {
       address: this.state.Teleportation.address,
