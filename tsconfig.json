@@ -1,4 +1,11 @@
 {
+  "exclude": [
+    "local-subgraphs",
+    "node_modules",
+    "artifacts",
+    "build",
+    "cache"
+  ],
   "compilerOptions": {
     "allowJs": true,
     "lib": [
