@@ -34,8 +34,10 @@ enum ChainIds {
     BOBA_GOERLI_TESTNET = 2888,
     BOBA_BNB_TESTNET = 9728,
     BNB_TESTNET = 97,
-    OPTIMISM_TESTNET = 420,
-    ARBITRUM_TESTNET = 421613,
+    OPTIMISM_GOERLI_TESTNET = 420,
+    OPTIMISM_SEPOLIA_TESTNET = 11155420,
+    ARBITRUM_GOERLI_TESTNET = 421613,
+    ARBITRUM_SEPOLIA_TESTNET = 421614,
 
     /*LOCAL = 31337,
     LOCAL_2 = 31338,
@@ -335,7 +337,7 @@ async function main() {
         // limitedNetworks (ARB/OP)
         {
             // only supporting onboarding
-            fromChainId: ChainIds.OPTIMISM_TESTNET,
+            fromChainId: ChainIds.OPTIMISM_GOERLI_TESTNET,
             toChainId: ChainIds.BOBA_GOERLI_TESTNET,
             fromTokenAddr: '0x0000000000000000000000000000000000000000', // eth
             minAmount: DEFAULT_ROUTING_CONF.ETH.minAmount,
@@ -344,8 +346,26 @@ async function main() {
         },
         {
             // only supporting onboarding
-            fromChainId: ChainIds.ARBITRUM_TESTNET,
+            fromChainId: ChainIds.ARBITRUM_GOERLI_TESTNET,
             toChainId: ChainIds.BOBA_GOERLI_TESTNET,
+            fromTokenAddr: '0x0000000000000000000000000000000000000000', // eth
+            minAmount: DEFAULT_ROUTING_CONF.ETH.minAmount,
+            maxAmount: DEFAULT_ROUTING_CONF.ETH.maxAmount,
+            maxDailyAmount: DEFAULT_ROUTING_CONF.ETH.maxDailyAmount,
+        },
+        {
+            // only supporting onboarding
+            fromChainId: ChainIds.OPTIMISM_SEPOLIA_TESTNET,
+            toChainId: ChainIds.BOBA_SEPOLIA_TESTNET,
+            fromTokenAddr: '0x0000000000000000000000000000000000000000', // eth
+            minAmount: DEFAULT_ROUTING_CONF.ETH.minAmount,
+            maxAmount: DEFAULT_ROUTING_CONF.ETH.maxAmount,
+            maxDailyAmount: DEFAULT_ROUTING_CONF.ETH.maxDailyAmount,
+        },
+        {
+            // only supporting onboarding
+            fromChainId: ChainIds.ARBITRUM_SEPOLIA_TESTNET,
+            toChainId: ChainIds.BOBA_SEPOLIA_TESTNET,
             fromTokenAddr: '0x0000000000000000000000000000000000000000', // eth
             minAmount: DEFAULT_ROUTING_CONF.ETH.minAmount,
             maxAmount: DEFAULT_ROUTING_CONF.ETH.maxAmount,
