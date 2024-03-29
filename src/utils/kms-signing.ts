@@ -212,7 +212,7 @@ export class KMSSigner {
     let tx: Transaction | FeeMarketEIP1559Transaction
 
     if (supportsEIP1559) {
-      let common = new Common({ chain: chainId })
+      let common: Common
       if (Common.isSupportedChainId(BigInt(chainId))) {
         common = new Common({ chain: chainId })
       } else {
