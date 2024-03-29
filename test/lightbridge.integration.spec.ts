@@ -2137,8 +2137,8 @@ describe('lightbridge', () => {
   describe('OMG support', () => {
       before(async () => {
         const Factory_OMGLike = new ethers.ContractFactory(
-          OmgToken.abi,
-          OmgToken.bytecode,
+          L1ERC20Json.abi,
+          L1ERC20Json.bytecode,
           signer
         )
         OMGLikeToken = await Factory_OMGLike.deploy(
@@ -2149,6 +2149,116 @@ describe('lightbridge', () => {
         )
         await OMGLikeToken.deployTransaction.wait()
         await OMGLikeToken.transfer(address1, utils.parseEther('100000000'))
+
+        await LightBridge.addSupportedToken(
+          OMGLikeToken.address,
+          chainId,
+          defaultMinDepositAmount,
+          defaultMaxDepositAmount,
+          defaultMaxTransferPerDay
+        )
+
+        selectedBobaChains = selectedBobaChains = [
+          {
+            chainId,
+            url: providerUrl,
+            provider: provider,
+            testnet: true,
+            name: 'localhost',
+            teleportationAddress: LightBridge.address,
+            height: 0,
+            supportedAssets: {
+              [L2BOBA.address?.toLowerCase()]: Asset.BOBA,
+              [ethers.constants.AddressZero?.toLowerCase()]: Asset.ETH,
+              [OMGLikeToken.address?.toLowerCase()]: Asset.OMG,
+            },
+            airdropConfig: { ...airdropConfig, airdropEnabled: false },
+            layer: EAirdropSource.ALLOW,
+          },
+          // bnb will be added in routing tests to have cleaner before hooks
+        ]
+        selectedBobaChainsBnb = selectedBobaChains
       })
+
+    it('should bridge OMG token', async () => {
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
+
+      const blockNumber = await provider.getBlockNumber()
+
+      // deposit token
+      await OMGLikeToken.approve(LightBridge.address, utils.parseEther('10'))
+      const res = await LightBridge.connect(signer).teleportAsset(
+        OMGLikeToken.address,
+        utils.parseEther('10'),
+        chainId
+      )
+      await res.wait()
+
+      await waitForSubgraph()
+
+      const latestBlockNumber = await provider.getBlockNumber()
+      const latestEvents = await teleportationService._getAssetReceivedEvents(
+        chainId,
+        chainId,
+        blockNumber,
+        latestBlockNumber,
+        null,
+        LightBridge.address
+      )
+
+      expect(latestEvents.length).to.be.eq(1)
+      expect(latestEvents[0].sourceChainId).to.be.eq(chainId)
+      expect(latestEvents[0].toChainId).to.be.eq(chainId)
+      expect(latestEvents[0].depositId).to.be.eq(0)
+      expect(latestEvents[0].emitter.toLowerCase()).to.be.eq(
+        signerAddr.toLowerCase()
+      )
+      expect(latestEvents[0].amount).to.be.eq(utils.parseEther('10'))
+
+      let disbursement = []
+      for (const event of latestEvents) {
+        const sourceChainId = event.sourceChainId
+        const depositId = event.depositId
+        const amount = event.amount
+        const token = event.token
+        const emitter = event.emitter
+
+        disbursement = [
+          ...disbursement,
+          {
+            token,
+            amount: amount.toString(),
+            addr: emitter,
+            depositId: depositId.toNumber(),
+            sourceChainId: sourceChainId.toString(),
+          },
+        ]
+      }
+
+      disbursement = orderBy(disbursement, ['depositId'], ['asc'])
+
+      const preOMGBalance = await OMGLikeToken.balanceOf(address1)
+      const preSignerOMGBalance = await OMGLikeToken.balanceOf(signerAddr)
+
+      await teleportationService._disburseTx(disbursement, chainId, blockNumber)
+
+      const postOMGBalance = await OMGLikeToken.balanceOf(address1)
+      const postSignerOMGBalance = await OMGLikeToken.balanceOf(signerAddr)
+
+      expect(preOMGBalance.sub(postOMGBalance)).to.be.eq(
+        utils.parseEther('10')
+      )
+      expect(postSignerOMGBalance.sub(preSignerOMGBalance)).to.be.eq(
+        utils.parseEther('10')
+      )
+
+      const amountDisbursements = await LightBridge.connect(
+        signer
+      ).totalDisbursements(chainId)
+
+      expect(amountDisbursements).to.be.eq(1)
+    })
+
   })
 })
