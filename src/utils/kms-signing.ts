@@ -216,7 +216,7 @@ export class KMSSigner {
       if (Common.isSupportedChainId(BigInt(chainId))) {
         common = new Common({ chain: chainId })
       } else {
-        const chain = BobaChains[chainId]
+        const chain = BobaChains[chainId] ?? {31337: {name: 'Localhost:eth', networkId: 31337, chainId: 31337}, 31338: {name: 'Localhost:bnb', networkId: 31338, chainId: 31338}}[chainId]
         if (!chain) {
           throw new Error('Unsupported chainId and could not find network config in BobaChains: ' + chainId)
         }
