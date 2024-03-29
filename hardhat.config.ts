@@ -105,6 +105,8 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       bsc: process.env.BSCSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
+      op_sepolia: process.env.OPTIMISMSCAN_API_KEY,
+      arb_sepolia: process.env.ARBISCAN_API_KEY,
       boba_eth_mainnet: "boba", // not required, set placeholder
       boba_bnb_mainnet: "boba", // not required, set placeholder
       boba_goerli: "boba", // not required, set placeholder
@@ -112,6 +114,22 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       boba_sepolia: "boba", // not required, set placeholder
     },
     customChains: [
+      {
+        network: "op_sepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
+          browserURL: "https://sepolia-optimism.etherscan.io"
+        },
+      },
+      {
+        network: "arb_sepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io"
+        },
+      },
       {
         network: "boba_eth_mainnet",
         chainId: 288,
