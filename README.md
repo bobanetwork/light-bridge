@@ -230,3 +230,13 @@ Result:
 }
 
 ```
+
+---
+
+### OMG Token 
+To send the OMG Token you might need to reset the allowance back to 0 if it is too small. 
+
+// To change the approve amount you first have to reduce the addresses`
+//  allowance to zero by calling `approve(_spender, 0)` if it is not
+//  already 0 to mitigate the race condition described here:
+//  https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
