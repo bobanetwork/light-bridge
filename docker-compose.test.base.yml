@@ -120,7 +120,7 @@ services:
   anvil_eth:
     image: ghcr.io/foundry-rs/foundry:latest
     command:
-      - "anvil --hardfork berlin --chain-id 31337" # use legacy tx to emulate boba network
+      - "anvil --chain-id 31337" # use EIP 1559 tx to emulate new network (e.g. Boba Sepolia)
     environment:
       - ANVIL_IP_ADDR=0.0.0.0
 #    ports:
