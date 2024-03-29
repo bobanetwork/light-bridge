@@ -1,13 +1,13 @@
 import { HardhatUserConfig } from 'hardhat/types'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
-import "@nomiclabs/hardhat-etherscan";
+import '@nomiclabs/hardhat-etherscan'
 
 require('dotenv').config()
 
 const LOCAL_PK = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 
-const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} = {
+const config: HardhatUserConfig & { etherscan: { apiKey: any, customChains: any } } = {
   mocha: {
     timeout: 200000,
   },
@@ -78,17 +78,28 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
     },
   },
   solidity: {
-    version: '0.8.9',
-    settings: {
-      // 10k too much for boba mainnets, ..
-      optimizer: { enabled: true, runs: 200 },
-    },
+    compilers: [
+      {
+        version: '0.8.9',
+        settings: {
+          // 10k too much for boba mainnets, ..
+          optimizer: { enabled: true, runs: 200 },
+        },
+      },
+      {
+        version: '0.4.11',
+        settings: {
+          // 10k too much for boba mainnets, ..
+          optimizer: { enabled: true, runs: 200 },
+        },
+      },
+    ],
   },
   paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
-    artifacts: "./artifacts"
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
+    artifacts: './artifacts',
   },
   etherscan: {
     apiKey: {
@@ -97,55 +108,55 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       bsc: process.env.BSCSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
-      boba_eth_mainnet: "boba", // not required, set placeholder
-      boba_bnb_mainnet: "boba", // not required, set placeholder
-      boba_goerli: "boba", // not required, set placeholder
-      boba_bnb_testnet: "boba", // not required, set placeholder
-      boba_sepolia: "boba", // not required, set placeholder
+      boba_eth_mainnet: 'boba', // not required, set placeholder
+      boba_bnb_mainnet: 'boba', // not required, set placeholder
+      boba_goerli: 'boba', // not required, set placeholder
+      boba_bnb_testnet: 'boba', // not required, set placeholder
+      boba_sepolia: 'boba', // not required, set placeholder
     },
     customChains: [
       {
-        network: "boba_eth_mainnet",
+        network: 'boba_eth_mainnet',
         chainId: 288,
         urls: {
-          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/288/etherscan",
-          browserURL: "https://bobascan.com"
+          apiURL: 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan',
+          browserURL: 'https://bobascan.com',
         },
       },
       {
-        network: "boba_bnb_mainnet",
+        network: 'boba_bnb_mainnet',
         chainId: 56288,
         urls: {
-          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/56288/etherscan",
-          browserURL: "https://bobascan.com"
+          apiURL: 'https://api.routescan.io/v2/network/mainnet/evm/56288/etherscan',
+          browserURL: 'https://bobascan.com',
         },
       },
       {
-        network: "boba_goerli",
+        network: 'boba_goerli',
         chainId: 2888,
         urls: {
-          apiURL: "https://api.routescan.io/v2/network/testnet/evm/2888/etherscan",
-          browserURL: "https://testnet.bobascan.com"
+          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/2888/etherscan',
+          browserURL: 'https://testnet.bobascan.com',
         },
       },
       {
-        network: "boba_sepolia",
+        network: 'boba_sepolia',
         chainId: 28882,
         urls: {
-          apiURL: "https://api.routescan.io/v2/network/testnet/evm/28882/etherscan",
-          browserURL: "https://testnet.bobascan.com"
+          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/28882/etherscan',
+          browserURL: 'https://testnet.bobascan.com',
         },
       },
       {
-        network: "boba_bnb_testnet",
+        network: 'boba_bnb_testnet',
         chainId: 9728,
         urls: {
-          apiURL: "https://api.routescan.io/v2/network/testnet/evm/9728/etherscan",
-          browserURL: "https://testnet.bobascan.com"
+          apiURL: 'https://api.routescan.io/v2/network/testnet/evm/9728/etherscan',
+          browserURL: 'https://testnet.bobascan.com',
         },
-      }
+      },
     ],
-  }
+  },
 }
 
 export default config

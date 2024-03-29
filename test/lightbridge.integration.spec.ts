@@ -109,6 +109,7 @@ describe('lightbridge', () => {
   let L2BOBA: Contract
   let L2BNBOnBobaBnb: Contract
   let L2BNBOnBobaEth: Contract
+  let OMGLikeToken: Contract
 
   // Here to have an easy way to modify globally
   const airdropConfig = {
@@ -2131,5 +2132,23 @@ describe('lightbridge', () => {
         airdropConfig.airdropAmountWei
       )
     })
+  })
+
+  describe('OMG support', () => {
+      before(async () => {
+        const Factory_OMGLike = new ethers.ContractFactory(
+          OmgToken.abi,
+          OmgToken.bytecode,
+          signer
+        )
+        OMGLikeToken = await Factory_OMGLike.deploy(
+          utils.parseEther('100000000000'),
+          'OMG',
+          'OMG',
+          18
+        )
+        await OMGLikeToken.deployTransaction.wait()
+        await OMGLikeToken.transfer(address1, utils.parseEther('100000000'))
+      })
   })
 })
