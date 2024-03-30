@@ -168,7 +168,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             noDefaultAssetSupported = !isSupportedZero || !isSupportedZero[0]
             this.logger.info(
               `ZeroAddress is not supported either: ${noDefaultAssetSupported}`,
-              { serviceChainId: this.options.chainId }
+              { serviceChainId: this.options.chainId, destChainId: chainId }
             )
           }
         }
