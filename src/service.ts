@@ -138,7 +138,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const chainId = chain.chainId
         // assuming BOBA is enabled on supported networks to retain battle-tested logic
 
-        this.logger.info('Check if Boba or native supported for chainId: ', {
+        this.logger.debug('Check if Boba or native supported for chainId: ', {
           chainId,
           bobaTokenContractAddr: defaultAssetAddr,
           serviceChainId: this.options.chainId,
@@ -151,7 +151,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
         if (!isSupported || !isSupported[0]) {
           // do not fail, as secured on-chain anyway & run.ts just returns all testnets/mainnets - thus just ignore networks that don't support Boba
-          this.logger.info(
+          this.logger.warn(
             `Chain ${chainId} is not supported by the contract ${
               this.state.Teleportation.address
             } on chain ${
@@ -497,12 +497,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         )?.toString()
       })
     )
-    this.logger.info(`Unfiltered disbursements for db recovery: `, {
+    this.logger.debug(`Unfiltered disbursements for db recovery: `, {
       disbursements,
     })
     disbursements = disbursements.filter((d) => {
       // NOTE: Filter does not work with async, since a Promise object always gets interpreted as true
-      this.logger.info(`Filter iteration for new disbursements (db recover)`, {
+      this.logger.debug(`Filter iteration for new disbursements (db recover)`, {
         disbursement: d,
         sourceChain: d.sourceChainId,
         nextDepositIds,
@@ -512,7 +512,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
-    this.logger.info(`Filtered disbursements for db recovery: `, {
+    this.logger.debug(`Filtered disbursements for db recovery: `, {
       disbursements,
       nextDepositIdsKeys: Object.keys(nextDepositIds),
       nextDepositIds,

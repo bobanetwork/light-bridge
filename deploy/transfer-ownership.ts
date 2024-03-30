@@ -21,9 +21,9 @@ async function main() {
     const deployer = new Wallet(network.config.accounts[0], provider)
 
     const ADDRESSES = {
-        LIGHT_BRIDGE: '0x0dfFd3Efe9c3237Ad7bf94252296272c96237FF5',
-        NEW_DISBURSER: '0x2d02ce7ef2f359bdcf86e44f66345660725e5cce',
-        NEW_OWNER: '0x30687BDFA9CbEE46EBc7D0acA148971203C17ef8',
+        LIGHT_BRIDGE: '0x3fc06c53aa3Ef19ad7830f5F18C9186C676EdE29',
+        NEW_DISBURSER: '0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a',
+        NEW_OWNER: '',
     }
     console.log("Network: ", chainId, network.name)
     console.log("Your addresses: ", JSON.stringify(ADDRESSES))
