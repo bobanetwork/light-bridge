@@ -149,7 +149,27 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           chainId
         )
 
-        if (!isSupported || !isSupported[0]) {
+        let noDefaultAssetSupported = !isSupported || !isSupported[0]
+        if (noDefaultAssetSupported) {
+          this.logger.warn(
+            `(trying with zeroAddress too) Default asset ${defaultAssetAddr} is not supported for chainId ${chainId}, contract ${
+              this.state.Teleportation.address
+            } on chain ${
+              (await this.state.Teleportation.provider.getNetwork()).chainId
+            }`,
+            { serviceChainId: this.options.chainId }
+          )
+          if (defaultAssetAddr !== ethers.constants.AddressZero) {
+            const isSupportedZero = await this.state.Teleportation.supportedTokens(
+              ethers.constants.AddressZero,
+              chainId
+            )
+            noDefaultAssetSupported = !isSupportedZero || !isSupportedZero[0]
+            this.logger.info(`ZeroAddress is not supported either: ${noDefaultAssetSupported}`)
+          }
+        }
+
+        if (noDefaultAssetSupported) {
           // do not fail, as secured on-chain anyway & run.ts just returns all testnets/mainnets - thus just ignore networks that don't support Boba
           this.logger.warn(
             `Chain ${chainId} is not supported by the contract ${
