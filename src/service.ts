@@ -160,12 +160,16 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             { serviceChainId: this.options.chainId }
           )
           if (defaultAssetAddr !== ethers.constants.AddressZero) {
-            const isSupportedZero = await this.state.Teleportation.supportedTokens(
-              ethers.constants.AddressZero,
-              chainId
-            )
+            const isSupportedZero =
+              await this.state.Teleportation.supportedTokens(
+                ethers.constants.AddressZero,
+                chainId
+              )
             noDefaultAssetSupported = !isSupportedZero || !isSupportedZero[0]
-            this.logger.info(`ZeroAddress is not supported either: ${noDefaultAssetSupported}`)
+            this.logger.info(
+              `ZeroAddress is not supported either: ${noDefaultAssetSupported}`,
+              { serviceChainId: this.options.chainId }
+            )
           }
         }
 
