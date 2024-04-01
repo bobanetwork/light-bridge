@@ -717,12 +717,12 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // make sure typings are correct
       return {
         ...e,
-        sourceChainId: BigNumber.from(e.sourceChainId.toString()),
-        toChainId: BigNumber.from(e.toChainId.toString()),
-        depositId: BigNumber.from(e.depositId.toString()),
-        amount: BigNumber.from(e.amount.toString()),
-        block_number: BigNumber.from(e.block_number.toString()),
-        timestamp_: BigNumber.from(e.timestamp_.toString()),
+        sourceChainId: e.sourceChainId.toString(),
+        toChainId: e.toChainId.toString(),
+        depositId: e.depositId.toString(),
+        amount: e.amount.toString(),
+        block_number: e.block_number.toString(),
+        timestamp_: e.timestamp_.toString(),
       }
     })
   }
@@ -734,7 +734,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
    **/
   _getSupportedDestChainTokenAddrBySourceChainTokenAddr(
     sourceChainTokenAddr: string,
-    sourceChainId: BigNumber | number
+    sourceChainId: BigNumber | number | string
   ) {
     const srcChain: ChainInfo = this.state.supportedChains.find(
       (c) => c.chainId.toString() === sourceChainId.toString()

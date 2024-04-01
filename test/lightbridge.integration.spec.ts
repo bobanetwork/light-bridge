@@ -300,7 +300,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId.toString(),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -358,7 +358,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId.toString(),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -434,14 +434,14 @@ describe('lightbridge', () => {
         const amount = event.amount
         const emitter = event.emitter
 
-        if (!depositId.lt(lastDisbursement)) {
+        if (!parseInt(depositId.toString()) < lastDisbursement.toNumber()) {
           disbursement = [
             ...disbursement,
             {
               token,
               amount: amount.toString(),
               addr: emitter,
-              depositId: depositId.toNumber(),
+              depositId: depositId.toString(),
               sourceChainId: sourceChainId.toString(),
             },
           ]
@@ -817,7 +817,7 @@ describe('lightbridge', () => {
             token: receivingChainTokenAddr,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: depositId.toString(),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -921,7 +921,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: depositId.toString(),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1238,7 +1238,7 @@ describe('lightbridge', () => {
       const lastEvent = events.find(
         (e) =>
           e.token.toLowerCase() === L2BNBOnBobaBnb.address.toLowerCase() &&
-          e.block_number.toNumber() >= preBlockNumber
+          parseInt(e.block_number) >= preBlockNumber
       )
       expect(lastEvent).to.not.be.undefined
       console.log('Last Event for bnb bridging: ', JSON.stringify(lastEvent))
@@ -1263,7 +1263,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId.toString(),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1351,7 +1351,7 @@ describe('lightbridge', () => {
       const lastEvent = events.find(
         (e) =>
           e.token.toLowerCase() === L2BOBA.address.toLowerCase() &&
-          e.block_number.toNumber() >= preBlockNumber
+          parseInt(e.block_number) >= preBlockNumber
       )
       expect(lastEvent).to.not.be.undefined
       console.log('LAST EVENT: ', JSON.stringify(lastEvent))
@@ -1377,7 +1377,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId.toString(),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1599,7 +1599,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: depositId.toString(),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1839,7 +1839,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId.toString(),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -2074,7 +2074,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: depositId.toString(),
           sourceChainId: sourceChainId.toString(),
         },
       ]

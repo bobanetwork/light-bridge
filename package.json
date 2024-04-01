@@ -51,7 +51,7 @@
    "dependencies": {
       "@aws-sdk/client-kms": "^3.363.0",
       "@bobanetwork/core_contracts": "0.5.12",
-      "@bobanetwork/graphql-utils": "^1.0.41",
+      "@bobanetwork/graphql-utils": "^1.0.43",
       "@bobanetwork/light-bridge-chains": "^1.0.12",
       "@eth-optimism/common-ts": "0.2.2",
       "@ethereumjs/common": "^3.2.0",

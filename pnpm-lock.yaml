@@ -12,8 +12,8 @@ dependencies:
     specifier: 0.5.12
     version: 0.5.12(ethers@5.7.2)
   '@bobanetwork/graphql-utils':
-    specifier: ^1.0.41
-    version: 1.0.41(graphql@16.8.1)
+    specifier: ^1.0.43
+    version: 1.0.43(graphql@16.8.1)
   '@bobanetwork/light-bridge-chains':
     specifier: ^1.0.12
     version: 1.0.12
@@ -715,8 +715,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bobanetwork/graphql-utils@1.0.41(graphql@16.8.1):
-    resolution: {integrity: sha512-K3tBdTKANolknyhi39OFrGYf/yG0Kz0PMjFIETIKCYaFc+mA2DyyK5acv2bY7qsiGAQfYJcjXYfuOYchN+n5Dw==}
+  /@bobanetwork/graphql-utils@1.0.43(graphql@16.8.1):
+    resolution: {integrity: sha512-/HW13CAHyd4B0BEXbqgB997ann7DMyH2IytqhhRjQ+fcX3UjmN7f0sNkCY9TDPp7YGpwSSoZqe+DanObf3tf/Q==}
     dependencies:
       '@apollo/client': 3.5.10(graphql@16.8.1)
       '@ethersproject/providers': 5.7.2
