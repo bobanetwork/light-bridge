@@ -278,9 +278,9 @@ describe('lightbridge', () => {
       )
 
       expect(latestEvents.length).to.be.eq(1)
-      expect(latestEvents[0].sourceChainId).to.be.eq(chainId)
-      expect(latestEvents[0].toChainId).to.be.eq(chainId)
-      expect(latestEvents[0].depositId).to.be.eq(0)
+      expect(latestEvents[0].sourceChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].depositId.toString()).to.be.eq('0')
       expect(latestEvents[0].emitter.toLowerCase()).to.be.eq(
         signerAddr.toLowerCase()
       )
@@ -503,9 +503,9 @@ describe('lightbridge', () => {
       expect(events[0].token.toLowerCase()).to.be.eq(
         L2BOBA.address.toLowerCase()
       )
-      expect(events[0].sourceChainId).to.be.eq(chainId)
-      expect(events[0].toChainId).to.be.eq(chainId)
-      expect(events[0].depositId).to.be.eq(16)
+      expect(events[0].sourceChainId.toString()).to.be.eq(chainId.toString())
+      expect(events[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(events[0].depositId.toString()).to.be.eq('16')
       expect(events[0].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
       expect(events[0].amount).to.be.eq(utils.parseEther('11'))
     })
