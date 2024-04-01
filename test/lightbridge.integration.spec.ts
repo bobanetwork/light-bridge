@@ -278,9 +278,11 @@ describe('lightbridge', () => {
       )
 
       expect(latestEvents.length).to.be.eq(1)
-      expect(latestEvents[0].sourceChainId).to.be.eq(chainId)
-      expect(latestEvents[0].toChainId).to.be.eq(chainId)
-      expect(latestEvents[0].depositId).to.be.eq(0)
+      expect(latestEvents[0].sourceChainId.toString()).to.be.eq(
+        chainId.toString()
+      )
+      expect(latestEvents[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].depositId.toString()).to.be.eq('0')
       expect(latestEvents[0].emitter.toLowerCase()).to.be.eq(
         signerAddr.toLowerCase()
       )
@@ -300,7 +302,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -358,7 +360,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -434,14 +436,14 @@ describe('lightbridge', () => {
         const amount = event.amount
         const emitter = event.emitter
 
-        if (!depositId.lt(lastDisbursement)) {
+        if (!parseInt(depositId.toString()) < lastDisbursement.toNumber()) {
           disbursement = [
             ...disbursement,
             {
               token,
               amount: amount.toString(),
               addr: emitter,
-              depositId: depositId.toNumber(),
+              depositId: parseInt(depositId.toString()),
               sourceChainId: sourceChainId.toString(),
             },
           ]
@@ -503,9 +505,9 @@ describe('lightbridge', () => {
       expect(events[0].token.toLowerCase()).to.be.eq(
         L2BOBA.address.toLowerCase()
       )
-      expect(events[0].sourceChainId).to.be.eq(chainId)
-      expect(events[0].toChainId).to.be.eq(chainId)
-      expect(events[0].depositId).to.be.eq(16)
+      expect(events[0].sourceChainId.toString()).to.be.eq(chainId.toString())
+      expect(events[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(events[0].depositId.toString()).to.be.eq('16')
       expect(events[0].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
       expect(events[0].amount).to.be.eq(utils.parseEther('11'))
     })
@@ -817,7 +819,7 @@ describe('lightbridge', () => {
             token: receivingChainTokenAddr,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -921,7 +923,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1238,7 +1240,7 @@ describe('lightbridge', () => {
       const lastEvent = events.find(
         (e) =>
           e.token.toLowerCase() === L2BNBOnBobaBnb.address.toLowerCase() &&
-          e.block_number.toNumber() >= preBlockNumber
+          parseInt(e.block_number) >= preBlockNumber
       )
       expect(lastEvent).to.not.be.undefined
       console.log('Last Event for bnb bridging: ', JSON.stringify(lastEvent))
@@ -1263,7 +1265,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1351,7 +1353,7 @@ describe('lightbridge', () => {
       const lastEvent = events.find(
         (e) =>
           e.token.toLowerCase() === L2BOBA.address.toLowerCase() &&
-          e.block_number.toNumber() >= preBlockNumber
+          parseInt(e.block_number) >= preBlockNumber
       )
       expect(lastEvent).to.not.be.undefined
       console.log('LAST EVENT: ', JSON.stringify(lastEvent))
@@ -1377,7 +1379,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1599,7 +1601,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1839,7 +1841,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -2074,7 +2076,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
