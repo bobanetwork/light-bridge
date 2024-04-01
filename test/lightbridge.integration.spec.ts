@@ -278,7 +278,9 @@ describe('lightbridge', () => {
       )
 
       expect(latestEvents.length).to.be.eq(1)
-      expect(latestEvents[0].sourceChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].sourceChainId.toString()).to.be.eq(
+        chainId.toString()
+      )
       expect(latestEvents[0].toChainId.toString()).to.be.eq(chainId.toString())
       expect(latestEvents[0].depositId.toString()).to.be.eq('0')
       expect(latestEvents[0].emitter.toLowerCase()).to.be.eq(
@@ -300,7 +302,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toString(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -358,7 +360,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toString(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -441,7 +443,7 @@ describe('lightbridge', () => {
               token,
               amount: amount.toString(),
               addr: emitter,
-              depositId: depositId.toString(),
+              depositId: parseInt(depositId.toString()),
               sourceChainId: sourceChainId.toString(),
             },
           ]
@@ -817,7 +819,7 @@ describe('lightbridge', () => {
             token: receivingChainTokenAddr,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toString(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -921,7 +923,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toString(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1263,7 +1265,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toString(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1377,7 +1379,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toString(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1599,7 +1601,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toString(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1839,7 +1841,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toString(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -2074,7 +2076,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toString(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
