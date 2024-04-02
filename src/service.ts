@@ -811,6 +811,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
   async _getDepositInfo(chainId: number | string): Promise<number> {
     const historyData = await historyDataRepository.findOneBy({
+      serviceChainId: this.options.chainId,
       depositChainId: chainId,
     })
 
