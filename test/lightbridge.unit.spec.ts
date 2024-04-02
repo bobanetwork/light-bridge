@@ -1863,7 +1863,7 @@ describe('Asset Teleportation Tests', async () => {
   })
 })
 
-describe.only('Service unit tests', () => {
+describe('Service unit tests', () => {
   it('should return correct selectedBobaChains for mainnet', async () => {
     const { selectedBobaChains, originSupportedAssets } =
       selectedNetworkFilter(288)
