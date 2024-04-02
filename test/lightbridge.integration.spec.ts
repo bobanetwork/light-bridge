@@ -2174,18 +2174,11 @@ describe('service startup unit tests', () => {
   it('should watch correct networks for Boba Eth Testnet', async () => {
     const lbService = await createTestnetLightBridgeService()
 
-    console.log(
-      'JSON::::',
-      JSON.stringify(
-        lbService.state.depositTeleportations.map((c) => c.chainId)
-      )
-    )
-
     expect(
-      lbService.state.depositTeleportations.find((c) => c.chainId === 11155420)
+      lbService.state.depositTeleportations.find((c) => c.chainId.toString() === "11155420")
     ).to.not.be.undefined
     expect(
-      lbService.state.depositTeleportations.find((c) => c.chainId === 421614)
+      lbService.state.depositTeleportations.find((c) => c.chainId.toString() === "421614")
     ).to.not.be.undefined
   })
 })
