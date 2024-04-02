@@ -37,6 +37,26 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
   }
 }
 
+export const selectedNetworkFilter = (chainId: number) => {
+  let originSupportedAssets: SupportedAssets
+  const selectedBobaChains = Object.keys(BobaChains).reduce((acc, cur) => {
+    const chain = BobaChains[cur]
+    // only return testnets/mainnets accordingly
+    if (chain.testnet !== BobaChains[chainId].testnet) {
+      return acc
+    }
+
+    if (Number(cur) !== chainId) {
+      chain.provider = new providers.StaticJsonRpcProvider(chain.url)
+      acc.push({ chainId: cur, ...chain })
+    } else {
+      originSupportedAssets = chain.supportedAssets
+    }
+    return acc
+  }, [])
+  return { selectedBobaChains, originSupportedAssets }
+}
+
 const runService = async (opts: ILightBridgeOpts) => {
   const {
     rpcUrl,
@@ -70,18 +90,9 @@ const runService = async (opts: ILightBridgeOpts) => {
       throw new Error('FATAL error: Network Mode and chainConfig do not match!')
     }
     // do not override local networks, production code should ALWAYS go here, since localNetworks should be undefined.
-    selectedBobaChains = Object.keys(BobaChains).reduce((acc, cur) => {
-      const chain = BobaChains[cur]
-      if (isTestnet === chain.testnet) {
-        if (Number(cur) !== chainId) {
-          chain.provider = new providers.StaticJsonRpcProvider(chain.url)
-          acc.push({ chainId: cur, ...chain })
-        } else {
-          originSupportedAssets = chain.supportedAssets
-        }
-      }
-      return acc
-    }, [])
+    const networkFilter = selectedNetworkFilter(chainId)
+    selectedBobaChains = networkFilter.selectedBobaChains
+    originSupportedAssets = networkFilter.originSupportedAssets
     teleportationAddress = BobaChains[chainId].teleportationAddress
   }
 

@@ -25,12 +25,20 @@ import {
   Asset,
   EAirdropSource,
   ChainInfo,
+  BobaChains,
 } from '@bobanetwork/light-bridge-chains'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
 import { delay } from '../src/utils/misc.utils'
+import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
 
 dotenv.config()
+
+// Here to have an easy way to modify globally
+const airdropConfig = {
+  airdropAmountWei: ethers.utils.parseEther('1'),
+  airdropCooldownSeconds: 1000,
+}
 
 describe('lightbridge', () => {
   let providerUrl: string
@@ -109,12 +117,6 @@ describe('lightbridge', () => {
   let L2BOBA: Contract
   let L2BNBOnBobaBnb: Contract
   let L2BNBOnBobaEth: Contract
-
-  // Here to have an easy way to modify globally
-  const airdropConfig = {
-    airdropAmountWei: ethers.utils.parseEther('1'),
-    airdropCooldownSeconds: 1000,
-  }
 
   before(async () => {
     chainId = (await provider.getNetwork()).chainId
@@ -2133,5 +2135,50 @@ describe('lightbridge', () => {
         airdropConfig.airdropAmountWei
       )
     })
+  })
+})
+
+describe('service startup unit tests', () => {
+  const createTestnetLightBridgeService = async () => {
+    const chainIdToUse = 28882
+    const networksToWatch = selectedNetworkFilter(chainIdToUse)
+    const lbService = new LightBridgeService({
+      // sometimes the same network with a different chain id is used
+      l2RpcProvider: new providers.JsonRpcProvider(BobaChains[chainIdToUse]),
+      chainId: chainIdToUse,
+      teleportationAddress: BobaChains[chainIdToUse].teleportationAddress,
+      selectedBobaChains: networksToWatch.selectedBobaChains,
+      ownSupportedAssets: networksToWatch.originSupportedAssets,
+      pollingInterval: 1000,
+      blockRangePerPolling: 1000,
+      awsConfig: {
+        // Default values for local kms endpoint
+        awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
+        awsKmsSecretKey: process.env.LIGHTBRIDGE_AWS_KMS_SECRET_KEY ?? '2',
+        awsKmsKeyId:
+          process.env.LIGHTBRIDGE_AWS_KMS_KEY_ID ?? 'lb_disburser_pk',
+        awsKmsEndpoint:
+          process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://kms:8888/',
+        awsKmsRegion: process.env.LIGHTBRIDGE_AWS_KMS_REGION ?? 'us-east-1',
+        disableDisburserCheck: true,
+      },
+      airdropConfig: {
+        ...airdropConfig,
+        airdropEnabled: false,
+      },
+    })
+    await lbService.init()
+    return lbService
+  }
+
+  it('should watch correct networks for Boba Eth Testnet', async () => {
+    const lbService = await createTestnetLightBridgeService()
+
+    expect(
+      lbService.state.depositTeleportations.find((c) => c.chainId.toString() === "11155420")
+    ).to.not.be.undefined
+    expect(
+      lbService.state.depositTeleportations.find((c) => c.chainId.toString() === "421614")
+    ).to.not.be.undefined
   })
 })
