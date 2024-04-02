@@ -1886,9 +1886,9 @@ describe('Service unit tests', () => {
 
   it('should return correct selectedBobaChains for testnet', async () => {
     const { selectedBobaChains, originSupportedAssets } =
-      selectedNetworkFilter(2888)
+      selectedNetworkFilter(28882)
     const selectedBobaChainIds = selectedBobaChains.map((c) => c.chainId)
-    expect(selectedBobaChainIds.indexOf(2888)).to.be.eq(-1)
+    expect(selectedBobaChainIds.indexOf(28882)).to.be.eq(-1)
     expect(selectedBobaChainIds.indexOf(288)).to.be.eq(-1) // also no mainnet
     expect(originSupportedAssets[ethers.constants.AddressZero]).to.be.eq(
       'ethereum'
