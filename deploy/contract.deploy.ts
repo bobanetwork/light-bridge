@@ -124,6 +124,8 @@ async function main() {
         deployer
     )
 
+    console.log("Owner is: ", await Proxy__LightBridge.owner())
+
     const DEFAULT_ROUTING_CONF: {
         "ETH": {
             minAmount: BigNumber,
@@ -371,6 +373,24 @@ async function main() {
             maxAmount: DEFAULT_ROUTING_CONF.ETH.maxAmount,
             maxDailyAmount: DEFAULT_ROUTING_CONF.ETH.maxDailyAmount,
         },
+        {
+            // only supporting onboarding
+            fromChainId: ChainIds.BOBA_SEPOLIA_TESTNET,
+            toChainId: ChainIds.OPTIMISM_SEPOLIA_TESTNET,
+            fromTokenAddr: '0x0000000000000000000000000000000000000000', // eth
+            minAmount: DEFAULT_ROUTING_CONF.ETH.minAmount,
+            maxAmount: DEFAULT_ROUTING_CONF.ETH.maxAmount,
+            maxDailyAmount: DEFAULT_ROUTING_CONF.ETH.maxDailyAmount,
+        },
+        {
+            // only supporting onboarding
+            fromChainId: ChainIds.BOBA_SEPOLIA_TESTNET,
+            toChainId: ChainIds.ARBITRUM_SEPOLIA_TESTNET,
+            fromTokenAddr: '0x0000000000000000000000000000000000000000', // eth
+            minAmount: DEFAULT_ROUTING_CONF.ETH.minAmount,
+            maxAmount: DEFAULT_ROUTING_CONF.ETH.maxAmount,
+            maxDailyAmount: DEFAULT_ROUTING_CONF.ETH.maxDailyAmount,
+        },
         // NOTE: Boba token not supported for OP/ARB, as not deployed there (thus Boba BNB where Boba is native is not supported & no WETH available)
         //#endregion
         //#region mainnets
@@ -497,6 +517,9 @@ async function main() {
         },
         // NOTE: Boba token not supported for OP/ARB, as not deployed there (thus Boba BNB where Boba is native is not supported & no WETH available)
         //#endregion
+
+      // IMPORTANT !!
+      // Right now only bi-directional routes are supported, thus you need to add both routes for each chain pair
     ]
 
     const addRoute = async ({toChainId, fromTokenAddr, minAmount, maxAmount, maxDailyAmount}: Route) => {
@@ -526,7 +549,7 @@ async function main() {
             if (JSON.stringify(err).includes('Already supported')) {
                 file.log(fileName, `Route for ${toChainId} chain, and token: ${fromTokenAddr} not added again, as already supported.`)
             } else {
-                throw new err;
+                file.log(fileName, `Could not add route for ${toChainId} chain, and token: ${fromTokenAddr}: ${JSON.stringify(err)}`)
             }
         }
     }

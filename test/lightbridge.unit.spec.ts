@@ -2,7 +2,10 @@ import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 chai.use(chaiAsPromised)
 import { ethers } from 'hardhat'
-import { Contract, Signer, BigNumber, utils } from 'ethers'
+import { Contract, Signer, BigNumber, utils, providers } from 'ethers'
+import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
+import { BobaChains } from '@bobanetwork/light-bridge-chains'
+import { LightBridgeService } from '../src'
 
 let L2Boba: Contract
 let RandomERC20: Contract
@@ -1857,5 +1860,30 @@ describe('Asset Teleportation Tests', async () => {
         ).to.be.revertedWith('Caller is not the owner')
       })
     })
+  })
+})
+
+describe('Service unit tests', () => {
+  it('should return correct selectedBobaChains for mainnet', async () => {
+    const {selectedBobaChains, originSupportedAssets} = selectedNetworkFilter(288)
+    const selectedBobaChainIds = selectedBobaChains.map(c => c.chainId)
+    expect(selectedBobaChainIds.indexOf(288)).to.be.eq(-1)
+    expect(originSupportedAssets[ethers.constants.AddressZero]).to.be.eq("ethereum")
+    const filteredChains = Object.entries(BobaChains).filter(keyValPair=> keyValPair[1].testnet === false)
+    expect(filteredChains.length-1).to.be.eq(selectedBobaChains.length)
+    expect(selectedBobaChains.find(c => c.chainId === "10")?.name ?? '').to.contain('Optimism Mainnet')
+    expect(selectedBobaChains.find(c => c.chainId === "42161")?.name ?? '').to.contain('Arbitrum Mainnet')
+  })
+
+  it('should return correct selectedBobaChains for testnet', async () => {
+    const {selectedBobaChains, originSupportedAssets} = selectedNetworkFilter(2888)
+    const selectedBobaChainIds = selectedBobaChains.map(c => c.chainId)
+    expect(selectedBobaChainIds.indexOf(2888)).to.be.eq(-1)
+    expect(selectedBobaChainIds.indexOf(288)).to.be.eq(-1) // also no mainnet
+    expect(originSupportedAssets[ethers.constants.AddressZero]).to.be.eq("ethereum")
+    const filteredChains = Object.entries(BobaChains).filter(keyValPair=> keyValPair[1].testnet === true)
+    expect(filteredChains.length-1).to.be.eq(selectedBobaChains.length)
+    expect(selectedBobaChains.find(c => c.chainId === "11155420")?.name ?? '').to.contain('Optimism Sepolia')
+    expect(selectedBobaChains.find(c => c.chainId === "421614")?.name ?? '').to.contain('Arbitrum Sepolia')
   })
 })
