@@ -2175,10 +2175,14 @@ describe('service startup unit tests', () => {
     const lbService = await createTestnetLightBridgeService()
 
     expect(
-      lbService.state.depositTeleportations.find((c) => c.chainId.toString() === "11155420")
+      lbService.state.depositTeleportations.find(
+        (c) => c.chainId.toString() === '11155420'
+      )
     ).to.not.be.undefined
     expect(
-      lbService.state.depositTeleportations.find((c) => c.chainId.toString() === "421614")
+      lbService.state.depositTeleportations.find(
+        (c) => c.chainId.toString() === '421614'
+      )
     ).to.not.be.undefined
   })
 })
