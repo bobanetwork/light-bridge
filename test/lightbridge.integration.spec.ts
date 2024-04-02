@@ -24,7 +24,8 @@ import { AppDataSource, historyDataRepository } from '../src/data-source'
 import {
   Asset,
   EAirdropSource,
-  ChainInfo, BobaChains,
+  ChainInfo,
+  BobaChains,
 } from '@bobanetwork/light-bridge-chains'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
@@ -2139,7 +2140,7 @@ describe('lightbridge', () => {
 
 describe('service startup unit tests', () => {
   const createTestnetLightBridgeService = async () => {
-    const chainIdToUse = 2888
+    const chainIdToUse = 28882
     const networksToWatch = selectedNetworkFilter(chainIdToUse)
     const lbService = new LightBridgeService({
       // sometimes the same network with a different chain id is used
@@ -2167,16 +2168,24 @@ describe('service startup unit tests', () => {
       },
     })
     await lbService.init()
-    return lbService;
+    return lbService
   }
 
   it('should watch correct networks for Boba Eth Testnet', async () => {
     const lbService = await createTestnetLightBridgeService()
 
-    console.log("JSON::::", JSON.stringify(lbService.state.depositTeleportations.map(c => c.chainId)))
+    console.log(
+      'JSON::::',
+      JSON.stringify(
+        lbService.state.depositTeleportations.map((c) => c.chainId)
+      )
+    )
 
-    expect(lbService.state.depositTeleportations.find(c => c.chainId === 11155420)).to.not.be.undefined
-    expect(lbService.state.depositTeleportations.find(c => c.chainId === 421614)).to.not.be.undefined
+    expect(
+      lbService.state.depositTeleportations.find((c) => c.chainId === 11155420)
+    ).to.not.be.undefined
+    expect(
+      lbService.state.depositTeleportations.find((c) => c.chainId === 421614)
+    ).to.not.be.undefined
   })
 })
-
