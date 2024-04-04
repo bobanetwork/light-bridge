@@ -142,7 +142,7 @@ export class KMSSigner {
     r: BN,
     s: BN,
     expectedEthAddr: string,
-    isEIP1559: boolean
+    isEIP1559: boolean = true
   ) => {
     // This is the wrapper function to find the right v value
     // There are two matching signatues on the elliptic curve
@@ -189,7 +189,7 @@ export class KMSSigner {
       sig.r,
       sig.s,
       ethAddr,
-      supportsEIP1559
+      // supportsEIP1559
     )
     console.log(
       `Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`
@@ -284,7 +284,7 @@ export class KMSSigner {
       sig.r,
       sig.s,
       ethAddr,
-      supportsEIP1559
+      // supportsEIP1559
     )
 
     const r = sig.r.toBuffer()
