@@ -201,6 +201,10 @@ export class KMSSigner {
     console.log(
       `Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`
     )
+    // pre: 27 +0/1 without replay protection
+    const parity = recoveredPubAddr.leftSide ? 0 : 1
+    const vEIP155 =  chainId * 2 + 35 + parity
+    const v = new BN(supportsEIP1559 ? recoveredPubAddr.v : vEIP155).toBuffer()
 
     let baseTxObj = {
       nonce: await provider.getTransactionCount(ethAddr),
@@ -208,7 +212,7 @@ export class KMSSigner {
       to: contractAddr,
       r: sig.r.toBuffer(),
       s: sig.s.toBuffer(),
-      v: recoveredPubAddr.v,
+      v,
       value: nativeValue.toHexString(),
       data: Buffer.from(unsignedTx.data.slice('0x'.length), 'hex'),
     }
