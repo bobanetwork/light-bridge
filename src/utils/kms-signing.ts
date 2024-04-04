@@ -224,18 +224,18 @@ export class KMSSigner {
       if (!chain) {
         throw new Error(
           'Unsupported chainId and could not find network config in BobaChains: ' +
-          chainId
+            chainId
         )
       }
       common = Common.custom({
         name: chain.name,
         chainId: chainId,
         networkId: chainId,
+        defaultHardfork: 'berlin',
       })
     }
 
     if (supportsEIP1559) {
-
       tx = new FeeMarketEIP1559Transaction(
         {
           ...baseTxObj,
