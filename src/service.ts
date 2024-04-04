@@ -259,7 +259,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         }
       }
       await sleep(this.options.pollingInterval)
-      this.logger.info('Disbursed teleportations for networks', {
+      this.logger.debug('Disbursed teleportations for networks', {
         chainIds: this.state.depositTeleportations.map((c) => c.chainId),
         serviceChainId: this.options.chainId,
       })
