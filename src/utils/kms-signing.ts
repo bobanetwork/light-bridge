@@ -149,13 +149,13 @@ export class KMSSigner {
     // There are two matching signatues on the elliptic curve
     // we need to find the one that matches to our public key
     // it can be v = 27 or v = 28
-    const eip1559Base = chainId * 2 + 35
-    let v = isEIP1559 ? eip1559Base /* +0 */ : 27
+    const eip155Base = chainId * 2 + 35
+    let v = isEIP1559 ? eip155Base /* +0 */ : 27
     let pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
     if (pubKey !== expectedEthAddr) {
       // if the pub key for v = 27 does not match
       // it has to be v = 28
-      v = isEIP1559 ? eip1559Base + 1 : 28
+      v = isEIP1559 ? eip155Base + 1 : 28
       pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
     }
     console.log('sendRawTx: V-param -> ', v, 'IsEIP1559: ', isEIP1559)
