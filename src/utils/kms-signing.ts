@@ -231,7 +231,6 @@ export class KMSSigner {
         name: chain.name,
         chainId: chainId,
         networkId: chainId,
-        defaultHardfork: 'berlin',
       })
     }
 
@@ -258,6 +257,7 @@ export class KMSSigner {
       }
       gasPrice = gasPrice.toHexString()
 
+      common.setHardfork('berlin')
       tx = new Transaction(
         {
           ...baseTxObj,
