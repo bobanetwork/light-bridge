@@ -211,29 +211,30 @@ export class KMSSigner {
     console.log(`Building disbursementTx..`, chainId, baseTxObj?.nonce)
     let tx: Transaction | FeeMarketEIP1559Transaction
 
-    if (supportsEIP1559) {
-      let common: Common
-      if (Common.isSupportedChainId(BigInt(chainId))) {
-        common = new Common({ chain: chainId })
-      } else {
-        const chain =
-          BobaChains[chainId] ??
-          {
-            31337: { name: 'Localhost:eth', networkId: 31337, chainId: 31337 },
-            31338: { name: 'Localhost:bnb', networkId: 31338, chainId: 31338 },
-          }[chainId]
-        if (!chain) {
-          throw new Error(
-            'Unsupported chainId and could not find network config in BobaChains: ' +
-              chainId
-          )
-        }
-        common = Common.custom({
-          name: chain.name,
-          chainId: chainId,
-          networkId: chainId,
-        })
+    let common: Common
+    if (Common.isSupportedChainId(BigInt(chainId))) {
+      common = new Common({ chain: chainId })
+    } else {
+      const chain =
+        BobaChains[chainId] ??
+        {
+          31337: { name: 'Localhost:eth', networkId: 31337, chainId: 31337 },
+          31338: { name: 'Localhost:bnb', networkId: 31338, chainId: 31338 },
+        }[chainId]
+      if (!chain) {
+        throw new Error(
+          'Unsupported chainId and could not find network config in BobaChains: ' +
+          chainId
+        )
       }
+      common = Common.custom({
+        name: chain.name,
+        chainId: chainId,
+        networkId: chainId,
+      })
+    }
+
+    if (supportsEIP1559) {
 
       tx = new FeeMarketEIP1559Transaction(
         {
@@ -262,7 +263,7 @@ export class KMSSigner {
           ...baseTxObj,
           gasPrice,
         },
-        {}
+        { common }
       )
     }
 
