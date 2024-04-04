@@ -150,21 +150,19 @@ export class KMSSigner {
     // we need to find the one that matches to our public key
     // it can be v = 27 or v = 28
 
-
-    const preEip155Base = chainId * 2 + 35 // pre: 27 +0/1 without replay protection
-    let v = isEIP1559 ? 0 : preEip155Base /* +0 */
-    console.log("Trying v = ", v)
+    let leftSide = true
+    let v = isEIP1559 ? 0 : 27 /* +0 */
     let pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
     if (pubKey !== expectedEthAddr) {
       // if the pub key for v = 27 does not match
       // it has to be v = 28
-      v = isEIP1559 ? 1 : preEip155Base + 1
-      console.log("Trying v alternatively = ", v)
+      v = isEIP1559 ? 1 : 28
       pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
+      leftSide = false // on the curve
     }
     console.log('sendRawTx: V-param -> ', v, 'IsEIP1559: ', isEIP1559)
 
-    return { pubKey, v }
+    return { pubKey, v, leftSide }
   }
 
   public getSignerAddr = async () => {
@@ -298,9 +296,14 @@ export class KMSSigner {
 
     const r = sig.r.toBuffer()
     const s = sig.s.toBuffer()
-    const v = new BN(recoveredPubAddr.v).toBuffer()
+
+    // pre: 27 +0/1 without replay protection
+    const parity = recoveredPubAddr.leftSide ? 0 : 1
+    const vEIP155 =  chainId * 2 + 35 + parity
+    const v = new BN(vEIP155).toBuffer()
 
     console.log(`Sending raw KMS tx..`, recoveredPubAddr.pubKey)
+    console.log(`Overriden parity (v): `, vEIP155, parity, recoveredPubAddr.v)
 
     const signedTx: Transaction | FeeMarketEIP1559Transaction = supportsEIP1559
       ? new FeeMarketEIP1559Transaction({
