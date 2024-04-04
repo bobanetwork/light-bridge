@@ -2191,7 +2191,9 @@ describe('service startup unit tests', () => {
     const opDepositTeleportation = lbService.state.depositTeleportations.find(
       (c) => c.chainId.toString() === '11155420'
     )
-    expect(await arbDepositTeleportation.Teleportation.totalDeposits('28882')).to.not.be.undefined
-    expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to.not.be.undefined
+    expect(await arbDepositTeleportation.Teleportation.totalDeposits('28882'))
+      .to.not.be.undefined
+    expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
+      .not.be.undefined
   })
 })
