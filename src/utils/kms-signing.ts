@@ -138,7 +138,6 @@ export class KMSSigner {
   }
 
   private findRightKey = (
-    chainId: number,
     msg: Buffer,
     r: BN,
     s: BN,
@@ -191,7 +190,6 @@ export class KMSSigner {
     const ethAddrHash = ethutil.keccak(Buffer.from(ethAddr))
     const sig = await this.findEthereumSig(ethAddrHash)
     const recoveredPubAddr = this.findRightKey(
-      chainId,
       ethAddrHash,
       sig.r,
       sig.s,
@@ -290,7 +288,6 @@ export class KMSSigner {
     const sig = await this.findEthereumSig(msgHash)
 
     const recoveredPubAddr = this.findRightKey(
-      chainId,
       msgHash,
       sig.r,
       sig.s,
