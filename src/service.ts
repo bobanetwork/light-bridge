@@ -314,13 +314,15 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         await this.state.Teleportation.totalDisbursements(depositChainId)
 
       // Fallback mechanism, if for some reason a previous deposit has been missed
-      const hasNextDepositId = events.some((e) =>
-        e.depositId.toString() === lastDisbursement.toString()
+      const hasNextDepositId = events.some(
+        (e) => e.depositId.toString() === lastDisbursement.toString()
       )
 
       if (!hasNextDepositId) {
         this.logger.warn(
-          `Deposits have been missed, resetting block number for next startup to get system back up running.`
+          `Deposits have been missed, resetting block number for next startup to get system back up running.`, {
+            prevEvents: events, lastDisbursement: lastDisbursement.toString()
+          }
         )
         events = await this._getAssetReceivedEvents(
           depositTeleportation.chainId,
