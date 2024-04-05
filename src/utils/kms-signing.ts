@@ -201,7 +201,7 @@ export class KMSSigner {
     )
     // pre: 27 +0/1 without replay protection
     const parity = recoveredPubAddr.leftSide ? 0 : 1
-    const vEIP155 =  chainId * 2 + 35 + parity
+    const vEIP155 = chainId * 2 + 35 + parity
     const v = new BN(supportsEIP1559 ? recoveredPubAddr.v : vEIP155).toBuffer()
 
     let baseTxObj = {
@@ -300,7 +300,7 @@ export class KMSSigner {
 
     // pre: 27 +0/1 without replay protection
     const parity = recoveredPubAddr.leftSide ? 0 : 1
-    const vEIP155 =  chainId * 2 + 35 + parity
+    const vEIP155 = chainId * 2 + 35 + parity
     const v = new BN(supportsEIP1559 ? recoveredPubAddr.v : vEIP155).toBuffer()
 
     console.log(`Sending raw KMS tx..`, recoveredPubAddr.pubKey)

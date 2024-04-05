@@ -139,7 +139,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
     this.logger.info(
       'getSupportedNetworks: Starting with these chains to evaluate support -> ',
-      {chainIds: JSON.stringify(selectedBobaChains.map((c) => c.chainId))}
+      { chainIds: JSON.stringify(selectedBobaChains.map((c) => c.chainId)) }
     )
 
     const defaultAssetAddr =
@@ -288,7 +288,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       depositTeleportation.chainId,
       this.options.chainId,
       lastBlock,
-      latestBlock,
+      latestBlock
     )
   }
 
@@ -304,25 +304,39 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       // update the deposit info if no events are found
       await this._putDepositInfo(depositChainId, latestBlock)
     } else {
-      this.logger.debug('Found events for network', {events, serviceChainId: this.options.chainId, depositChainId: depositTeleportation.chainId})
+      this.logger.debug('Found events for network', {
+        events,
+        serviceChainId: this.options.chainId,
+        depositChainId: depositTeleportation.chainId,
+      })
 
       const lastDisbursement: BigNumber =
         await this.state.Teleportation.totalDisbursements(depositChainId)
 
       // Fallback mechanism, if for some reason a previous deposit has been missed
-      const hasNextDepositId = events.some(e => BigNumber.from(e.depositId.toString())
-        .eq(lastDisbursement))
+      const hasNextDepositId = events.some((e) =>
+        e.depositId.toString() === lastDisbursement.toString()
+      )
 
       if (!hasNextDepositId) {
-        this.logger.warn(`Deposits have been missed, resetting block number for next startup to get system back up running.`)
+        this.logger.warn(
+          `Deposits have been missed, resetting block number for next startup to get system back up running.`
+        )
         events = await this._getAssetReceivedEvents(
           depositTeleportation.chainId,
           this.options.chainId,
           0,
-          latestBlock,
+          latestBlock
         )
 
-        this.logger.info('Found events for network after fetching from all blocks', {events, serviceChainId: this.options.chainId, depositChainId: depositTeleportation.chainId})
+        this.logger.info(
+          'Found events for network after fetching from all blocks',
+          {
+            events,
+            serviceChainId: this.options.chainId,
+            depositChainId: depositTeleportation.chainId,
+          }
+        )
       }
 
       let disbursement: Disbursement[] = []
@@ -732,7 +746,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     sourceChainId: number,
     targetChainId: number,
     fromBlock: number,
-    toBlock: number,
+    toBlock: number
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     const events: LightBridgeAssetReceivedEvent[] =
       await lightBridgeGraphQLService.queryAssetReceivedEvent(
@@ -740,7 +754,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         targetChainId,
         null,
         fromBlock,
-        toBlock,
+        toBlock
       )
     return events.map((e) => {
       // make sure typings are correct

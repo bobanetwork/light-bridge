@@ -252,7 +252,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        blockNumber,
+        blockNumber
       )
       expect(events.length).to.be.eq(0)
 
@@ -272,7 +272,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        latestBlockNumber,
+        latestBlockNumber
       )
 
       expect(latestEvents.length).to.be.eq(1)
@@ -339,7 +339,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        blockNumber,
+        blockNumber
       )
 
       let disbursement = []
@@ -399,7 +399,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         startBlockNumber,
-        endBlockNumber,
+        endBlockNumber
       )
 
       expect(latestEvents.length).to.be.eq(15)
@@ -416,7 +416,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        blockNumber,
+        blockNumber
       )
       const lastDisbursement = await LightBridge.totalDisbursements(chainId)
 
@@ -777,7 +777,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -868,7 +868,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       expect(events.length).to.be.gte(1, 'Should have at least one event')
@@ -965,7 +965,7 @@ describe('lightbridge', () => {
         chainId,
         chainIdBobaBnb,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -1202,7 +1202,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log(
@@ -1316,7 +1316,7 @@ describe('lightbridge', () => {
         chainId,
         chainIdBobaBnb,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridge.address)
@@ -1550,7 +1550,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -1781,7 +1781,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -2017,7 +2017,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
