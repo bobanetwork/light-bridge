@@ -246,6 +246,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         try {
           const events: LightBridgeAssetReceivedEvent[] =
             await this._watchTeleportation(depositTeleportation, latestBlock)
+
           await this._disburseTeleportation(
             depositTeleportation,
             events,
@@ -288,8 +289,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       this.options.chainId,
       lastBlock,
       latestBlock,
-      // depositTeleportation.totalDisbursements
-      // do not provide contract as only supported locally to avoid subgraph collisions
     )
   }
 
@@ -299,14 +298,33 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     latestBlock: number
   ): Promise<void> {
     const depositChainId = depositTeleportation.chainId
+
     // parse events
     if (events.length === 0) {
       // update the deposit info if no events are found
       await this._putDepositInfo(depositChainId, latestBlock)
     } else {
-      const lastDisbursement =
+      this.logger.debug('Found events for network', {events, serviceChainId: this.options.chainId, depositChainId: depositTeleportation.chainId})
+
+      const lastDisbursement: BigNumber =
         await this.state.Teleportation.totalDisbursements(depositChainId)
-      // eslint-disable-next-line prefer-const
+
+      // Fallback mechanism, if for some reason a previous deposit has been missed
+      const hasNextDepositId = events.some(e => BigNumber.from(e.depositId.toString())
+        .eq(lastDisbursement))
+
+      if (!hasNextDepositId) {
+        this.logger.warn(`Deposits have been missed, resetting block number for next startup to get system back up running.`)
+        events = await this._getAssetReceivedEvents(
+          depositTeleportation.chainId,
+          this.options.chainId,
+          0,
+          latestBlock,
+        )
+
+        this.logger.info('Found events for network after fetching from all blocks', {events, serviceChainId: this.options.chainId, depositChainId: depositTeleportation.chainId})
+      }
+
       let disbursement: Disbursement[] = []
 
       try {
@@ -715,8 +733,6 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     targetChainId: number,
     fromBlock: number,
     toBlock: number,
-    minDepositId?: BigNumber,
-    contract?: string
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     const events: LightBridgeAssetReceivedEvent[] =
       await lightBridgeGraphQLService.queryAssetReceivedEvent(
