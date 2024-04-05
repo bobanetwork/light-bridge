@@ -25,12 +25,20 @@ import {
   Asset,
   EAirdropSource,
   ChainInfo,
+  BobaChains,
 } from '@bobanetwork/light-bridge-chains'
 import dotenv from 'dotenv'
 import main from '../src/exec/run'
 import { delay } from '../src/utils/misc.utils'
+import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
 
 dotenv.config()
+
+// Here to have an easy way to modify globally
+const airdropConfig = {
+  airdropAmountWei: ethers.utils.parseEther('1'),
+  airdropCooldownSeconds: 1000,
+}
 
 describe('lightbridge', () => {
   let providerUrl: string
@@ -110,12 +118,6 @@ describe('lightbridge', () => {
   let L2BNBOnBobaBnb: Contract
   let L2BNBOnBobaEth: Contract
   let OMGLikeToken: Contract
-
-  // Here to have an easy way to modify globally
-  const airdropConfig = {
-    airdropAmountWei: ethers.utils.parseEther('1'),
-    airdropCooldownSeconds: 1000,
-  }
 
   before(async () => {
     chainId = (await provider.getNetwork()).chainId
@@ -279,9 +281,11 @@ describe('lightbridge', () => {
       )
 
       expect(latestEvents.length).to.be.eq(1)
-      expect(latestEvents[0].sourceChainId).to.be.eq(chainId)
-      expect(latestEvents[0].toChainId).to.be.eq(chainId)
-      expect(latestEvents[0].depositId).to.be.eq(0)
+      expect(latestEvents[0].sourceChainId.toString()).to.be.eq(
+        chainId.toString()
+      )
+      expect(latestEvents[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].depositId.toString()).to.be.eq('0')
       expect(latestEvents[0].emitter.toLowerCase()).to.be.eq(
         signerAddr.toLowerCase()
       )
@@ -301,7 +305,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -359,7 +363,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -435,14 +439,14 @@ describe('lightbridge', () => {
         const amount = event.amount
         const emitter = event.emitter
 
-        if (!depositId.lt(lastDisbursement)) {
+        if (!parseInt(depositId.toString()) < lastDisbursement.toNumber()) {
           disbursement = [
             ...disbursement,
             {
               token,
               amount: amount.toString(),
               addr: emitter,
-              depositId: depositId.toNumber(),
+              depositId: parseInt(depositId.toString()),
               sourceChainId: sourceChainId.toString(),
             },
           ]
@@ -504,9 +508,9 @@ describe('lightbridge', () => {
       expect(events[0].token.toLowerCase()).to.be.eq(
         L2BOBA.address.toLowerCase()
       )
-      expect(events[0].sourceChainId).to.be.eq(chainId)
-      expect(events[0].toChainId).to.be.eq(chainId)
-      expect(events[0].depositId).to.be.eq(16)
+      expect(events[0].sourceChainId.toString()).to.be.eq(chainId.toString())
+      expect(events[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(events[0].depositId.toString()).to.be.eq('16')
       expect(events[0].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
       expect(events[0].amount).to.be.eq(utils.parseEther('11'))
     })
@@ -818,7 +822,7 @@ describe('lightbridge', () => {
             token: receivingChainTokenAddr,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
@@ -922,7 +926,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1239,7 +1243,7 @@ describe('lightbridge', () => {
       const lastEvent = events.find(
         (e) =>
           e.token.toLowerCase() === L2BNBOnBobaBnb.address.toLowerCase() &&
-          e.block_number.toNumber() >= preBlockNumber
+          parseInt(e.block_number) >= preBlockNumber
       )
       expect(lastEvent).to.not.be.undefined
       console.log('Last Event for bnb bridging: ', JSON.stringify(lastEvent))
@@ -1264,7 +1268,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1352,7 +1356,7 @@ describe('lightbridge', () => {
       const lastEvent = events.find(
         (e) =>
           e.token.toLowerCase() === L2BOBA.address.toLowerCase() &&
-          e.block_number.toNumber() >= preBlockNumber
+          parseInt(e.block_number) >= preBlockNumber
       )
       expect(lastEvent).to.not.be.undefined
       console.log('LAST EVENT: ', JSON.stringify(lastEvent))
@@ -1378,7 +1382,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1600,7 +1604,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: emitter,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -1840,7 +1844,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -2075,7 +2079,7 @@ describe('lightbridge', () => {
           token: receivingChainTokenAddr,
           amount: amount.toString(),
           addr: randAddress,
-          depositId: depositId.toNumber(),
+          depositId: parseInt(depositId.toString()),
           sourceChainId: sourceChainId.toString(),
         },
       ]
@@ -2260,5 +2264,65 @@ describe('lightbridge', () => {
       expect(amountDisbursements).to.be.eq(1)
     })
 
+  })
+})
+
+describe('service startup unit tests', () => {
+  const createTestnetLightBridgeService = async () => {
+    const chainIdToUse = 28882
+    const networksToWatch = selectedNetworkFilter(chainIdToUse)
+    const lbService = new LightBridgeService({
+      // sometimes the same network with a different chain id is used
+      l2RpcProvider: new providers.JsonRpcProvider(BobaChains[chainIdToUse]),
+      chainId: chainIdToUse,
+      teleportationAddress: BobaChains[chainIdToUse].teleportationAddress,
+      selectedBobaChains: networksToWatch.selectedBobaChains,
+      ownSupportedAssets: networksToWatch.originSupportedAssets,
+      pollingInterval: 1000,
+      blockRangePerPolling: 1000,
+      awsConfig: {
+        // Default values for local kms endpoint
+        awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
+        awsKmsSecretKey: process.env.LIGHTBRIDGE_AWS_KMS_SECRET_KEY ?? '2',
+        awsKmsKeyId:
+          process.env.LIGHTBRIDGE_AWS_KMS_KEY_ID ?? 'lb_disburser_pk',
+        awsKmsEndpoint:
+          process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://kms:8888/',
+        awsKmsRegion: process.env.LIGHTBRIDGE_AWS_KMS_REGION ?? 'us-east-1',
+        disableDisburserCheck: true,
+      },
+      airdropConfig: {
+        ...airdropConfig,
+        airdropEnabled: false,
+      },
+    })
+    await lbService.init()
+    return lbService
+  }
+
+  it('should watch correct networks for Boba Eth Testnet', async () => {
+    const lbService = await createTestnetLightBridgeService()
+
+    expect(
+      lbService.state.depositTeleportations.find(
+        (c) => c.chainId.toString() === '11155420'
+      )
+    ).to.not.be.undefined
+    expect(
+      lbService.state.depositTeleportations.find(
+        (c) => c.chainId.toString() === '421614'
+      )
+    ).to.not.be.undefined
+
+    const arbDepositTeleportation = lbService.state.depositTeleportations.find(
+      (c) => c.chainId.toString() === '421614'
+    )
+    const opDepositTeleportation = lbService.state.depositTeleportations.find(
+      (c) => c.chainId.toString() === '11155420'
+    )
+    expect(await arbDepositTeleportation.Teleportation.totalDeposits('28882'))
+      .to.not.be.undefined
+    expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
+      .not.be.undefined
   })
 })

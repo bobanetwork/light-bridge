@@ -49,21 +49,21 @@ export class KMSSigner {
     this.kmsKeyId = awsKmsKeyId
   }
 
-  private EcdsaSigAsnParse = asn1.define('EcdsaSig', function(this: any) {
+  private EcdsaSigAsnParse = asn1.define('EcdsaSig', function (this: any) {
     // parsing this according to https://tools.ietf.org/html/rfc3279#section-2.2.3
     this.seq().obj(this.key('r').int(), this.key('s').int())
   })
 
-  private EcdsaPubKey = asn1.define('EcdsaPubKey', function(this: any) {
+  private EcdsaPubKey = asn1.define('EcdsaPubKey', function (this: any) {
     // parsing this according to https://tools.ietf.org/html/rfc5480#section-2
     this.seq().obj(
       this.key('algo').seq().obj(this.key('a').objid(), this.key('b').objid()),
-      this.key('pubKey').bitstr(),
+      this.key('pubKey').bitstr()
     )
   })
 
   private sign = (
-    msgHash: Uint8Array | undefined,
+    msgHash: Uint8Array | undefined
   ): Promise<SignCommandOutput> => {
     const params: SignCommandInput = {
       // key id or 'Alias/<alias>'
@@ -112,7 +112,7 @@ export class KMSSigner {
 
     const secp256k1N = new BN(
       'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
-      16,
+      16
     ) // max value on the curve
     const secp256k1halfN = secp256k1N.div(new BN(2)) // half of the curve
     // Because of EIP-2 not all elliptic curve signatures are accepted
@@ -142,23 +142,26 @@ export class KMSSigner {
     r: BN,
     s: BN,
     expectedEthAddr: string,
-    isEIP1559: boolean,
+    isEIP1559: boolean
   ) => {
     // This is the wrapper function to find the right v value
     // There are two matching signatues on the elliptic curve
     // we need to find the one that matches to our public key
     // it can be v = 27 or v = 28
-    let v = isEIP1559 ? 0 : 27
+
+    let leftSide = true
+    let v = isEIP1559 ? 0 : 27 /* +0 */
     let pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
     if (pubKey !== expectedEthAddr) {
       // if the pub key for v = 27 does not match
       // it has to be v = 28
       v = isEIP1559 ? 1 : 28
       pubKey = this.recoverPubKeyFromSig(msg, r, s, v)
+      leftSide = false // on the curve
     }
     console.log('sendRawTx: V-param -> ', v, 'IsEIP1559: ', isEIP1559)
 
-    return { pubKey, v }
+    return { pubKey, v, leftSide }
   }
 
   public getSignerAddr = async () => {
@@ -170,7 +173,7 @@ export class KMSSigner {
     providerUrl: string | providers.Provider,
     contractAddr: string,
     nativeValue: BigNumber,
-    unsignedTx: PopulatedTransaction,
+    unsignedTx: PopulatedTransaction
   ) => {
     const provider =
       typeof providerUrl === 'string'
@@ -181,6 +184,8 @@ export class KMSSigner {
     const feeDataGasPrice = await provider.getFeeData()
     const supportsEIP1559 = !!feeDataGasPrice?.maxFeePerGas // (BNB e.g. does support it, but library says not)
 
+    const chainId = (await provider.getNetwork()).chainId
+
     const ethAddr = await this.getSignerAddr()
     const ethAddrHash = ethutil.keccak(Buffer.from(ethAddr))
     const sig = await this.findEthereumSig(ethAddrHash)
@@ -189,13 +194,15 @@ export class KMSSigner {
       sig.r,
       sig.s,
       ethAddr,
-      supportsEIP1559,
+      supportsEIP1559
     )
     console.log(
-      `Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`,
+      `Recovered disburser: ${recoveredPubAddr?.pubKey}, ${recoveredPubAddr.v}`
     )
-
-    const chainId = (await provider.getNetwork()).chainId
+    // pre: 27 +0/1 without replay protection
+    const parity = recoveredPubAddr.leftSide ? 0 : 1
+    const vEIP155 =  chainId * 2 + 35 + parity
+    const v = new BN(supportsEIP1559 ? recoveredPubAddr.v : vEIP155).toBuffer()
 
     let baseTxObj = {
       nonce: await provider.getTransactionCount(ethAddr),
@@ -203,7 +210,7 @@ export class KMSSigner {
       to: contractAddr,
       r: sig.r.toBuffer(),
       s: sig.s.toBuffer(),
-      v: recoveredPubAddr.v,
+      v,
       value: nativeValue.toHexString(),
       data: Buffer.from(unsignedTx.data.slice('0x'.length), 'hex'),
     }
@@ -211,22 +218,30 @@ export class KMSSigner {
     console.log(`Building disbursementTx..`, chainId, baseTxObj?.nonce)
     let tx: Transaction | FeeMarketEIP1559Transaction
 
-    if (supportsEIP1559) {
-      let common: Common
-      if (Common.isSupportedChainId(BigInt(chainId))) {
-        common = new Common({ chain: chainId })
-      } else {
-        const chain = BobaChains[chainId] ?? {31337: {name: 'Localhost:eth', networkId: 31337, chainId: 31337}, 31338: {name: 'Localhost:bnb', networkId: 31338, chainId: 31338}}[chainId]
-        if (!chain) {
-          throw new Error('Unsupported chainId and could not find network config in BobaChains: ' + chainId)
-        }
-        common = Common.custom({
-          name: chain.name,
-          chainId: chainId,
-          networkId: chainId,
-        })
+    let common: Common
+    if (Common.isSupportedChainId(BigInt(chainId))) {
+      common = new Common({ chain: chainId })
+    } else {
+      const chain =
+        BobaChains[chainId] ??
+        {
+          31337: { name: 'Localhost:eth', networkId: 31337, chainId: 31337 },
+          31338: { name: 'Localhost:bnb', networkId: 31338, chainId: 31338 },
+        }[chainId]
+      if (!chain) {
+        throw new Error(
+          'Unsupported chainId and could not find network config in BobaChains: ' +
+            chainId
+        )
       }
+      common = Common.custom({
+        name: chain.name,
+        chainId: chainId,
+        networkId: chainId,
+      })
+    }
 
+    if (supportsEIP1559) {
       tx = new FeeMarketEIP1559Transaction(
         {
           ...baseTxObj,
@@ -237,7 +252,7 @@ export class KMSSigner {
             feeDataGasPrice.maxPriorityFeePerGas.toHexString(),
           type: '0x02',
         },
-        { common },
+        { common }
       )
     } else {
       let gasPrice: BigNumberish = (await provider.getGasPrice())
@@ -249,23 +264,25 @@ export class KMSSigner {
       }
       gasPrice = gasPrice.toHexString()
 
+      common.setHardfork('berlin')
       tx = new Transaction(
         {
           ...baseTxObj,
           gasPrice,
         },
-        {},
+        { common }
       )
     }
 
-    return this.sendRawTx(ethAddr, provider, tx, supportsEIP1559)
+    return this.sendRawTx(chainId, ethAddr, provider, tx, supportsEIP1559)
   }
 
   private sendRawTx = async (
+    chainId: number,
     ethAddr: string,
     provider: providers.Provider,
     tx: Transaction | FeeMarketEIP1559Transaction,
-    supportsEIP1559: boolean,
+    supportsEIP1559: boolean
   ) => {
     const msgHash = tx.getMessageToSign(true) // tx.hash();
     const sig = await this.findEthereumSig(msgHash)
@@ -275,22 +292,27 @@ export class KMSSigner {
       sig.r,
       sig.s,
       ethAddr,
-      supportsEIP1559,
+      supportsEIP1559
     )
 
     const r = sig.r.toBuffer()
     const s = sig.s.toBuffer()
-    const v = new BN(recoveredPubAddr.v).toBuffer()
+
+    // pre: 27 +0/1 without replay protection
+    const parity = recoveredPubAddr.leftSide ? 0 : 1
+    const vEIP155 =  chainId * 2 + 35 + parity
+    const v = new BN(supportsEIP1559 ? recoveredPubAddr.v : vEIP155).toBuffer()
 
     console.log(`Sending raw KMS tx..`, recoveredPubAddr.pubKey)
+    console.log(`Overriden parity (v): `, vEIP155, parity, recoveredPubAddr.v)
 
     const signedTx: Transaction | FeeMarketEIP1559Transaction = supportsEIP1559
       ? new FeeMarketEIP1559Transaction({
-        ...(tx as FeeMarketEIP1559Transaction),
-        r,
-        s,
-        v,
-      })
+          ...(tx as FeeMarketEIP1559Transaction),
+          r,
+          s,
+          v,
+        })
       : new Transaction({ ...(tx as Transaction), r, s, v })
 
     const senderAddr: string = signedTx
@@ -301,11 +323,11 @@ export class KMSSigner {
     console.log(
       `Checking sender address for KMS disburser: `,
       senderAddr,
-      recoveredPubAddr?.pubKey,
+      recoveredPubAddr?.pubKey
     )
     if (`0x${senderAddr}` !== recoveredPubAddr.pubKey) {
       throw new Error(
-        'Signature invalid, recovered this sender address: ' + senderAddr,
+        'Signature invalid, recovered this sender address: ' + senderAddr
       )
     }
 

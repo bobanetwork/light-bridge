@@ -128,11 +128,23 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
 - Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
 
+### Arbitrum Sepolia
+- LightBridge deployed to: `0x4f7E3fF7B52e9843097A8CB3F1b083a8fF6f8c9b`
+- Proxy__LightBridge deployed to: `0x3fc06c53aa3Ef19ad7830f5F18C9186C676EdE29`
+- Disburser transferred to AWS KMS managed wallet on 30 March 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
+- Owner: `0x48baCac867ef377fac62186A79e8381665cfae6B`
+
 ### Optimism Goerli
 - LightBridge deployed to: `0x885bfeC3D89755d2bCc1e73b6EeEEae94D54eBE4`
 - Proxy__LightBridge deployed to: `0xC226F132A686A08018431C913d87693396246024`
 - Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
 - Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
+
+### Optimism Sepolia
+- LightBridge deployed to: `0x4f7E3fF7B52e9843097A8CB3F1b083a8fF6f8c9b`
+- Proxy__LightBridge deployed to: `0x3fc06c53aa3Ef19ad7830f5F18C9186C676EdE29`
+- Disburser transferred to AWS KMS managed wallet on 30 March 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
+- Owner: `0x48baCac867ef377fac62186A79e8381665cfae6B`
 
 ---
 

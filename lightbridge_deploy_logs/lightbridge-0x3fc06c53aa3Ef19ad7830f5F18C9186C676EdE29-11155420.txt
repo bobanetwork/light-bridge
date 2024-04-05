@@ -1,0 +1,10 @@
+LightBridge deployed to: 0x4f7E3fF7B52e9843097A8CB3F1b083a8fF6f8c9b
+Proxy__LightBridge deployed to: 0x3fc06c53aa3Ef19ad7830f5F18C9186C676EdE29
+Initialized proxy: [object Object]
+LightBridge initialized: [object Object]
+Added route for 28882 chain, and token: 0x0000000000000000000000000000000000000000, receipt: [object Object]
+Network iteration done
+Using previous deployment of LightBridge contract on 0x3fc06c53aa3Ef19ad7830f5F18C9186C676EdE29
+Could not initialize contracts for already deployed contracts: {}
+Route for 28882 chain, and token: 0x0000000000000000000000000000000000000000 not added again, as already supported.
+Network iteration done

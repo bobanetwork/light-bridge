@@ -52,6 +52,10 @@ const config: HardhatUserConfig & { etherscan: { apiKey: any, customChains: any 
       url: 'https://arbitrum-goerli-rpc.publicnode.com',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
+    arb_sepolia: {
+      url: 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
     bsc_testnet: {
       url: 'https://bsc-testnet.blockpi.network/v1/rpc/public',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
@@ -62,6 +66,10 @@ const config: HardhatUserConfig & { etherscan: { apiKey: any, customChains: any 
     },
     op_goerli: {
       url: 'https://optimism-goerli-rpc.publicnode.com',
+      accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
+    },
+    op_sepolia: {
+      url: 'https://sepolia.optimism.io',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     boba_goerli: {
@@ -108,15 +116,33 @@ const config: HardhatUserConfig & { etherscan: { apiKey: any, customChains: any 
       bsc: process.env.BSCSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       optimisticEthereum: process.env.OPTIMISMSCAN_API_KEY,
-      boba_eth_mainnet: 'boba', // not required, set placeholder
-      boba_bnb_mainnet: 'boba', // not required, set placeholder
-      boba_goerli: 'boba', // not required, set placeholder
-      boba_bnb_testnet: 'boba', // not required, set placeholder
-      boba_sepolia: 'boba', // not required, set placeholder
+      op_sepolia: process.env.OPTIMISMSCAN_API_KEY,
+      arb_sepolia: process.env.ARBISCAN_API_KEY,
+      boba_eth_mainnet: "boba", // not required, set placeholder
+      boba_bnb_mainnet: "boba", // not required, set placeholder
+      boba_goerli: "boba", // not required, set placeholder
+      boba_bnb_testnet: "boba", // not required, set placeholder
+      boba_sepolia: "boba", // not required, set placeholder
     },
     customChains: [
       {
-        network: 'boba_eth_mainnet',
+        network: "op_sepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
+          browserURL: "https://sepolia-optimism.etherscan.io"
+        },
+      },
+      {
+        network: "arb_sepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io"
+        },
+      },
+      {
+        network: "boba_eth_mainnet",
         chainId: 288,
         urls: {
           apiURL: 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan',
