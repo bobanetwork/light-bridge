@@ -324,6 +324,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
             prevEvents: events, lastDisbursement: lastDisbursement.toString()
           }
         )
+
         events = await this._getAssetReceivedEvents(
           depositTeleportation.chainId,
           this.options.chainId,
