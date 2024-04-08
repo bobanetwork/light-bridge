@@ -17,6 +17,7 @@ import { orderBy } from 'lodash'
 /* Imports: Artifacts */
 import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
+import OMGLikeJson from '../artifacts/contracts/test-helpers/OMGLikeToken.sol/OMGLikeToken.json'
 
 /* Imports: Core */
 import { LightBridgeService } from '../src'
@@ -28,7 +29,6 @@ import {
   BobaChains,
 } from '@bobanetwork/light-bridge-chains'
 import dotenv from 'dotenv'
-import main from '../src/exec/run'
 import { delay } from '../src/utils/misc.utils'
 import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
 
@@ -2141,8 +2141,8 @@ describe('lightbridge', () => {
   describe('OMG support', () => {
       before(async () => {
         const Factory_OMGLike = new ethers.ContractFactory(
-          L1ERC20Json.abi,
-          L1ERC20Json.bytecode,
+          OMGLikeJson.abi,
+          OMGLikeJson.bytecode,
           signer
         )
         OMGLikeToken = await Factory_OMGLike.deploy(
@@ -2234,7 +2234,7 @@ describe('lightbridge', () => {
             token,
             amount: amount.toString(),
             addr: emitter,
-            depositId: depositId.toNumber(),
+            depositId: parseInt(depositId.toString()),
             sourceChainId: sourceChainId.toString(),
           },
         ]
