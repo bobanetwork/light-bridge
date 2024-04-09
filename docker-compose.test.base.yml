@@ -125,33 +125,6 @@ services:
       - ANVIL_IP_ADDR=0.0.0.0
 #    ports:
 #      - "8545:8545"
-
-  lightbridge:
-    depends_on:
-      - lightbridge_db
-      - kms
-      - anvil_eth
-      - anvil_bnb
-      - graph-node_eth
-      - graph-node_bnb
-    image: bobanetwork/lightbridge:latest
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    command: bash -c "sleep 60; npm test"
-    environment:
-      LIGHTBRIDGE_MODE: "testnets"
-      LIGHTBRIDGE_REJECT_UNAUTHORIZED: "true"
-      # KMS setup (incl. defaults)
-      LIGHTBRIDGE_ENV: "dev"
-      LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: "1"
-      LIGHTBRIDGE_AWS_KMS_SECRET_KEY: "2"
-      LIGHTBRIDGE_AWS_KMS_KEY_ID: "lb_disburser_pk"
-      LIGHTBRIDGE_AWS_KMS_REGION: "us-east-1"
-      LIGHTBRIDGE_AWS_KMS_ENDPOINT: "http://kms:8888/"
-      # DB
-      LIGHTBRIDGE_POSTGRES_PASSWORD: "abcdef"
-      LIGHTBRIDGE_POSTGRES_DB_HOST: "lightbridge_db" # always use local instance for tests
   
   lightbridge_db:
     image: postgres

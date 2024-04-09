@@ -3,5 +3,6 @@ COPY package.json ./
 RUN npm install
 COPY . .
 RUN npm run codegen-eth && npm run build-eth
-RUN ["chmod", "+x", "./deploy-eth.sh"]
+RUN  sed -i 's/\r$//' ./deploy-eth.sh  && \
+     chmod +x ./deploy-eth.sh
 ENTRYPOINT ["./deploy-eth.sh"]
