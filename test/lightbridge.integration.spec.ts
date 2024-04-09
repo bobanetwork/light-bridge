@@ -2245,7 +2245,7 @@ describe('lightbridge', () => {
       expect(amountDisbursements).to.be.eq(1)
     })
 
-    it('should fail to bridge OMG token if cannot disburse', async () => {
+    it('should fail to bridge OMG token if paused', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
@@ -2333,6 +2333,105 @@ describe('lightbridge', () => {
       console.log("Unpausing lightbridge")
       pauseTx = await LightBridge.connect(wallet1).unpause()
       await pauseTx.wait()
+    })
+
+
+    it('should fail to bridge OMG token if not approved', async () => {
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
+
+      const blockNumber = await provider.getBlockNumber()
+
+      // deposit token
+      const bridgeAmount = utils.parseEther('20')
+      let approveTx = await OMGLikeToken.connect(signer).approve(LightBridge.address, '0')
+      await approveTx.wait()
+      console.log('Reset approve to 0 done')
+      approveTx = await OMGLikeToken.connect(signer).approve(LightBridge.address, bridgeAmount)
+      await approveTx.wait()
+      const res = await LightBridge.connect(signer).teleportAsset(
+        OMGLikeToken.address,
+        bridgeAmount,
+        chainId,
+        { gasLimit: 7000000 },
+      )
+      await res.wait()
+
+      await waitForSubgraph()
+
+      const latestBlockNumber = await provider.getBlockNumber()
+      const latestEvents = await teleportationService._getAssetReceivedEvents(
+        chainId,
+        chainId,
+        blockNumber,
+        latestBlockNumber,
+      )
+
+      expect(latestEvents.length).to.be.eq(1)
+      expect(latestEvents[0].sourceChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].toChainId.toString()).to.be.eq(chainId.toString())
+      expect(latestEvents[0].depositId.toString()).to.be.eq('2')
+      expect(latestEvents[0].emitter.toLowerCase()).to.be.eq(
+        signerAddr.toLowerCase(),
+      )
+      expect(latestEvents[0].amount.toString()).to.be.eq(bridgeAmount)
+
+      let disbursement = []
+      const event = latestEvents[0]
+      const sourceChainId = event.sourceChainId
+      const depositId = event.depositId
+      const amount = event.amount
+      const token = event.token
+      const emitter = event.emitter
+
+      disbursement = [
+        {
+          token,
+          amount: amount.toString(),
+          addr: emitter,
+          depositId: parseInt(depositId.toString()),
+          sourceChainId: sourceChainId.toString(),
+        },
+      ]
+      expect(token.toLowerCase()).to.be.eq(OMGLikeToken.address.toLowerCase())
+
+      disbursement = orderBy(disbursement, ['depositId'], ['asc'])
+
+      const preOMGBalance = await OMGLikeToken.balanceOf(address1)
+      const preSignerOMGBalance = await OMGLikeToken.balanceOf(signerAddr)
+
+      console.log('Pre disburse: ', JSON.stringify(disbursement), address1, preOMGBalance, signerAddr, preSignerOMGBalance)
+
+      // make intentionally fail by not approving
+      try {
+        const disburseTxUnsigned =
+          await teleportationService.state.Teleportation.populateTransaction.disburseAsset(
+            disbursement,
+          )
+        const disburseTx = await teleportationService.state.KMSSigner.sendTxViaKMS(
+          teleportationService.state.Teleportation.provider,
+          teleportationService.state.Teleportation.address,
+          BigNumber.from('0'),
+          disburseTxUnsigned
+        )
+        await disburseTx.wait()
+      } catch (err) {
+        console.log(`This call is supposed to fail: `, JSON.stringify(err), err?.message)
+      }
+
+      const postOMGBalance = await OMGLikeToken.balanceOf(address1)
+      const postSignerOMGBalance = await OMGLikeToken.balanceOf(signerAddr)
+
+      console.log('Post disburse', postOMGBalance, postSignerOMGBalance)
+
+      expect(preOMGBalance.sub(postOMGBalance)).to.be.eq('0')
+      expect(postSignerOMGBalance.sub(preSignerOMGBalance)).to.be.eq('0')
+
+      const amountDisbursements = await LightBridge.connect(
+        signer,
+      ).totalDisbursements(chainId)
+
+      expect(amountDisbursements).to.be.eq(1)
     })
   })
 })
