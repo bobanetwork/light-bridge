@@ -137,7 +137,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
 
     this.logger.info(
       'getSupportedNetworks: Starting with these chains to evaluate support -> ',
-      {chainIds: JSON.stringify(selectedBobaChains.map((c) => c.chainId))}
+      { chainIds: JSON.stringify(selectedBobaChains.map((c) => c.chainId)) }
     )
 
     const defaultAssetAddr =
@@ -285,7 +285,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
       depositTeleportation.chainId,
       this.options.chainId,
       lastBlock,
-      latestBlock,
+      latestBlock
       // depositTeleportation.totalDisbursements
       // do not provide contract as only supported locally to avoid subgraph collisions
     )
@@ -722,7 +722,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         targetChainId,
         null,
         fromBlock,
-        toBlock,
+        toBlock
       )
     return events.map((e) => {
       // make sure typings are correct
