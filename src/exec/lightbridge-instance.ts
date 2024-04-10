@@ -22,7 +22,6 @@ export const startLightBridgeForNetwork = async (opts: ILightBridgeOpts) => {
         err?.message,
         err
       )
-    } finally {
       try {
         await service?.stop()
       } catch (err) {
@@ -103,8 +102,7 @@ const runService = async (opts: ILightBridgeOpts) => {
     teleportationAddress,
     selectedBobaChains,
     ownSupportedAssets: originSupportedAssets,
-    pollingInterval: pollingInterval,
-    blockRangePerPolling: blockRangePerPolling,
+    pollingInterval,
     awsConfig: {
       awsKmsAccessKey: envModeIsDevelopment
         ? awsKmsConfig.awsKmsAccessKey

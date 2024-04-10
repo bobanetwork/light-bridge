@@ -56,8 +56,6 @@ interface TeleportationOptions {
 
   pollingInterval: number
 
-  blockRangePerPolling: number
-
   awsConfig: IKMSSignerConfig
 
   /** @dev Can be used to override local config set in BobaChains object */

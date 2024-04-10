@@ -77,11 +77,7 @@ const main = async () => {
   // Optional
   const pollingInterval = config.uint(
     'polling-interval',
-    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 100 * 60
-  )
-  const blockRangePerPolling = config.uint(
-    'block-range-per-polling',
-    parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000
+    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 100 * 60000 // in ms
   )
   const retryIntervalMs = config.uint(
     'retry-interval-ms',
@@ -114,7 +110,6 @@ const main = async () => {
       networkMode === ENetworkMode.TESTNETS
         ? ENetworkMode.TESTNETS
         : ENetworkMode.MAINNETS,
-    blockRangePerPolling,
     pollingInterval,
     envModeIsDevelopment,
     awsKmsConfig: {
