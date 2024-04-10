@@ -12,11 +12,11 @@ dependencies:
     specifier: 0.5.12
     version: 0.5.12(ethers@5.7.2)
   '@bobanetwork/graphql-utils':
-    specifier: ^1.0.43
-    version: 1.0.43(graphql@16.8.1)
+    specifier: ^1.0.45
+    version: 1.0.45(graphql@16.8.1)
   '@bobanetwork/light-bridge-chains':
-    specifier: ^1.0.14
-    version: 1.0.14
+    specifier: ^1.0.16
+    version: 1.0.16
   '@eth-optimism/common-ts':
     specifier: 0.2.2
     version: 0.2.2
@@ -715,8 +715,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bobanetwork/graphql-utils@1.0.43(graphql@16.8.1):
-    resolution: {integrity: sha512-/HW13CAHyd4B0BEXbqgB997ann7DMyH2IytqhhRjQ+fcX3UjmN7f0sNkCY9TDPp7YGpwSSoZqe+DanObf3tf/Q==}
+  /@bobanetwork/graphql-utils@1.0.45(graphql@16.8.1):
+    resolution: {integrity: sha512-seHi3bkhs+B904eD9PoPDIuwJHXBUSNTPOj32y19ft+9OfgQ4eA7Hv0ilTh7Wa+jAFWKCForC42Hh6qJR1Oxaw==}
     dependencies:
       '@apollo/client': 3.5.10(graphql@16.8.1)
       '@ethersproject/providers': 5.7.2
@@ -732,8 +732,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bobanetwork/light-bridge-chains@1.0.14:
-    resolution: {integrity: sha512-7gnCXuo7XdxzFaB1rAVXJIamm5/naUgbstXivbtqGcF1HxxtT4TTa3Kq+9zWO4I5bBfNL03/QpU1i7sfDn+uDA==}
+  /@bobanetwork/light-bridge-chains@1.0.16:
+    resolution: {integrity: sha512-hmqRu+sZ6GC+vNVybMWpikzHguQc35puFc895x62Z+tnOeVu4M8sOpnijAN5TSQ4S4RsqzYLzhkXnZgAcUYl4w==}
     dependencies:
       dotenv: 8.6.0
       ethers: 5.7.2
