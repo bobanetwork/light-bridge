@@ -61,7 +61,6 @@ const runService = async (opts: ILightBridgeOpts) => {
     rpcUrl,
     networkMode,
     pollingInterval,
-    blockRangePerPolling,
     envModeIsDevelopment,
     awsKmsConfig,
     localNetworks,
