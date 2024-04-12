@@ -56,7 +56,6 @@ describe('lightbridge', () => {
   let selectedBobaChains: ChainInfo[]
   let selectedBobaChainsBnb: ChainInfo[]
   const pollingInterval: number = 1000
-  const blockRangePerPolling = 1000
 
   const defaultMinDepositAmount = utils.parseEther('1')
   const defaultMaxDepositAmount = utils.parseEther('100')
@@ -213,7 +212,6 @@ describe('lightbridge', () => {
         ? selectedBobaChains[0].supportedAssets
         : selectedBobaChainsBnb[0].supportedAssets,
       pollingInterval,
-      blockRangePerPolling,
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
@@ -2448,7 +2446,6 @@ describe('service startup unit tests', () => {
       selectedBobaChains: networksToWatch.selectedBobaChains,
       ownSupportedAssets: networksToWatch.originSupportedAssets,
       pollingInterval: 1000,
-      blockRangePerPolling: 1000,
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
