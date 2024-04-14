@@ -77,11 +77,11 @@ const main = async () => {
   // Optional
   const pollingInterval = config.uint(
     'polling-interval',
-    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 100 * 60000 // in ms
+    parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 60_000 // in ms, 1 minute = 60_000ms
   )
   const retryIntervalMs = config.uint(
     'retry-interval-ms',
-    parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 30_000
+    parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 60_000
   )
 
   // only for testing (integration tests, otherwise real networks are being used)
