@@ -15,8 +15,8 @@ dependencies:
     specifier: ^1.0.45
     version: 1.0.45(graphql@16.8.1)
   '@bobanetwork/light-bridge-chains':
-    specifier: ^1.0.16
-    version: 1.0.16
+    specifier: ^1.0.17
+    version: 1.0.17
   '@eth-optimism/common-ts':
     specifier: 0.2.2
     version: 0.2.2
@@ -732,8 +732,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@bobanetwork/light-bridge-chains@1.0.16:
-    resolution: {integrity: sha512-hmqRu+sZ6GC+vNVybMWpikzHguQc35puFc895x62Z+tnOeVu4M8sOpnijAN5TSQ4S4RsqzYLzhkXnZgAcUYl4w==}
+  /@bobanetwork/light-bridge-chains@1.0.17:
+    resolution: {integrity: sha512-hDtnZOFN70cxiIfFkPEbLGPh54eJXACMd0NIJ8Nfg3aJMdZmJBBaFO0W0oD0Z6fo+sBrpIQDczigRad34nX83Q==}
     dependencies:
       dotenv: 8.6.0
       ethers: 5.7.2

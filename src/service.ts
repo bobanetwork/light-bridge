@@ -567,7 +567,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
           BobaChains[sourceChainId]?.height ?? 0 // for local
         )
         this.logger.warn(
-          `Deposit info has ben RESET back to block: ${
+          `Deposit info has been RESET back to block: ${
             BobaChains[sourceChainId]?.height ?? 0
           } for chainId ${sourceChainId}`
         )
