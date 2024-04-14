@@ -150,7 +150,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
         const chainId = chain.chainId
         // assuming BOBA is enabled on supported networks to retain battle-tested logic
 
-        this.logger.debug('Check if Boba or native supported for chainId: ', {
+        this.logger.info('Check if Boba or native supported for chainId: ', {
           chainId,
           bobaTokenContractAddr: defaultAssetAddr,
           serviceChainId: this.options.chainId,
