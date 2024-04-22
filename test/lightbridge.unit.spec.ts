@@ -595,7 +595,7 @@ describe('Asset Teleportation Tests', async () => {
 
       it('should withdraw ERC20 balance', async () => {
         const preSignerBalnce = await L2Boba.balanceOf(signerAddress)
-        let preBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
+        const preBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
 
         const partialAmount = preBalance.div(3)
         await expect(
@@ -604,12 +604,12 @@ describe('Asset Teleportation Tests', async () => {
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(L2Boba.address, signerAddress, partialAmount)
 
-        preBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
+        const newPreBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
         await expect(
-          Proxy__Teleportation.withdrawBalance(L2Boba.address, preBalance)
+          Proxy__Teleportation.withdrawBalance(L2Boba.address, newPreBalance)
         )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
-          .withArgs(L2Boba.address, signerAddress, preBalance)
+          .withArgs(L2Boba.address, signerAddress, newPreBalance)
 
         const postBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
         const postSignerBalance = await L2Boba.balanceOf(signerAddress)
@@ -1264,7 +1264,7 @@ describe('Asset Teleportation Tests', async () => {
 
       it('should withdraw BOBA balance', async () => {
         const preSignerBalnce = await ethers.provider.getBalance(signerAddress)
-        let preBalance = await ethers.provider.getBalance(
+        const preBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
         )
 
@@ -1278,17 +1278,17 @@ describe('Asset Teleportation Tests', async () => {
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(ethers.constants.AddressZero, signerAddress, partialAmount)
 
-        preBalance = await ethers.provider.getBalance(
+        const newPreBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
         )
         await expect(
           Proxy__Teleportation.withdrawBalance(
             ethers.constants.AddressZero,
-            preBalance
+            newPreBalance
           )
         )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
-          .withArgs(ethers.constants.AddressZero, signerAddress, preBalance)
+          .withArgs(ethers.constants.AddressZero, signerAddress, newPreBalance)
 
         const postBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
