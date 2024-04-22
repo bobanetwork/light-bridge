@@ -406,7 +406,7 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
         } else {
             // no supportedToken check in case of generally lost tokens
             uint256 _balance = IERC20(_token).balanceOf(address(this));
-            require(_balance > _amount, "Too high");
+            require(_balance >= _amount, "Too high");
             IERC20(_token).safeTransfer(owner, _amount);
             emit AssetBalanceWithdrawn(_token, owner, _amount);
         }
