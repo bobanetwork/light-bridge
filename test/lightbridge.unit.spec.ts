@@ -598,12 +598,16 @@ describe('Asset Teleportation Tests', async () => {
         let preBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
 
         const partialAmount = preBalance.div(3)
-        await expect(Proxy__Teleportation.withdrawBalance(L2Boba.address, partialAmount))
+        await expect(
+          Proxy__Teleportation.withdrawBalance(L2Boba.address, partialAmount)
+        )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(L2Boba.address, signerAddress, partialAmount)
 
         preBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
-        await expect(Proxy__Teleportation.withdrawBalance(L2Boba.address, preBalance))
+        await expect(
+          Proxy__Teleportation.withdrawBalance(L2Boba.address, preBalance)
+        )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(L2Boba.address, signerAddress, preBalance)
 
@@ -617,7 +621,10 @@ describe('Asset Teleportation Tests', async () => {
 
       it('should not withdraw ERC20 balance if caller is not owner', async () => {
         await expect(
-          Proxy__Teleportation.connect(signer2).withdrawBalance(L2Boba.address, '1')
+          Proxy__Teleportation.connect(signer2).withdrawBalance(
+            L2Boba.address,
+            '1'
+          )
         ).to.be.revertedWith('Caller is not the owner')
       })
 
@@ -1263,7 +1270,10 @@ describe('Asset Teleportation Tests', async () => {
 
         const partialAmount = preBalance.div(3)
         await expect(
-          Proxy__Teleportation.withdrawBalance(ethers.constants.AddressZero, partialAmount)
+          Proxy__Teleportation.withdrawBalance(
+            ethers.constants.AddressZero,
+            partialAmount
+          )
         )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(ethers.constants.AddressZero, signerAddress, partialAmount)
@@ -1272,7 +1282,10 @@ describe('Asset Teleportation Tests', async () => {
           Proxy__Teleportation.address
         )
         await expect(
-          Proxy__Teleportation.withdrawBalance(ethers.constants.AddressZero, preBalance)
+          Proxy__Teleportation.withdrawBalance(
+            ethers.constants.AddressZero,
+            preBalance
+          )
         )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(ethers.constants.AddressZero, signerAddress, preBalance)
@@ -1293,7 +1306,8 @@ describe('Asset Teleportation Tests', async () => {
       it('should not withdraw BOBA balance if caller is not owner', async () => {
         await expect(
           Proxy__Teleportation.connect(signer2).withdrawBalance(
-            ethers.constants.AddressZero, '1'
+            ethers.constants.AddressZero,
+            '1'
           )
         ).to.be.revertedWith('Caller is not the owner')
       })

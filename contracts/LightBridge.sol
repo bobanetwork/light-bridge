@@ -400,15 +400,15 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
         if (address(0) == _token) {
             uint256 _balance = address(this).balance;
             require(_balance >= _amount, "Too high");
-            (bool sent,) = owner.call{gas: 2300, value: _balance}("");
+            (bool sent,) = owner.call{gas: 2300, value: _amount}("");
             require(sent, "Failed to send Ether");
-            emit AssetBalanceWithdrawn(_token, owner, _balance);
+            emit AssetBalanceWithdrawn(_token, owner, _amount);
         } else {
             // no supportedToken check in case of generally lost tokens
             uint256 _balance = IERC20(_token).balanceOf(address(this));
             require(_balance > _amount, "Too high");
-            IERC20(_token).safeTransfer(owner, _balance);
-            emit AssetBalanceWithdrawn(_token, owner, _balance);
+            IERC20(_token).safeTransfer(owner, _amount);
+            emit AssetBalanceWithdrawn(_token, owner, _amount);
         }
     }
 
