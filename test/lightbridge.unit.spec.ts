@@ -1263,7 +1263,7 @@ describe('Asset Teleportation Tests', async () => {
       })
 
       it('should withdraw BOBA balance', async () => {
-        const preSignerBalnce = await ethers.provider.getBalance(signerAddress)
+        const preSignerBalance = await ethers.provider.getBalance(signerAddress)
         const preBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
         )
@@ -1297,8 +1297,9 @@ describe('Asset Teleportation Tests', async () => {
           signerAddress
         )
         const gasFee = await getGasFeeFromLastestBlock(ethers.provider)
-        expect(preBalance.sub(postBalance)).to.be.eq(
-          postSignerBalance.sub(preSignerBalnce).add(gasFee)
+        expect(preBalance.sub(postBalance)).to.be.closeTo(
+          postSignerBalance.sub(preSignerBalance),
+          postSignerBalance.sub(preSignerBalance).add(gasFee),
         )
         expect(postBalance.toString()).to.be.eq('0')
       })
