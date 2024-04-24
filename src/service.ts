@@ -39,6 +39,7 @@ import {
   LightBridgeAssetReceivedEvent,
   lightBridgeGraphQLService,
 } from '@bobanetwork/graphql-utils'
+import { deductExitFeeIfApplicable } from './utils/misc.utils'
 
 interface LightBridgeOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -293,17 +294,6 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     )
   }
 
-  _deductExitFeeIfApplicable(amount: BigNumber): BigNumber {
-    // deduct fee for L1 networks or not Boba Foundation owned networks (basically fee is applied to all networks that have no airdrop support)
-    if (
-      this.options.enableExitFee &&
-      !BobaChains[this.options.chainId]?.airdropConfig?.airdropEnabled
-    ) {
-      return amount.mul(99).div(100)
-    }
-    return amount
-  }
-
   async _disburseTeleportation(
     depositTeleportation: DepositTeleportations,
     events: LightBridgeAssetReceivedEvent[],
@@ -365,7 +355,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: this._deductExitFeeIfApplicable(amount).toString(),
+                  amount: deductExitFeeIfApplicable(this.options.enableExitFee, this.options.chainId, amount).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),

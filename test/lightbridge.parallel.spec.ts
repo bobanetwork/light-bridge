@@ -437,7 +437,10 @@ describe('lightbridge parallel', () => {
       toBlock
     )
     expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
-    const feeDeductedAmount = BigNumber.from('12000000000000000000').mul(99).div(100).toString()
+    const feeDeductedAmount = BigNumber.from('12000000000000000000')
+      .mul(99)
+      .div(100)
+      .toString()
     const specificDestinationEvent = destinationEvents.find(
       (event) => event.args.amount.toString() === feeDeductedAmount
     )
