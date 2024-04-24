@@ -201,7 +201,7 @@ describe('lightbridge', () => {
       // sometimes the same network with a different chain id is used
       l2RpcProvider: overrideProvider ?? provider,
       chainId: chainIdToUse,
-      teleportationAddress: useBnb
+      lightBridgeAddress: useBnb
         ? LightBridgeBNB.address
         : LightBridge.address,
       selectedBobaChains: overridenBobaChains,
@@ -210,6 +210,7 @@ describe('lightbridge', () => {
         ? selectedBobaChains[0].supportedAssets
         : selectedBobaChainsBnb[0].supportedAssets,
       pollingInterval,
+      enableExitFee: false, // to not have to deal with exit fees in tests
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
@@ -2143,7 +2144,7 @@ describe('service startup unit tests', () => {
       // sometimes the same network with a different chain id is used
       l2RpcProvider: new providers.JsonRpcProvider(BobaChains[chainIdToUse]),
       chainId: chainIdToUse,
-      teleportationAddress: BobaChains[chainIdToUse].teleportationAddress,
+      lightBridgeAddress: BobaChains[chainIdToUse].teleportationAddress,
       selectedBobaChains: networksToWatch.selectedBobaChains,
       ownSupportedAssets: networksToWatch.originSupportedAssets,
       pollingInterval: 1000,

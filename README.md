@@ -24,6 +24,7 @@ All configuration is done via environment variables. See all variables at [.env.
 | LIGHTBRIDGE_POSTGRES_USER               | The database user                                        | postgres            |
 | LIGHTBRIDGE_MODE                        | Which rpcUrls to use? testnets or mainnets               | testnets            |
 | LIGHTBRIDGE_ENV                         | The environment mode (dev or prod)                       | dev                 |
+| LIGHTBRIDGE_ENABLE_EXIT_FEE             | Enable exit fee (1%, statically set on Gateway too)      | true                |
 
 ## Building & Running
 

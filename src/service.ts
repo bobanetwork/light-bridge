@@ -40,14 +40,14 @@ import {
   lightBridgeGraphQLService,
 } from '@bobanetwork/graphql-utils'
 
-interface TeleportationOptions {
+interface LightBridgeOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
 
   // chainId of the L2 network
   chainId: number
 
   // Address of the teleportation contract
-  teleportationAddress: string
+  lightBridgeAddress: string
 
   selectedBobaChains: ChainInfo[]
 
@@ -60,12 +60,14 @@ interface TeleportationOptions {
 
   /** @dev Can be used to override local config set in BobaChains object */
   airdropConfig?: IAirdropConfig
+
+  enableExitFee?: boolean
 }
 
 const optionSettings = {}
 
-export class LightBridgeService extends BaseService<TeleportationOptions> {
-  constructor(options: TeleportationOptions) {
+export class LightBridgeService extends BaseService<LightBridgeOptions> {
+  constructor(options: LightBridgeOptions) {
     super('Teleportation', options, optionSettings)
   }
 
@@ -91,7 +93,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     )
 
     this.state.Teleportation = new Contract(
-      this.options.teleportationAddress,
+      this.options.lightBridgeAddress,
       LightBridgeABI.abi,
       this.options.l2RpcProvider
     )
@@ -291,6 +293,14 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     )
   }
 
+  _deductExitFeeIfApplicable(amount: BigNumber): BigNumber {
+    // deduct fee for L1 networks or not Boba Foundation owned networks (basically fee is applied to all networks that have no airdrop support)
+    if (this.options.enableExitFee && !BobaChains[this.options.chainId]?.airdropConfig?.airdropEnabled) {
+      return amount.mul(99).div(100)
+    }
+    return amount
+  }
+
   async _disburseTeleportation(
     depositTeleportation: DepositTeleportations,
     events: LightBridgeAssetReceivedEvent[],
@@ -352,7 +362,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: amount.toString(),
+                  amount: this._deductExitFeeIfApplicable(amount).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),
