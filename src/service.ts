@@ -295,7 +295,10 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
 
   _deductExitFeeIfApplicable(amount: BigNumber): BigNumber {
     // deduct fee for L1 networks or not Boba Foundation owned networks (basically fee is applied to all networks that have no airdrop support)
-    if (this.options.enableExitFee && !BobaChains[this.options.chainId]?.airdropConfig?.airdropEnabled) {
+    if (
+      this.options.enableExitFee &&
+      !BobaChains[this.options.chainId]?.airdropConfig?.airdropEnabled
+    ) {
       return amount.mul(99).div(100)
     }
     return amount

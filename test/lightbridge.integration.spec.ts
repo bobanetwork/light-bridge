@@ -201,9 +201,7 @@ describe('lightbridge', () => {
       // sometimes the same network with a different chain id is used
       l2RpcProvider: overrideProvider ?? provider,
       chainId: chainIdToUse,
-      lightBridgeAddress: useBnb
-        ? LightBridgeBNB.address
-        : LightBridge.address,
+      lightBridgeAddress: useBnb ? LightBridgeBNB.address : LightBridge.address,
       selectedBobaChains: overridenBobaChains,
       // only defined one other for the routing tests (so idx 0 = own origin network)
       ownSupportedAssets: useBnb

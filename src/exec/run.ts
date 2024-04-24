@@ -86,7 +86,7 @@ const main = async () => {
 
   const enableExitFee = config.bool(
     'enable-exit-fee',
-    env.LIGHTBRIDGE_ENABLE_EXIT_FEE?.toLowerCase() === 'true' || true,
+    env.LIGHTBRIDGE_ENABLE_EXIT_FEE?.toLowerCase() === 'true' || true
   )
 
   // only for testing (integration tests, otherwise real networks are being used)
