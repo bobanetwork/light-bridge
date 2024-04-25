@@ -290,7 +290,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       this.options.chainId,
       lastBlock,
       latestBlock,
-      depositTeleportation.Teleportation,
+      depositTeleportation.Teleportation
     )
   }
 
@@ -355,7 +355,11 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: deductExitFeeIfApplicable(this.options.enableExitFee, this.options.chainId, amount).toString(),
+                  amount: deductExitFeeIfApplicable(
+                    this.options.enableExitFee,
+                    this.options.chainId,
+                    amount
+                  ).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),
@@ -720,11 +724,13 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     while (startBlock < toBlock) {
       const endBlock =
         Math.min(startBlock + this.options.blockRangePerPolling, toBlock) + 1 // also include toBlock
-      const partialEvents: LightBridgeAssetReceivedEvent[] = (await contract.queryFilter(
-        this.state.Teleportation.filters.AssetReceived(),
-        startBlock,
-        endBlock
-      )).map((e) => {
+      const partialEvents: LightBridgeAssetReceivedEvent[] = (
+        await contract.queryFilter(
+          this.state.Teleportation.filters.AssetReceived(),
+          startBlock,
+          endBlock
+        )
+      ).map((e) => {
         return {
           sourceChainId: e.args.sourceChainId.toString(),
           toChainId: e.args.toChainId.toString(),
@@ -750,24 +756,30 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     targetChainId: number,
     fromBlock: number,
     toBlock: number,
-    contract?: Contract,
+    contract?: Contract
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     let events: LightBridgeAssetReceivedEvent[]
 
     try {
       events = await lightBridgeGraphQLService.queryAssetReceivedEvent(
-          sourceChainId,
-          targetChainId,
-          null,
+        sourceChainId,
+        targetChainId,
+        null,
+        fromBlock,
+        toBlock
+      )
+    } catch (err) {
+      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err })
+      if (contract) {
+        events = await this._getAssetReceivedEventsViaQueryFilter(
+          contract,
           fromBlock,
           toBlock
         )
-    } catch(err) {
-      this.logger.warn(`Caught GraphQL error!`, {errMsg: err?.message, err})
-      if (contract) {
-        events = await this._getAssetReceivedEventsViaQueryFilter(contract, fromBlock, toBlock)
       } else {
-        throw new Error(`GraphQL error and queryFilter not available: ${err?.message}`);
+        throw new Error(
+          `GraphQL error and queryFilter not available: ${err?.message}`
+        )
       }
     }
     return events.map((e) => {

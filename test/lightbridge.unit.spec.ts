@@ -1866,7 +1866,6 @@ describe('Asset Teleportation Tests', async () => {
 })
 
 describe('Service unit tests', () => {
-
   describe('deduct exit fee if applicable', () => {
     it('should deduct exit fee if conditions are met', () => {
       const prevAmount: BigNumber = parseEther('1')
