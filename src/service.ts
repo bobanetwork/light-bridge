@@ -739,7 +739,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
           token: e.args.token,
           emitter: e.args.emitter,
           block_number: e.blockNumber.toString(),
-          timestamp_: e.args.timestamp.toString(),
+          timestamp_: undefined, // not available via filter without making another rpc call
           transactionHash_: e.transactionHash,
           __typename: 'AssetReceived',
         }
