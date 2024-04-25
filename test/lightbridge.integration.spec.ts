@@ -2258,11 +2258,12 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
-        LightBridgeBNB,
-        preBlockNumber,
-        blockNumber,
-      )
+      const events =
+        await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
