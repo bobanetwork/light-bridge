@@ -210,6 +210,7 @@ describe('lightbridge', () => {
         ? selectedBobaChains[0].supportedAssets
         : selectedBobaChainsBnb[0].supportedAssets,
       pollingInterval,
+      blockRangePerPolling: 1000,
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
@@ -250,8 +251,6 @@ describe('lightbridge', () => {
         chainId,
         0,
         blockNumber,
-        null,
-        LightBridge.address
       )
       expect(events.length).to.be.eq(0)
 
@@ -272,8 +271,6 @@ describe('lightbridge', () => {
         chainId,
         0,
         latestBlockNumber,
-        null,
-        LightBridge.address
       )
 
       expect(latestEvents.length).to.be.eq(1)
@@ -341,8 +338,6 @@ describe('lightbridge', () => {
         chainId,
         0,
         blockNumber,
-        null,
-        LightBridge.address
       )
 
       let disbursement = []
@@ -403,8 +398,6 @@ describe('lightbridge', () => {
         chainId,
         startBlockNumber,
         endBlockNumber,
-        null,
-        LightBridge.address
       )
 
       expect(latestEvents.length).to.be.eq(15)
@@ -422,8 +415,6 @@ describe('lightbridge', () => {
         chainId,
         0,
         blockNumber,
-        null,
-        LightBridge.address
       )
       const lastDisbursement = await LightBridge.totalDisbursements(chainId)
 
@@ -785,8 +776,6 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridgeBNB.address
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -878,8 +867,6 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridgeBNB.address
       )
 
       expect(events.length).to.be.gte(1, 'Should have at least one event')
@@ -977,8 +964,6 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridge.address
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -1216,8 +1201,6 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridgeBNB.address
       )
 
       console.log(
@@ -1332,8 +1315,6 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridge.address
       )
 
       console.log('Teleportation: ', LightBridge.address)
@@ -1568,8 +1549,6 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridgeBNB.address
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -1801,8 +1780,6 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridgeBNB.address
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -2039,8 +2016,6 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        LightBridgeBNB.address
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -2147,6 +2122,7 @@ describe('service startup unit tests', () => {
       selectedBobaChains: networksToWatch.selectedBobaChains,
       ownSupportedAssets: networksToWatch.originSupportedAssets,
       pollingInterval: 1000,
+      blockRangePerPolling: 1000,
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',

@@ -79,6 +79,10 @@ const main = async () => {
     'polling-interval',
     parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 60_000 // in ms, 1 minute = 60_000ms
   )
+  const blockRangePerPolling = config.uint(
+    'block-range-per-polling',
+    parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000 // 1000 blocks
+  )
   const retryIntervalMs = config.uint(
     'retry-interval-ms',
     parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 60_000
@@ -111,6 +115,7 @@ const main = async () => {
         ? ENetworkMode.TESTNETS
         : ENetworkMode.MAINNETS,
     pollingInterval,
+    blockRangePerPolling,
     envModeIsDevelopment,
     awsKmsConfig: {
       awsKmsAccessKey,
