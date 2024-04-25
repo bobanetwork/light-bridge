@@ -39,15 +39,16 @@ import {
   LightBridgeAssetReceivedEvent,
   lightBridgeGraphQLService,
 } from '@bobanetwork/graphql-utils'
+import { deductExitFeeIfApplicable } from './utils/misc.utils'
 
-interface TeleportationOptions {
+interface LightBridgeOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
 
   // chainId of the L2 network
   chainId: number
 
   // Address of the teleportation contract
-  teleportationAddress: string
+  lightBridgeAddress: string
 
   selectedBobaChains: ChainInfo[]
 
@@ -61,12 +62,14 @@ interface TeleportationOptions {
 
   /** @dev Can be used to override local config set in BobaChains object */
   airdropConfig?: IAirdropConfig
+
+  enableExitFee?: boolean
 }
 
 const optionSettings = {}
 
-export class LightBridgeService extends BaseService<TeleportationOptions> {
-  constructor(options: TeleportationOptions) {
+export class LightBridgeService extends BaseService<LightBridgeOptions> {
+  constructor(options: LightBridgeOptions) {
     super('Teleportation', options, optionSettings)
   }
 
@@ -92,7 +95,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
     )
 
     this.state.Teleportation = new Contract(
-      this.options.teleportationAddress,
+      this.options.lightBridgeAddress,
       LightBridgeABI.abi,
       this.options.l2RpcProvider
     )
@@ -352,7 +355,7 @@ export class LightBridgeService extends BaseService<TeleportationOptions> {
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: amount.toString(),
+                  amount: deductExitFeeIfApplicable(this.options.enableExitFee, this.options.chainId, amount).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),

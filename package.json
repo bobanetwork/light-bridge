@@ -53,6 +53,7 @@
       "@bobanetwork/core_contracts": "0.5.12",
       "@bobanetwork/graphql-utils": "^1.1.6",
       "@bobanetwork/light-bridge-chains": "^1.1.2",
+      "@bobanetwork/light-bridge-chains": "^1.1.1",
       "@eth-optimism/common-ts": "0.2.2",
       "@ethereumjs/common": "^3.2.0",
       "@ethereumjs/tx": "4.2.0",

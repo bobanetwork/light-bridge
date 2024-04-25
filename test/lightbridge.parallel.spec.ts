@@ -1,4 +1,5 @@
 import {
+  BigNumber,
   Contract,
   ContractFactory,
   providers,
@@ -436,8 +437,12 @@ describe('lightbridge parallel', () => {
       toBlock
     )
     expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
+    const feeDeductedAmount = BigNumber.from('12000000000000000000')
+      .mul(99)
+      .div(100)
+      .toString()
     const specificDestinationEvent = destinationEvents.find(
-      (event) => event.args.amount.toString() === '12000000000000000000'
+      (event) => event.args.amount.toString() === feeDeductedAmount
     )
     expect(specificDestinationEvent.args.token).to.eq(L2BOBA_BNB.address)
     expect(specificDestinationEvent.args.sourceChainId).to.eq(chainIdBnb)

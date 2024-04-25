@@ -88,6 +88,11 @@ const main = async () => {
     parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 60_000
   )
 
+  const enableExitFee = config.bool(
+    'enable-exit-fee',
+    env.LIGHTBRIDGE_ENABLE_EXIT_FEE?.toLowerCase() === 'true' || true
+  )
+
   // only for testing (integration tests, otherwise real networks are being used)
   const localNetworks = env.__LOCAL_NETWORKS
     ? (JSON.parse(env.__LOCAL_NETWORKS) as ChainInfo[])
@@ -110,6 +115,7 @@ const main = async () => {
     )
   }
   const baseOpts: Omit<ILightBridgeOpts, 'rpcUrl'> = {
+    enableExitFee,
     networkMode:
       networkMode === ENetworkMode.TESTNETS
         ? ENetworkMode.TESTNETS
