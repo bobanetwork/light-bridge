@@ -239,7 +239,7 @@ describe('lightbridge parallel', () => {
     process.env = {
       ...process.env,
       LIGHTBRIDGE_ENV: 'dev',
-      LIGHTBRIDGE_POLLING_INTERVAL: '1000',
+      LIGHTBRIDGE_POLLING_INTERVAL: '1000', // keep short to speed up tests
       LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: '1',
       LIGHTBRIDGE_AWS_KMS_SECRET_KEY: '2',
       LIGHTBRIDGE_AWS_KMS_KEY_ID: 'lb_disburser_pk_2',

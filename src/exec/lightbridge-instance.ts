@@ -103,6 +103,7 @@ const runService = async (opts: ILightBridgeOpts) => {
     selectedBobaChains,
     ownSupportedAssets: originSupportedAssets,
     pollingInterval,
+    blockRangePerPolling: 1000,
     awsConfig: {
       awsKmsAccessKey: envModeIsDevelopment
         ? awsKmsConfig.awsKmsAccessKey

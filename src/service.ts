@@ -56,6 +56,7 @@ interface LightBridgeOptions {
   ownSupportedAssets: SupportedAssets
 
   pollingInterval: number
+  blockRangePerPolling: number
 
   awsConfig: IKMSSignerConfig
 
@@ -288,9 +289,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       depositTeleportation.chainId,
       this.options.chainId,
       lastBlock,
-      latestBlock
-      // depositTeleportation.totalDisbursements
-      // do not provide contract as only supported locally to avoid subgraph collisions
+      latestBlock,
+      depositTeleportation.Teleportation
     )
   }
 
@@ -355,7 +355,11 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: deductExitFeeIfApplicable(this.options.enableExitFee, this.options.chainId, amount).toString(),
+                  amount: deductExitFeeIfApplicable(
+                    this.options.enableExitFee,
+                    this.options.chainId,
+                    amount
+                  ).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),
@@ -710,23 +714,74 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     }
   }
 
+  async _getAssetReceivedEventsViaQueryFilter(
+    contract: Contract,
+    fromBlock: number,
+    toBlock: number
+  ): Promise<LightBridgeAssetReceivedEvent[]> {
+    let events: LightBridgeAssetReceivedEvent[] = []
+    let startBlock = fromBlock
+    while (startBlock < toBlock) {
+      const endBlock =
+        Math.min(startBlock + this.options.blockRangePerPolling, toBlock) + 1 // also include toBlock
+      const partialEvents: LightBridgeAssetReceivedEvent[] = (
+        await contract.queryFilter(
+          this.state.Teleportation.filters.AssetReceived(),
+          startBlock,
+          endBlock
+        )
+      ).map((e) => {
+        return {
+          sourceChainId: e.args.sourceChainId.toString(),
+          toChainId: e.args.toChainId.toString(),
+          depositId: e.args.depositId.toString(),
+          amount: e.args.amount.toString(),
+          token: e.args.token,
+          emitter: e.args.emitter,
+          block_number: e.blockNumber.toString(),
+          timestamp_: undefined, // not available via filter without making another rpc call
+          transactionHash_: e.transactionHash,
+          __typename: 'AssetReceived',
+        }
+      })
+      events = [...events, ...partialEvents]
+      startBlock = endBlock
+    }
+    return events
+  }
+
   // get events from the contract
   async _getAssetReceivedEvents(
     sourceChainId: number,
     targetChainId: number,
     fromBlock: number,
     toBlock: number,
-    minDepositId?: BigNumber,
-    contract?: string
+    contract?: Contract
   ): Promise<LightBridgeAssetReceivedEvent[]> {
-    const events: LightBridgeAssetReceivedEvent[] =
-      await lightBridgeGraphQLService.queryAssetReceivedEvent(
+    let events: LightBridgeAssetReceivedEvent[]
+
+    try {
+      events = await lightBridgeGraphQLService.queryAssetReceivedEvent(
         sourceChainId,
         targetChainId,
         null,
         fromBlock,
         toBlock
       )
+    } catch (err) {
+      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err })
+      if (contract) {
+        events = await this._getAssetReceivedEventsViaQueryFilter(
+          contract,
+          fromBlock,
+          toBlock
+        )
+      } else {
+        throw new Error(
+          `GraphQL error and queryFilter not available: ${err?.message}`
+        )
+      }
+    }
     return events.map((e) => {
       // make sure typings are correct
       return {

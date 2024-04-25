@@ -14,7 +14,7 @@ All configuration is done via environment variables. See all variables at [.env.
 | LIGHTBRIDGE_REJECT_UNAUTHORIZED         | Allows self-signed certificates if false (TypeORM)       | true                |
 | LIGHTBRIDGE_DISBURSER_KEY               | The pk of disburser                                      |                     |
 | LIGHTBRIDGE_POLLING_INTERVAL            | The polling interval of fetching events                  | 60s                 |
-| LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING     | The blcock range of each polling                         | 1000                |
+| LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING     | The block range of each polling                          | 1000                |
 | LIGHTBRIDGE_POSTGRES_CONNECT_TIMEOUT_MS | DB connect timeout in ms                                 | Typeorm default     |
 | LIGHTBRIDGE_RETRY_INTERVAL_MS           | Lightbridge retry interval ms in error cases per service | 30_000 milliseconds |
 | LIGHTBRIDGE_POSTGRES_PASSWORD           | The database password                                    | abcdef              |
