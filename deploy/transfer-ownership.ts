@@ -22,7 +22,7 @@ async function main() {
 
     const ADDRESSES = {
         LIGHT_BRIDGE: '0xf4d179d3a083Fa3Eede935FaF4C679D32d514186',
-        NEW_DISBURSER: '',
+        NEW_DISBURSER: '0x8da2343472431173af202e623e1e8295460afd54',
         NEW_OWNER: '0x48baCac867ef377fac62186A79e8381665cfae6B',
     }
     console.log("Network: ", chainId, network.name)
