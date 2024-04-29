@@ -3,7 +3,7 @@
 This service monitors the on-chain events and release funds when a new deposit is found.
 
 ## Run hardhat scripts
-Example: `npx hardhat run ./deploy/transfer-ownership.ts --network boba_goerli`
+Example: `npx hardhat run ./deploy/transfer-ownership.ts --network boba_sepolia`
 
 ## Configuration
 
@@ -90,13 +90,7 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x6550b0B7e3D2dD0E0382E0638B0f56F614921CA5`
 - Proxy__LightBridge deployed to: `0xaeE12b8D99BBff7ED47866DF868CF5b4b3F73ffF`
 - Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
-
-### Goerli (L1)
-- LightBridge deployed to: `0xB93d9748808A5cC7dC6b61b31F15b87F50BfcAd0`
-- Proxy__LightBridge deployed to: `0x84b22166366a6f7E0cD0c3ce9998f2913Bf17A13`
-- Disburser transferred to AWS KMS managed wallet on [14 Feb 2024](https://goerli.etherscan.io/tx/0x32d5de977ebbcfdcc7ac9c66c8e818b4b5289a7f47e924ba27cb1b9f94123d16): `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0x351fcAbCF549ea7aA1696CC090681Ab0ed8baFDa`
+- Owner managed by EOA: `0x48baCac867ef377fac62186A79e8381665cfae6B`
 
 ### BNB Testnet (L1)
 - LightBridge deployed to: `0xD151c8F0dc69618e6180a2dC74B05cCE3E08e0aC`
@@ -108,24 +102,12 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - LightBridge deployed to: `0x3f7Da9C51138E0475aA26E80677d27A568cFD6b9`
 - Proxy__LightBridge deployed to: `0x2dE73Bd1660Fbf4D521a52Ec2a91CCc106113801`
 - Disburser transferred to AWS KMS managed wallet on 3 March 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
+- Owner managed by EOA: `0x48baCac867ef377fac62186A79e8381665cfae6B`
 - No alerts set yet, since no Tenderly support available (14 Feb 2024)
-
-### Boba Goerli
-- LightBridge deployed to: `0x95ec63aE2573bD5e70C223E075D9483573968699`
-- Proxy__LightBridge deployed to: `0xB43EE846Aa266228FeABaD1191D6cB2eD9808894`
-- Disburser transferred to AWS KMS managed wallet [17 Feb 2024](https://testnet.bobascan.com/tx/0x1f825a236562d9f3fed22637d013487c6d0ead5e9826e73bb50d6bb532e9ae3b?chainId=2888): `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0x351fcAbCF549ea7aA1696CC090681Ab0ed8baFDa`
 
 ### Boba BNB Testnet
 - LightBridge deployed to: `0x46FA6144C61d2bb9aCDc3Ca90C8673dd9B6caEB2`
 - Proxy__LightBridge deployed to: `0xf4d179d3a083Fa3Eede935FaF4C679D32d514186`
-- Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
-
-### Arbitrum Goerli
-- LightBridge deployed to: `0x81F27a114A25ac1c6186fC36888B1b120a46a650`
-- Proxy__LightBridge deployed to: `0x7063f59e1Db3e505D844d11A71C78F92D39E5963`
 - Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
 - Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
 
@@ -134,12 +116,6 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 - Proxy__LightBridge deployed to: `0x3fc06c53aa3Ef19ad7830f5F18C9186C676EdE29`
 - Disburser transferred to AWS KMS managed wallet on 30 March 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
 - Owner: `0x48baCac867ef377fac62186A79e8381665cfae6B`
-
-### Optimism Goerli
-- LightBridge deployed to: `0x885bfeC3D89755d2bCc1e73b6EeEEae94D54eBE4`
-- Proxy__LightBridge deployed to: `0xC226F132A686A08018431C913d87693396246024`
-- Disburser transferred to AWS KMS managed wallet on 29 Feb 2024: `0x48b722d8b1cdf5ebdaeb3f06f85d2560dc5d373a`
-- Owner managed by EOA: `0xc5E61755eeeD4f8A37CBb5386F9397c33707c4b2`
 
 ### Optimism Sepolia
 - LightBridge deployed to: `0x4f7E3fF7B52e9843097A8CB3F1b083a8fF6f8c9b`
