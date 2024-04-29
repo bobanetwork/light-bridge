@@ -201,15 +201,15 @@ describe('lightbridge', () => {
       // sometimes the same network with a different chain id is used
       l2RpcProvider: overrideProvider ?? provider,
       chainId: chainIdToUse,
-      teleportationAddress: useBnb
-        ? LightBridgeBNB.address
-        : LightBridge.address,
+      lightBridgeAddress: useBnb ? LightBridgeBNB.address : LightBridge.address,
       selectedBobaChains: overridenBobaChains,
       // only defined one other for the routing tests (so idx 0 = own origin network)
       ownSupportedAssets: useBnb
         ? selectedBobaChains[0].supportedAssets
         : selectedBobaChainsBnb[0].supportedAssets,
       pollingInterval,
+      blockRangePerPolling: 1000,
+      enableExitFee: false, // to not have to deal with exit fees in tests
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',
@@ -249,9 +249,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        blockNumber,
-        null,
-        LightBridge.address
+        blockNumber
       )
       expect(events.length).to.be.eq(0)
 
@@ -271,9 +269,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        latestBlockNumber,
-        null,
-        LightBridge.address
+        latestBlockNumber
       )
 
       expect(latestEvents.length).to.be.eq(1)
@@ -340,9 +336,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        blockNumber,
-        null,
-        LightBridge.address
+        blockNumber
       )
 
       let disbursement = []
@@ -402,9 +396,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         startBlockNumber,
-        endBlockNumber,
-        null,
-        LightBridge.address
+        endBlockNumber
       )
 
       expect(latestEvents.length).to.be.eq(15)
@@ -421,9 +413,7 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         0,
-        blockNumber,
-        null,
-        LightBridge.address
+        blockNumber
       )
       const lastDisbursement = await LightBridge.totalDisbursements(chainId)
 
@@ -784,9 +774,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridgeBNB.address
+        blockNumber
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -877,9 +865,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridgeBNB.address
+        blockNumber
       )
 
       expect(events.length).to.be.gte(1, 'Should have at least one event')
@@ -976,9 +962,7 @@ describe('lightbridge', () => {
         chainId,
         chainIdBobaBnb,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridge.address
+        blockNumber
       )
 
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -1215,9 +1199,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridgeBNB.address
+        blockNumber
       )
 
       console.log(
@@ -1331,9 +1313,7 @@ describe('lightbridge', () => {
         chainId,
         chainIdBobaBnb,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridge.address
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridge.address)
@@ -1567,9 +1547,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridgeBNB.address
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -1800,9 +1778,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridgeBNB.address
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -2038,9 +2014,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
-        null,
-        LightBridgeBNB.address
+        blockNumber
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
@@ -2133,6 +2107,248 @@ describe('lightbridge', () => {
       )
     })
   })
+
+  describe('query filter fallback', () => {
+    before(async () => {
+      Factory__Teleportation = new ethers.ContractFactory(
+        LightBridgeJson.abi,
+        LightBridgeJson.bytecode,
+        wallet1
+      )
+
+      LightBridge = await Factory__Teleportation.deploy()
+      await LightBridge.deployTransaction.wait()
+
+      Factory__L2BOBA = new ethers.ContractFactory(
+        L1ERC20Json.abi,
+        L1ERC20Json.bytecode,
+        signer
+      )
+      L2BOBA = await Factory__L2BOBA.deploy(
+        utils.parseEther('100000000000'),
+        'BOBA',
+        'BOBA',
+        18
+      )
+      await L2BOBA.deployTransaction.wait()
+      await L2BOBA.transfer(address1, utils.parseEther('100000000'))
+
+      // intialize the teleportation contract
+      await LightBridge.initialize()
+
+      LightBridgeBNB = await Factory__Teleportation.connect(wallet1Bnb).deploy()
+      await LightBridgeBNB.deployTransaction.wait()
+
+      // deploy other token for routing tests
+      L2BNBOnBobaBnb = await Factory__L2BOBA.connect(signerBnb).deploy(
+        utils.parseEther('100000000000'),
+        'BOBA',
+        'BOBA',
+        18
+      )
+      await L2BNBOnBobaBnb.deployTransaction.wait()
+      await L2BNBOnBobaBnb.transfer(address1, utils.parseEther('100000000'))
+
+      // deploy other token for routing tests
+      L2BNBOnBobaEth = await Factory__L2BOBA.deploy(
+        utils.parseEther('100000000000'),
+        'BNB',
+        'BNB',
+        18
+      )
+      await L2BNBOnBobaEth.deployTransaction.wait()
+      await L2BNBOnBobaEth.transfer(address1, utils.parseEther('100000000'))
+
+      // intialize the teleportation contract
+      await LightBridgeBNB.initialize()
+
+      // add the supported chain & token
+      await LightBridgeBNB.addSupportedToken(
+        L2BNBOnBobaBnb.address,
+        chainId,
+        defaultMinDepositAmount,
+        defaultMaxDepositAmount,
+        defaultMaxTransferPerDay
+      )
+      await LightBridgeBNB.addSupportedToken(
+        ethers.constants.AddressZero,
+        chainId,
+        defaultMinDepositAmount,
+        defaultMaxDepositAmount,
+        defaultMaxTransferPerDay
+      )
+
+      // add support on previous network
+      await LightBridge.addSupportedToken(
+        L2BNBOnBobaEth.address,
+        chainIdBobaBnb,
+        defaultMinDepositAmount,
+        defaultMaxDepositAmount,
+        defaultMaxTransferPerDay
+      )
+      await LightBridge.addSupportedToken(
+        L2BOBA.address,
+        chainIdBobaBnb,
+        defaultMinDepositAmount,
+        defaultMaxDepositAmount,
+        defaultMaxTransferPerDay
+      )
+
+      // NO NEED TO ADD THIS CONTRACT TO THE LOCAL GRAPH NODE, as we are using the queryfilter method/fallback here
+
+      // mock BNB network & overwrite prev network
+      selectedBobaChains = [
+        {
+          chainId: chainIdBobaBnb,
+          url: providerBnbUrl,
+          provider: providerBnb,
+          testnet: true,
+          name: 'localhost:bnb',
+          teleportationAddress: LightBridgeBNB.address,
+          height: 0,
+          supportedAssets: {
+            [L2BNBOnBobaBnb.address?.toLowerCase()]: Asset.BNB,
+            [ethers.constants.AddressZero]: Asset.BOBA, // simulate BNB for native to token teleport
+          },
+          airdropConfig: { ...airdropConfig, airdropEnabled: false },
+          layer: EAirdropSource.ALLOW,
+        },
+      ]
+      selectedBobaChainsBnb = [
+        {
+          chainId,
+          url: providerUrl,
+          provider: provider,
+          testnet: true,
+          name: 'localhost',
+          teleportationAddress: LightBridge.address,
+          height: 0,
+          supportedAssets: {
+            [L2BOBA.address?.toLowerCase()]: Asset.BOBA,
+            [ethers.constants.AddressZero]: Asset.ETH,
+            [L2BNBOnBobaEth.address?.toLowerCase()]: Asset.BNB,
+          },
+          airdropConfig: { ...airdropConfig, airdropEnabled: false },
+          layer: EAirdropSource.ALLOW,
+        },
+      ]
+    })
+
+    it('use queryfilter to get events instead of graphql', async () => {
+      const teleportationServiceBnb = await startLightBridgeService(
+        true,
+        null,
+        null,
+        providerBnb
+      )
+      await teleportationServiceBnb.init()
+
+      // deposit token
+      const preBlockNumber = await providerBnb.getBlockNumber()
+      await L2BNBOnBobaBnb.connect(signerBnb).approve(
+        LightBridgeBNB.address,
+        utils.parseEther('20')
+      )
+      const res = await LightBridgeBNB.connect(signerBnb).teleportAsset(
+        L2BNBOnBobaBnb.address,
+        utils.parseEther('10'),
+        chainId // toChainId
+      )
+      await res.wait()
+      await waitForSubgraph()
+
+      const blockNumber = await providerBnb.getBlockNumber()
+      const events =
+        await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
+
+      expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
+
+      const teleportationServiceEth = await startLightBridgeService(false, true)
+      await teleportationServiceEth.init()
+
+      const lastEvent = events[events.length - 1]
+      const randWallet = ethers.Wallet.createRandom().connect(
+        LightBridge.provider
+      )
+      const randAddress = randWallet.address
+      const sourceChainId = lastEvent.sourceChainId
+      const depositId = lastEvent.depositId
+      const amount = lastEvent.amount
+      const token = lastEvent.token
+
+      const receivingChainTokenAddr =
+        teleportationServiceEth._getSupportedDestChainTokenAddrBySourceChainTokenAddr(
+          token,
+          sourceChainId
+        )
+      expect(receivingChainTokenAddr).to.be.eq(
+        L2BNBOnBobaEth.address?.toLowerCase(),
+        'BNB token address on BNB not correctly routed'
+      )
+
+      let disbursement = [
+        {
+          token: receivingChainTokenAddr,
+          amount: amount.toString(),
+          addr: randAddress,
+          depositId: parseInt(depositId.toString()),
+          sourceChainId: sourceChainId.toString(),
+        },
+      ]
+
+      console.log('Added disbursements: ', disbursement)
+
+      disbursement = orderBy(disbursement, ['depositId'], ['asc'])
+
+      const preNativeBalance = await provider.getBalance(address1)
+      const preSignerNativeBalance = await provider.getBalance(randAddress)
+      const preTokenBalance = await L2BNBOnBobaEth.balanceOf(address1)
+      const preSignerTokenBalance = await L2BNBOnBobaEth.balanceOf(randAddress)
+
+      await teleportationServiceEth._disburseTx(
+        disbursement,
+        chainId,
+        blockNumber
+      )
+
+      // disburse again to trigger cooldown period
+      await LightBridgeBNB.connect(signerBnb).teleportAsset(
+        L2BNBOnBobaBnb.address,
+        utils.parseEther('10'),
+        chainId // toChainId
+      )
+      disbursement[0].depositId += 1
+      await teleportationServiceEth._disburseTx(
+        disbursement,
+        chainId,
+        blockNumber
+      )
+
+      const postNativeBalance = await provider.getBalance(address1)
+      const postSignerNativeBalance = await provider.getBalance(randAddress)
+      const postTokenBalance = await L2BNBOnBobaEth.balanceOf(address1)
+      const postSignerTokenBalance = await L2BNBOnBobaEth.balanceOf(randAddress)
+
+      expect(preTokenBalance.sub(postTokenBalance)).to.be.eq(
+        utils.parseEther('20')
+      )
+      expect(postSignerTokenBalance.sub(preSignerTokenBalance)).to.be.eq(
+        utils.parseEther('20')
+      )
+      const gasDelta = ethers.utils.parseEther('0.003')
+      expect(preNativeBalance.sub(postNativeBalance)).to.be.closeTo(
+        airdropConfig.airdropAmountWei,
+        gasDelta
+      )
+      expect(postSignerNativeBalance.sub(preSignerNativeBalance)).to.be.eq(
+        airdropConfig.airdropAmountWei
+      )
+    })
+  })
 })
 
 describe('service startup unit tests', () => {
@@ -2143,10 +2359,11 @@ describe('service startup unit tests', () => {
       // sometimes the same network with a different chain id is used
       l2RpcProvider: new providers.JsonRpcProvider(BobaChains[chainIdToUse]),
       chainId: chainIdToUse,
-      teleportationAddress: BobaChains[chainIdToUse].teleportationAddress,
+      lightBridgeAddress: BobaChains[chainIdToUse].teleportationAddress,
       selectedBobaChains: networksToWatch.selectedBobaChains,
       ownSupportedAssets: networksToWatch.originSupportedAssets,
       pollingInterval: 1000,
+      blockRangePerPolling: 1000,
       awsConfig: {
         // Default values for local kms endpoint
         awsKmsAccessKey: process.env.LIGHTBRIDGE_AWS_KMS_ACCESS_KEY ?? '1',

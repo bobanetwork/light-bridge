@@ -79,9 +79,18 @@ const main = async () => {
     'polling-interval',
     parseInt(env.LIGHTBRIDGE_POLLING_INTERVAL, 10) || 60_000 // in ms, 1 minute = 60_000ms
   )
+  const blockRangePerPolling = config.uint(
+    'block-range-per-polling',
+    parseInt(env.LIGHTBRIDGE_BLOCK_RANGE_PER_POLLING, 10) || 1000 // 1000 blocks
+  )
   const retryIntervalMs = config.uint(
     'retry-interval-ms',
     parseInt(env.LIGHTBRIDGE_RETRY_INTERVAL_MS, 10) || 60_000
+  )
+
+  const enableExitFee = config.bool(
+    'enable-exit-fee',
+    env.LIGHTBRIDGE_ENABLE_EXIT_FEE?.toLowerCase() === 'true' || true
   )
 
   // only for testing (integration tests, otherwise real networks are being used)
@@ -106,11 +115,13 @@ const main = async () => {
     )
   }
   const baseOpts: Omit<ILightBridgeOpts, 'rpcUrl'> = {
+    enableExitFee,
     networkMode:
       networkMode === ENetworkMode.TESTNETS
         ? ENetworkMode.TESTNETS
         : ENetworkMode.MAINNETS,
     pollingInterval,
+    blockRangePerPolling,
     envModeIsDevelopment,
     awsKmsConfig: {
       awsKmsAccessKey,

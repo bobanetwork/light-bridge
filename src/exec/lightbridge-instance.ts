@@ -64,6 +64,7 @@ const runService = async (opts: ILightBridgeOpts) => {
     envModeIsDevelopment,
     awsKmsConfig,
     localNetworks,
+    enableExitFee,
   } = opts
 
   const l2RpcProvider = new providers.StaticJsonRpcProvider(rpcUrl)
@@ -98,10 +99,11 @@ const runService = async (opts: ILightBridgeOpts) => {
   const service = new LightBridgeService({
     l2RpcProvider,
     chainId,
-    teleportationAddress,
+    lightBridgeAddress: teleportationAddress,
     selectedBobaChains,
     ownSupportedAssets: originSupportedAssets,
     pollingInterval,
+    blockRangePerPolling: 1000,
     awsConfig: {
       awsKmsAccessKey: envModeIsDevelopment
         ? awsKmsConfig.awsKmsAccessKey
@@ -113,6 +115,7 @@ const runService = async (opts: ILightBridgeOpts) => {
       awsKmsRegion: awsKmsConfig.awsKmsRegion,
       awsKmsEndpoint: envModeIsDevelopment ? awsKmsConfig.awsKmsEndpoint : null,
     },
+    enableExitFee,
   })
   await service.start()
   return service

@@ -1,4 +1,5 @@
 import {
+  BigNumber,
   Contract,
   ContractFactory,
   providers,
@@ -238,7 +239,7 @@ describe('lightbridge parallel', () => {
     process.env = {
       ...process.env,
       LIGHTBRIDGE_ENV: 'dev',
-      LIGHTBRIDGE_POLLING_INTERVAL: '1000',
+      LIGHTBRIDGE_POLLING_INTERVAL: '1000', // keep short to speed up tests
       LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: '1',
       LIGHTBRIDGE_AWS_KMS_SECRET_KEY: '2',
       LIGHTBRIDGE_AWS_KMS_KEY_ID: 'lb_disburser_pk_2',
@@ -436,8 +437,12 @@ describe('lightbridge parallel', () => {
       toBlock
     )
     expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
+    const feeDeductedAmount = BigNumber.from('12000000000000000000')
+      .mul(99)
+      .div(100)
+      .toString()
     const specificDestinationEvent = destinationEvents.find(
-      (event) => event.args.amount.toString() === '12000000000000000000'
+      (event) => event.args.amount.toString() === feeDeductedAmount
     )
     expect(specificDestinationEvent.args.token).to.eq(L2BOBA_BNB.address)
     expect(specificDestinationEvent.args.sourceChainId).to.eq(chainIdBnb)
