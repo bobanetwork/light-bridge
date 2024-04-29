@@ -32,7 +32,7 @@ import {
 } from '@bobanetwork/light-bridge-chains'
 import { HistoryData } from './entities/HistoryData.entity'
 import { historyDataRepository, lastAirdropRepository } from './data-source'
-import { KMSSigner } from './utils/kms-signing'
+import { KMSSigner } from '@bobanetwork/aws-kms'
 import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
 import {

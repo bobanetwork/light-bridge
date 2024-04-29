@@ -606,7 +606,9 @@ describe('Asset Teleportation Tests', async () => {
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
           .withArgs(L2Boba.address, signerAddress, partialAmount)
 
-        const newPreBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
+        const newPreBalance = await L2Boba.balanceOf(
+          Proxy__Teleportation.address
+        )
         await expect(
           Proxy__Teleportation.withdrawBalance(L2Boba.address, newPreBalance)
         )
@@ -1301,7 +1303,7 @@ describe('Asset Teleportation Tests', async () => {
         const gasFee = await getGasFeeFromLastestBlock(ethers.provider)
         expect(preBalance.sub(postBalance)).to.be.closeTo(
           postSignerBalance.sub(preSignerBalance),
-          postSignerBalance.sub(preSignerBalance).add(gasFee),
+          postSignerBalance.sub(preSignerBalance).add(gasFee)
         )
         expect(postBalance.toString()).to.be.eq('0')
       })
