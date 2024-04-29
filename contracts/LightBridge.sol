@@ -392,24 +392,24 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     /**
      * @dev Sends the contract's current balance to the owner.
      */
-    function withdrawBalance(address _token)
+    function withdrawBalance(address _token, uint256 _amount)
     external
     onlyOwner()
     onlyInitialized()
     {
+        require(_amount != 0, "Amount is 0");
         if (address(0) == _token) {
             uint256 _balance = address(this).balance;
-            require(_balance > 0, "Nothing to send");
-            (bool sent,) = owner.call{gas: 2300, value: _balance}("");
+            require(_balance >= _amount, "Too high");
+            (bool sent,) = owner.call{gas: 2300, value: _amount}("");
             require(sent, "Failed to send Ether");
-            emit AssetBalanceWithdrawn(_token, owner, _balance);
         } else {
             // no supportedToken check in case of generally lost tokens
             uint256 _balance = IERC20(_token).balanceOf(address(this));
-            require(_balance > 0, "Nothing to send");
-            IERC20(_token).safeTransfer(owner, _balance);
-            emit AssetBalanceWithdrawn(_token, owner, _balance);
+            require(_balance >= _amount, "Too high");
+            IERC20(_token).safeTransfer(owner, _amount);
         }
+        emit AssetBalanceWithdrawn(_token, owner, _amount);
     }
 
     /**

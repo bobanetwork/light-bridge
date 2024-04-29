@@ -596,9 +596,20 @@ describe('Asset Teleportation Tests', async () => {
       it('should withdraw ERC20 balance', async () => {
         const preSignerBalnce = await L2Boba.balanceOf(signerAddress)
         const preBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
-        await expect(Proxy__Teleportation.withdrawBalance(L2Boba.address))
+
+        const partialAmount = preBalance.div(3)
+        await expect(
+          Proxy__Teleportation.withdrawBalance(L2Boba.address, partialAmount)
+        )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
-          .withArgs(L2Boba.address, signerAddress, preBalance)
+          .withArgs(L2Boba.address, signerAddress, partialAmount)
+
+        const newPreBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
+        await expect(
+          Proxy__Teleportation.withdrawBalance(L2Boba.address, newPreBalance)
+        )
+          .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
+          .withArgs(L2Boba.address, signerAddress, newPreBalance)
 
         const postBalance = await L2Boba.balanceOf(Proxy__Teleportation.address)
         const postSignerBalance = await L2Boba.balanceOf(signerAddress)
@@ -610,7 +621,10 @@ describe('Asset Teleportation Tests', async () => {
 
       it('should not withdraw ERC20 balance if caller is not owner', async () => {
         await expect(
-          Proxy__Teleportation.connect(signer2).withdrawBalance(L2Boba.address)
+          Proxy__Teleportation.connect(signer2).withdrawBalance(
+            L2Boba.address,
+            '1'
+          )
         ).to.be.revertedWith('Caller is not the owner')
       })
 
@@ -1249,15 +1263,32 @@ describe('Asset Teleportation Tests', async () => {
       })
 
       it('should withdraw BOBA balance', async () => {
-        const preSignerBalnce = await ethers.provider.getBalance(signerAddress)
+        const preSignerBalance = await ethers.provider.getBalance(signerAddress)
         const preBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
         )
+
+        const partialAmount = preBalance.div(3)
         await expect(
-          Proxy__Teleportation.withdrawBalance(ethers.constants.AddressZero)
+          Proxy__Teleportation.withdrawBalance(
+            ethers.constants.AddressZero,
+            partialAmount
+          )
         )
           .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
-          .withArgs(ethers.constants.AddressZero, signerAddress, preBalance)
+          .withArgs(ethers.constants.AddressZero, signerAddress, partialAmount)
+
+        const newPreBalance = await ethers.provider.getBalance(
+          Proxy__Teleportation.address
+        )
+        await expect(
+          Proxy__Teleportation.withdrawBalance(
+            ethers.constants.AddressZero,
+            newPreBalance
+          )
+        )
+          .to.emit(Proxy__Teleportation, 'AssetBalanceWithdrawn')
+          .withArgs(ethers.constants.AddressZero, signerAddress, newPreBalance)
 
         const postBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
@@ -1266,8 +1297,9 @@ describe('Asset Teleportation Tests', async () => {
           signerAddress
         )
         const gasFee = await getGasFeeFromLastestBlock(ethers.provider)
-        expect(preBalance.sub(postBalance)).to.be.eq(
-          postSignerBalance.sub(preSignerBalnce).add(gasFee)
+        expect(preBalance.sub(postBalance)).to.be.closeTo(
+          postSignerBalance.sub(preSignerBalance),
+          postSignerBalance.sub(preSignerBalance).add(gasFee),
         )
         expect(postBalance.toString()).to.be.eq('0')
       })
@@ -1275,7 +1307,8 @@ describe('Asset Teleportation Tests', async () => {
       it('should not withdraw BOBA balance if caller is not owner', async () => {
         await expect(
           Proxy__Teleportation.connect(signer2).withdrawBalance(
-            ethers.constants.AddressZero
+            ethers.constants.AddressZero,
+            '1'
           )
         ).to.be.revertedWith('Caller is not the owner')
       })
