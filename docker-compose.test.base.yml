@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile.bnb
 
   graph-node_eth:
-    image: graphprotocol/graph-node
+    image: graphprotocol/graph-node:canary-57b2b042
     depends_on:
       - ipfs_eth
       - postgres_eth
@@ -62,13 +62,13 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
       # FIXME: remove this env. var. which we shouldn't need. Introduced by
-      # <https://github.com/graphprotocol/graph-node/pull/3511>, maybe as a
+      # <https://github.com/graphprotocol/graph-node:canary-57b2b042/pull/3511>, maybe as a
       # workaround for https://github.com/docker/for-mac/issues/6270?
       PGDATA: "/var/lib/postgresql/data"
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
 
   graph-node_bnb:
-    image: graphprotocol/graph-node
+    image: graphprotocol/graph-node:canary-57b2b042
     depends_on:
       - ipfs_bnb
       - postgres_bnb
@@ -103,7 +103,7 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
       # FIXME: remove this env. var. which we shouldn't need. Introduced by
-      # <https://github.com/graphprotocol/graph-node/pull/3511>, maybe as a
+      # <https://github.com/graphprotocol/graph-node:canary-57b2b042/pull/3511>, maybe as a
       # workaround for https://github.com/docker/for-mac/issues/6270?
       PGDATA: "/var/lib/postgresql/data"
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
