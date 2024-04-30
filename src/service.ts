@@ -769,7 +769,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         toBlock
       )
     } catch (err) {
-      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err })
+      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err, sourceChainId, targetChainId, fromBlock, toBlock })
       if (contract) {
         events = await this._getAssetReceivedEventsViaQueryFilter(
           contract,
@@ -778,7 +778,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         )
       } else {
         throw new Error(
-          `GraphQL error and queryFilter not available: ${err?.message}`
+          `GraphQL error and queryFilter not available: ${err?.message}, sourceChain: ${sourceChainId}, targetChain: ${targetChainId}, fromBlock: ${fromBlock}, toBlock: ${toBlock}`
         )
       }
     }
