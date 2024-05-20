@@ -1199,17 +1199,12 @@ describe('lightbridge', () => {
       await res.wait()
       await waitForSubgraph()
 
-      const lastDisbursement = await LightBridgeBNB.totalDisbursements(
-        chainId
-      )
       const blockNumber = await providerBnb.getBlockNumber()
       const events = await teleportationServiceBnb._getAssetReceivedEvents(
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
         blockNumber,
-        null,
-        lastDisbursement
       )
 
       console.log(
