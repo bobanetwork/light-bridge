@@ -285,12 +285,16 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       await this._putDepositInfo(depositChainId, lastBlock)
     }
 
+    const lastDisbursement =
+      await this.state.Teleportation.totalDisbursements(depositChainId)
+
     return this._getAssetReceivedEvents(
       depositTeleportation.chainId,
       this.options.chainId,
       lastBlock,
       latestBlock,
-      depositTeleportation.Teleportation
+      depositTeleportation.Teleportation,
+      lastDisbursement,
     )
   }
 
@@ -757,7 +761,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     targetChainId: number,
     fromBlock: number,
     toBlock: number,
-    contract?: Contract
+    contract?: Contract,
+    lastDisbursement?: BigNumber
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     let events: LightBridgeAssetReceivedEvent[]
 
@@ -766,8 +771,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         sourceChainId,
         targetChainId,
         null,
-        fromBlock,
-        toBlock
+        null, // fromBlock,
+        null, // toBlock,
+        lastDisbursement?.toString(), // should reduce amount of invalid events
       )
     } catch (err) {
       this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err })
