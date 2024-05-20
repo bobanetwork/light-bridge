@@ -380,6 +380,9 @@ describe('lightbridge', () => {
       const startBlockNumber = await provider.getBlockNumber()
 
       // deposit token
+      const lastDisbursement = await LightBridge.connect(
+        signer
+      ).totalDisbursements(chainId)
       for (let i = 0; i < 15; i++) {
         await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
         const res = await LightBridge.connect(signer).teleportAsset(
@@ -396,7 +399,9 @@ describe('lightbridge', () => {
         chainId,
         chainId,
         startBlockNumber,
-        endBlockNumber
+        endBlockNumber,
+        null,
+        lastDisbursement
       )
 
       expect(latestEvents.length).to.be.eq(15)
@@ -1199,7 +1204,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber
+        blockNumber,
       )
 
       console.log(
