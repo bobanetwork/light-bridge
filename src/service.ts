@@ -285,8 +285,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       await this._putDepositInfo(depositChainId, lastBlock)
     }
 
-    const lastDisbursement =
-      await this.state.Teleportation.totalDisbursements(depositChainId)
+    const lastDisbursement = await this.state.Teleportation.totalDisbursements(
+      depositChainId
+    )
 
     return this._getAssetReceivedEvents(
       depositTeleportation.chainId,
@@ -294,7 +295,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       lastBlock,
       latestBlock,
       depositTeleportation.Teleportation,
-      lastDisbursement,
+      lastDisbursement
     )
   }
 
@@ -313,7 +314,10 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         await this.state.Teleportation.totalDisbursements(depositChainId)
       // eslint-disable-next-line prefer-const
       let disbursement: Disbursement[] = []
-      this.logger.info(`Found ${events.length} events for disbursement`, {depositIds: events.map((e) => e.depositId), serviceChainId: this.options.chainId})
+      this.logger.info(`Found ${events.length} events for disbursement`, {
+        depositIds: events.map((e) => e.depositId),
+        serviceChainId: this.options.chainId,
+      })
 
       try {
         for (const event of events) {
@@ -572,7 +576,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       )
       if (disbursements.length > 0 && !nextDisbursement) {
         this.logger.error(
-          `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`, {disbursements, nextDepositIds}
+          `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`,
+          { disbursements, nextDepositIds }
         )
         await this._putDepositInfo(
           sourceChainId,
@@ -771,9 +776,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         sourceChainId,
         targetChainId,
         null,
-        null, // fromBlock,
-        null, // toBlock,
-        lastDisbursement?.toString(), // should reduce amount of invalid events
+        lastDisbursement ? null : fromBlock, // prefer lastDisbursement over blockRange
+        lastDisbursement ? null : toBlock, // prefer lastDisbursement over blockRange
+        lastDisbursement?.toString() // should reduce amount of invalid events
       )
     } catch (err) {
       this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err })
