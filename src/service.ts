@@ -309,6 +309,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         await this.state.Teleportation.totalDisbursements(depositChainId)
       // eslint-disable-next-line prefer-const
       let disbursement: Disbursement[] = []
+      this.logger.info(`Found ${events.length} events for disbursement`, {depositIds: events.map((e) => e.depositId), serviceChainId: this.options.chainId})
 
       try {
         for (const event of events) {
@@ -540,7 +541,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         )?.toString()
       })
     )
-    this.logger.debug(`Unfiltered disbursements for db recovery: `, {
+    this.logger.info(`Unfiltered disbursements for db recovery: `, {
       disbursements,
     })
     disbursements = disbursements.filter((d) => {
@@ -555,7 +556,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       // only try to disburse those who haven't been disbursed from a previous service already before DB state got lost
       return d.depositId >= nextDepositIds[d.sourceChainId]
     })
-    this.logger.debug(`Filtered disbursements for db recovery: `, {
+    this.logger.info(`Filtered disbursements for db recovery: `, {
       disbursements,
       nextDepositIdsKeys: Object.keys(nextDepositIds),
       nextDepositIds,
@@ -567,7 +568,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       )
       if (disbursements.length > 0 && !nextDisbursement) {
         this.logger.error(
-          `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`
+          `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`, {disbursements, nextDepositIds}
         )
         await this._putDepositInfo(
           sourceChainId,
