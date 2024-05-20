@@ -32,7 +32,7 @@ import {
 } from '@bobanetwork/light-bridge-chains'
 import { HistoryData } from './entities/HistoryData.entity'
 import { historyDataRepository, lastAirdropRepository } from './data-source'
-import { KMSSigner } from './utils/kms-signing'
+import { KMSSigner } from '@bobanetwork/aws-kms'
 import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
 import { LastAirdrop } from './entities/LastAirdrop.entity'
 import {
@@ -781,7 +781,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         lastDisbursement?.toString() // should reduce amount of invalid events
       )
     } catch (err) {
-      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err })
+      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err, sourceChainId, targetChainId, fromBlock, toBlock })
       if (contract) {
         events = await this._getAssetReceivedEventsViaQueryFilter(
           contract,
@@ -790,7 +790,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         )
       } else {
         throw new Error(
-          `GraphQL error and queryFilter not available: ${err?.message}`
+          `GraphQL error and queryFilter not available: ${err?.message}, sourceChain: ${sourceChainId}, targetChain: ${targetChainId}, fromBlock: ${fromBlock}, toBlock: ${toBlock}`
         )
       }
     }
