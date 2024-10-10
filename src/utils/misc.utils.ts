@@ -8,14 +8,15 @@ export const delay = (ms: number) => {
 export const deductExitFeeIfApplicable = (
   enableExitFee: boolean,
   serviceChainId: number,
-  amount: BigNumber
+  amount: BigNumber,
+  exitFee: number
 ): BigNumber => {
   // deduct fee for L1 networks or not Boba Foundation owned networks (basically fee is applied to all networks that have no airdrop support)
   if (
     enableExitFee &&
     !BobaChains[serviceChainId]?.airdropConfig?.airdropEnabled
   ) {
-    return amount.mul(99).div(100)
+    return amount.mul(100 - exitFee).div(100)
   }
   return amount
 }

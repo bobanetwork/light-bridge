@@ -43,6 +43,7 @@ describe('lightbridge parallel', () => {
   const defaultMinDepositAmount = utils.parseEther('1')
   const defaultMaxDepositAmount = utils.parseEther('100')
   const defaultMaxTransferPerDay = utils.parseEther('100000')
+  const defaultExitFee = 1
 
   const waitForSubgraph = async () => {
     await provider.send('anvil_mine', [])
@@ -124,8 +125,8 @@ describe('lightbridge parallel', () => {
     await LightBridgeBNB.deployTransaction.wait()
 
     // intialize the teleportation contract
-    await LightBridge.initialize()
-    await LightBridgeBNB.initialize()
+    await LightBridge.initialize(defaultExitFee)
+    await LightBridgeBNB.initialize(defaultExitFee)
 
     // BOBA TOKEN ---
     Factory__L2BOBA = new ethers.ContractFactory(
@@ -437,8 +438,10 @@ describe('lightbridge parallel', () => {
       toBlock
     )
     expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
+
+    const exitFee = await LightBridgeBNB.exitFee()
     const feeDeductedAmount = BigNumber.from('12000000000000000000')
-      .mul(99)
+      .mul(100 - exitFee)
       .div(100)
       .toString()
     const specificDestinationEvent = destinationEvents.find(

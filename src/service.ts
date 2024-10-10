@@ -360,6 +360,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                 `Token '${destChainTokenAddr}' not supported originating from chain '${sourceChainId}' with amount '${amount}'!`
               )
             } else {
+              const exitFee = await this.state.Teleportation.exitFee();
+
               disbursement = [
                 ...disbursement,
                 {
@@ -367,7 +369,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                   amount: deductExitFeeIfApplicable(
                     this.options.enableExitFee,
                     this.options.chainId,
-                    amount
+                    amount,
+                    exitFee
                   ).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
