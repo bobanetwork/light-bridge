@@ -27,6 +27,7 @@ const tokenSymbol = 'BOBA'
 const defaultMinDepositAmount = ethers.utils.parseEther('1')
 const defaultMaxDepositAmount = ethers.utils.parseEther('100000')
 const defaultMaxDailyLimit = ethers.utils.parseEther('100000')
+const defaultExitFee = 1;
 
 const getGasFeeFromLastestBlock = async (provider: any): Promise<BigNumber> => {
   const blockNumber = await provider.getBlockNumber()
@@ -161,11 +162,11 @@ describe('Asset Teleportation Tests', async () => {
           Factory__Teleportation.interface,
           signer
         )
-        await Proxy__Teleportation.initialize()
+        await Proxy__Teleportation.initialize(defaultExitFee)
       })
 
       it('should revert when initialize again', async () => {
-        await expect(Proxy__Teleportation.initialize()).to.be.revertedWith(
+        await expect(Proxy__Teleportation.initialize(defaultExitFee)).to.be.revertedWith(
           'Contract has been initialized'
         )
       })
@@ -994,11 +995,11 @@ describe('Asset Teleportation Tests', async () => {
           Factory__LightBridge.interface,
           signer
         )
-        await Proxy__Teleportation.initialize()
+        await Proxy__Teleportation.initialize(defaultExitFee)
       })
 
       it('should revert when initialize again', async () => {
-        await expect(Proxy__Teleportation.initialize()).to.be.revertedWith(
+        await expect(Proxy__Teleportation.initialize(defaultExitFee)).to.be.revertedWith(
           'Contract has been initialized'
         )
       })
@@ -1494,7 +1495,7 @@ describe('Asset Teleportation Tests', async () => {
           Factory__Teleportation.interface,
           signer
         )
-        await Proxy__Teleportation.initialize()
+        await Proxy__Teleportation.initialize(defaultExitFee)
       })
 
       it('should emit events when disbursement of BOBA tokens fail', async () => {
@@ -1711,7 +1712,7 @@ describe('Asset Teleportation Tests', async () => {
           Factory__Teleportation.interface,
           signer
         )
-        await Proxy__Teleportation.initialize()
+        await Proxy__Teleportation.initialize(defaultExitFee)
       })
 
       it('should transferOwnership', async () => {
@@ -1896,6 +1897,41 @@ describe('Asset Teleportation Tests', async () => {
           )
         ).to.be.revertedWith('Caller is not the owner')
       })
+
+      it('should set exit fee and emit the event ExitFeeSet', async () => {
+        await Proxy__Teleportation.setExitFee(
+          defaultExitFee + 1
+        )
+
+        expect(
+          await Proxy__Teleportation.exitFee()
+        ).to.be.eq(defaultExitFee + 1)
+
+        await expect(Proxy__Teleportation.setExitFee(defaultExitFee))
+          .to.emit(Proxy__Teleportation, 'ExitFeeSet')
+          .withArgs(defaultExitFee + 1, defaultExitFee)
+
+      });
+
+      it('should not set exit fee if caller is not owner', async () => {
+        await expect(
+          Proxy__Teleportation.connect(signer2).setExitFee(defaultExitFee + 1)
+        ).to.be.revertedWith('Caller is not the owner')
+      });
+
+      it('should not set exit fee if less than or equal to 0', async () => {
+        await expect(
+          Proxy__Teleportation.setExitFee(defaultExitFee - 1)
+        ).to.be.revertedWith('Exit fee cannot less than or equal to zero')
+      });
+
+      it('should not set exit fee if more than 100', async () => {
+        await expect(
+          Proxy__Teleportation.setExitFee(defaultExitFee + 100)
+        ).to.be.revertedWith('Exit fee too high')
+      });
+
+
     })
   })
 })

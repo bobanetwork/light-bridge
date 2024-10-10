@@ -69,8 +69,11 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     /// @dev The total number of disbursements processed.
     mapping(uint256 => uint256) public totalDisbursements;
 
-    // @dev depositId to failed status and disbursement info
+    /// @dev depositId to failed status and disbursement info
     mapping(uint256 => FailedNativeDisbursement) public failedNativeDisbursements;
+
+    /// @dev exit fee (in percentage 1% = 1) to deduct fee while disbursement of asset.
+    uint256 public exitFee; 
 
     /********************
      *       Events     *
@@ -152,6 +155,11 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
         uint32 indexed toChainId,
         bool supported
     );
+    
+    event ExitFeeSet(
+        uint256 oldFee,
+        uint256 exitFee
+    );
 
     /**********************
      * Function Modifiers *
@@ -180,12 +188,19 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     /********************
      * Public Functions *
      ********************/
-
-    /// @dev Initialize this contract
-    function initialize() external onlyNotInitialized() initializer() {
+    /**
+    * @dev Initialize this contract
+    *
+    * @param _exitFee exit fee (in percentage 1 - 100) can be use to deduct the fee while withdrawal.
+    */
+    function initialize(uint256 _exitFee) external onlyNotInitialized() initializer() {
+        require(_exitFee > 0, "Exit fee cannot less than or equal to zero"); // should be more than 0
+        require(_exitFee <= 100, "Exit fee too high"); // Max 100%
+        
         disburser = msg.sender;
         owner = msg.sender;
-
+        exitFee = _exitFee;
+        
         __Context_init_unchained();
         __Pausable_init_unchained();
         __Multicall_init_unchained();
@@ -497,4 +512,19 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
 
         emit MaxTransferAmountPerDaySet(_token, _toChainId, pastMaxTransferAmountPerDay, _maxTransferAmountPerDay);
     }
+    
+    /**
+     * @dev Sets exit fee (in percentage 1 - 100) to be used to calculate the fee to deduct while exit or withdrawal of asset
+     *
+     * @param _exitFee The exit in fee in percentage
+     */
+    function setExitFee(uint256 _exitFee) external onlyOwner() {
+        require(_exitFee > 0, "Exit fee cannot less than or equal to zero"); // should be more than 0
+        require(_exitFee <= 100, "Exit fee too high"); // Max 100%
+        
+        emit ExitFeeSet(exitFee, _exitFee);
+        
+        exitFee = _exitFee;
+    }
+
 }
