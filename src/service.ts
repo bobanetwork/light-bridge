@@ -360,7 +360,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                 `Token '${destChainTokenAddr}' not supported originating from chain '${sourceChainId}' with amount '${amount}'!`
               )
             } else {
-              const exitFee = await this.state.Teleportation.exitFee();
+              const exitFee = await this.state.Teleportation.exitFee()
 
               disbursement = [
                 ...disbursement,

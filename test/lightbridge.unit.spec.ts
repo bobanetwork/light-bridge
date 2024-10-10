@@ -1936,19 +1936,34 @@ describe('Service unit tests', () => {
     const exitFee: number = 2
     it('should deduct exit fee if conditions are met', () => {
       const prevAmount: BigNumber = parseEther('1')
-      const finalAmount = deductExitFeeIfApplicable(true, 1, prevAmount, exitFee)
+      const finalAmount = deductExitFeeIfApplicable(
+        true,
+        1,
+        prevAmount,
+        exitFee
+      )
       expect(finalAmount).to.be.eq(prevAmount.mul(100 - exitFee).div(100))
     })
 
     it('should not deduct exit fee if enableExitFee is set to false', () => {
       const prevAmount: BigNumber = parseEther('1')
-      const finalAmount = deductExitFeeIfApplicable(false, 1, prevAmount, exitFee)
+      const finalAmount = deductExitFeeIfApplicable(
+        false,
+        1,
+        prevAmount,
+        exitFee
+      )
       expect(finalAmount).to.be.eq(prevAmount)
     })
 
     it('should not deduct exit fee if serviceChainId is a L2', () => {
       const prevAmount: BigNumber = parseEther('1')
-      let finalAmount = deductExitFeeIfApplicable(true, 288, prevAmount, exitFee)
+      let finalAmount = deductExitFeeIfApplicable(
+        true,
+        288,
+        prevAmount,
+        exitFee
+      )
       expect(finalAmount).to.be.eq(prevAmount)
       finalAmount = deductExitFeeIfApplicable(true, 56288, prevAmount, exitFee)
       expect(finalAmount).to.be.eq(prevAmount)
