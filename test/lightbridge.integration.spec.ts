@@ -1204,7 +1204,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log(
