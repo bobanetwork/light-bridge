@@ -28,14 +28,78 @@ All configuration is done via environment variables. See all variables at [.env.
 
 ## Building & Running
 
-1. Make sure dependencies are installed - run `yarn` in the base directory
-2. Build `yarn build`
-3. Run `yarn start`
+### Development & Production
 
-## Postgresql
+Make sure dependencies are installed - run script below in the base directory
+```shell
+  pnpm install
+```
+
+Starts the project in development mode using ts-node to execute the script at ./src/exec/run.ts.
+```shell 
+  pnpm start
+```
+
+
+Starts the project in production mode by running the pre-built script at ./build/src/exec/run.js.
+```shell 
+  pnpm start:prod
+```
+
+### Build & Clean
+
+Compiling smart contracts using Hardhat.
+Compiling TypeScript files based on tsconfig.json.
+
+```shell 
+  pnpm build
+```
+
+
+Cleans the project by removing the dist/ folder and TypeScript build info files.
+```shell
+  pnpm clean
+```
+
+### Linting
+
+Runs both linting checks and applies automatic formatting fixes.
+```shell 
+  pnpm lint
+```
+
+Automatically formats TypeScript files in src, exec, and test directories based on Prettier configuration (.prettierrc.json).
+```shell
+  pnpm lint:fix
+```
+
+Performs TSLint checks and displays output in a stylish format.
+```shell
+  pnpm lint:check
+```
+
+### Database
+
+Starts a PostgreSQL database in a Docker container with:
+- Database Name: **lightbridge**
+- Password: **abcdef**
+- Exposed on port **5432**.
+
+```shell 
+  pnpm db:start
+```
 
 Connect to Postgres on CLI:
-`psql --username postgres -d postgres --password`
+```shell 
+  psql --username postgres -d postgres --password
+```
+
+### Testing
+
+Runs all unit and integration tests using Hardhat, with stack traces enabled for easier debugging.
+```shell 
+pnpm test
+```
 
 ## Deployments
 
