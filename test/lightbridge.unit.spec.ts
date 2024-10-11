@@ -1967,7 +1967,6 @@ describe('Asset Teleportation Tests', async () => {
 })
 
 describe('Service unit tests', () => {
-
   describe('selectedBobaChains', () => {
     it('should return correct selectedBobaChains for mainnet', async () => {
       const { selectedBobaChains, originSupportedAssets } =
