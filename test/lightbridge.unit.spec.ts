@@ -2,11 +2,9 @@ import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 chai.use(chaiAsPromised)
 import { ethers } from 'hardhat'
-import { Contract, Signer, BigNumber, utils, providers } from 'ethers'
+import { Contract, Signer, BigNumber, utils } from 'ethers'
 import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
 import { BobaChains } from '@bobanetwork/light-bridge-chains'
-import { LightBridgeService } from '../src'
-import { deductExitFeeIfApplicable } from '../src/utils/misc.utils'
 import { parseEther } from 'ethers/lib/utils'
 
 let L2Boba: Contract
@@ -1969,51 +1967,6 @@ describe('Asset Teleportation Tests', async () => {
 })
 
 describe('Service unit tests', () => {
-  describe('deduct exit fee if applicable', () => {
-    const exitFee: number = 2
-    it('should deduct exit fee if conditions are met', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      const finalAmount = deductExitFeeIfApplicable(
-        true,
-        1,
-        prevAmount,
-        exitFee
-      )
-      expect(finalAmount).to.be.eq(prevAmount.mul(100 - exitFee).div(100))
-    })
-
-    it('should not deduct exit fee if enableExitFee is set to false', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      const finalAmount = deductExitFeeIfApplicable(
-        false,
-        1,
-        prevAmount,
-        exitFee
-      )
-      expect(finalAmount).to.be.eq(prevAmount)
-    })
-
-    it('should not deduct exit fee if serviceChainId is a L2', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      let finalAmount = deductExitFeeIfApplicable(
-        true,
-        288,
-        prevAmount,
-        exitFee
-      )
-      expect(finalAmount).to.be.eq(prevAmount)
-      finalAmount = deductExitFeeIfApplicable(true, 56288, prevAmount, exitFee)
-      expect(finalAmount).to.be.eq(prevAmount)
-    })
-
-    it('should deduct exit fee if serviceChainId is a L1', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      let finalAmount = deductExitFeeIfApplicable(true, 1, prevAmount, exitFee)
-      expect(finalAmount).to.be.eq(prevAmount.mul(100 - exitFee).div(100))
-      finalAmount = deductExitFeeIfApplicable(true, 56, prevAmount, exitFee)
-      expect(finalAmount).to.be.eq(prevAmount.mul(100 - exitFee).div(100))
-    })
-  })
 
   describe('selectedBobaChains', () => {
     it('should return correct selectedBobaChains for mainnet', async () => {

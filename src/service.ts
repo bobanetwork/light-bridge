@@ -39,7 +39,6 @@ import {
   LightBridgeAssetReceivedEvent,
   lightBridgeGraphQLService,
 } from '@bobanetwork/graphql-utils'
-import { deductExitFeeIfApplicable } from './utils/misc.utils'
 
 interface LightBridgeOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -360,18 +359,11 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
                 `Token '${destChainTokenAddr}' not supported originating from chain '${sourceChainId}' with amount '${amount}'!`
               )
             } else {
-              const exitFee = await this.state.Teleportation.exitFee()
-
               disbursement = [
                 ...disbursement,
                 {
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: deductExitFeeIfApplicable(
-                    this.options.enableExitFee,
-                    this.options.chainId,
-                    amount,
-                    exitFee
-                  ).toString(),
+                  amount: amount.toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),
