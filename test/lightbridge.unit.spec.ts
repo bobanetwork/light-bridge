@@ -167,9 +167,9 @@ describe('Asset Teleportation Tests', async () => {
       })
 
       it('should revert when initialize again', async () => {
-        await expect(
-          Proxy__Teleportation.initialize()
-        ).to.be.revertedWith('Contract has been initialized')
+        await expect(Proxy__Teleportation.initialize()).to.be.revertedWith(
+          'Contract has been initialized'
+        )
       })
 
       it('should add supported token if it is zero address (equals native)', async () => {
@@ -1000,9 +1000,9 @@ describe('Asset Teleportation Tests', async () => {
       })
 
       it('should revert when initialize again', async () => {
-        await expect(
-          Proxy__Teleportation.initialize()
-        ).to.be.revertedWith('Contract has been initialized')
+        await expect(Proxy__Teleportation.initialize()).to.be.revertedWith(
+          'Contract has been initialized'
+        )
       })
 
       it('should teleport BOBA native tokens and emit event', async () => {
@@ -1902,19 +1902,18 @@ describe('Asset Teleportation Tests', async () => {
       it('should have default exit fee as zero', async () => {
         const exitFee = await Proxy__Teleportation.exitFee(chainId4)
         expect(exitFee.toString()).to.be.eq('0')
-      });
+      })
 
       it('should not set the exit fee if caller is not owner', async () => {
         await expect(
           Proxy__Teleportation.connect(signer2).setExitFee(200, chainId4)
         ).to.be.revertedWith('Caller is not the owner')
-      });
+      })
 
       it('should allow only owner to set the exit fee', async () => {
         await Proxy__Teleportation.setExitFee(500, chainId4)
-        expect(await Proxy__Teleportation.exitFee(chainId4))
-          .to.be.eq(500)
-      });
+        expect(await Proxy__Teleportation.exitFee(chainId4)).to.be.eq(500)
+      })
 
       it('should set exit fee and emit the event ExitFeeSet', async () => {
         // as earlier exit fee is 500 from previous state.
@@ -1932,13 +1931,14 @@ describe('Asset Teleportation Tests', async () => {
       it('should return full amount and 0 fee if exit fee is 0%', async () => {
         // no exit fee set for source chainid so exitFee is 0.
         const _amount = ethers.utils.parseEther('100')
-        const [amountAfterFee, fee] = await Proxy__Teleportation.calculateAmountAfterFee(_amount, chainId8)
+        const [amountAfterFee, fee] =
+          await Proxy__Teleportation.calculateAmountAfterFee(_amount, chainId8)
         expect(amountAfterFee).to.be.eq(_amount)
         expect(fee).to.be.eq(0)
       })
 
       it('should calculate amountAfterFee correctly when exitFee is set to 2.5%', async () => {
-        const exitFee = 250; //2.5%
+        const exitFee = 250 //2.5%
         const _amount = ethers.utils.parseEther('100')
         await Proxy__Teleportation.setExitFee(exitFee, chainId8)
 
@@ -1947,22 +1947,23 @@ describe('Asset Teleportation Tests', async () => {
 
         const exitFeeOfChainId8 = await Proxy__Teleportation.exitFee(chainId8)
         expect(exitFeeOfChainId8).to.be.equal(exitFee)
-        const [amountAfterExitFee, fee] = await Proxy__Teleportation.calculateAmountAfterFee(_amount, chainId8)
-        expect(fee).to.be.eq(expectedFee);
+        const [amountAfterExitFee, fee] =
+          await Proxy__Teleportation.calculateAmountAfterFee(_amount, chainId8)
+        expect(fee).to.be.eq(expectedFee)
         expect(amountAfterExitFee).to.be.eq(expectedAmountAfterFee)
       })
 
-      it("should calculate fee as zero if amount is zero", async function () {
-        const exitFee = 500; // 5% fee in basis points
-        await Proxy__Teleportation.setExitFee(exitFee, chainId8);
+      it('should calculate fee as zero if amount is zero', async function () {
+        const exitFee = 500 // 5% fee in basis points
+        await Proxy__Teleportation.setExitFee(exitFee, chainId8)
 
-        const amount = ethers.utils.parseEther("0"); // 0 tokens
-        const [amountAfterFee, fee] = await Proxy__Teleportation.calculateAmountAfterFee(amount, chainId8);
+        const amount = ethers.utils.parseEther('0') // 0 tokens
+        const [amountAfterFee, fee] =
+          await Proxy__Teleportation.calculateAmountAfterFee(amount, chainId8)
 
-        expect(amountAfterFee).to.equal(amount); // Amount should be zero
-        expect(fee).to.equal(0); // Fee should also be zero when amount is zero
-      });
-
+        expect(amountAfterFee).to.equal(amount) // Amount should be zero
+        expect(fee).to.equal(0) // Fee should also be zero when amount is zero
+      })
     })
   })
 })
