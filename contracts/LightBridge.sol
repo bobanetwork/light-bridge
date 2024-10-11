@@ -72,8 +72,13 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     /// @dev depositId to failed status and disbursement info
     mapping(uint256 => FailedNativeDisbursement) public failedNativeDisbursements;
 
-    /// @dev exit fee (in percentage 1% = 1) to deduct fee while disbursement of asset.
-    uint256 public exitFee; 
+    /// @dev exit fee (in percentage) to deduct fee while disbursement of asset.
+    /// where 1% = 100 and 100% = 10000
+    /// {sourceChainId} => {exitFee}
+    mapping(uint32 => uint256) public exitFee;
+    
+    /// @dev amount of token collected as fee for disbursement of asset.
+    uint256 public feeCollected;
 
     /********************
      *       Events     *
@@ -157,8 +162,9 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     );
     
     event ExitFeeSet(
-        uint256 oldFee,
-        uint256 exitFee
+        uint256 previousFee,
+        uint256 exitFee,
+        uint32 sourceChainId
     );
 
     /**********************
@@ -188,18 +194,10 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     /********************
      * Public Functions *
      ********************/
-    /**
-    * @dev Initialize this contract
-    *
-    * @param _exitFee exit fee (in percentage 1 - 100) can be use to deduct the fee while withdrawal.
-    */
-    function initialize(uint256 _exitFee) external onlyNotInitialized() initializer() {
-        require(_exitFee > 0, "Exit fee cannot less than or equal to zero"); // should be more than 0
-        require(_exitFee <= 100, "Exit fee too high"); // Max 100%
-        
+    /// @dev Initialize this contract
+    function initialize() external onlyNotInitialized() initializer() {
         disburser = msg.sender;
         owner = msg.sender;
-        exitFee = _exitFee;
         
         __Context_init_unchained();
         __Pausable_init_unchained();
@@ -287,6 +285,32 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     }
 
     /**
+    * @dev get the fee for sourceChainId in case exitFee is 0 (not set or no fee for this chain), 
+    * no fee is applied the exit fee is not set for source chain id will return amount as it is.
+    * if exitFee is set calculate the fee to deduct from amount and return amountAfterFee deduction.
+    * 
+    * @param _amount A amount to be disburser
+    * @param _sourceChainId A sourceChainId from where withdrawal has been intiated.
+    */
+    function calculateAmountAfterFee(uint256 _amount, uint32 _sourceChainId) 
+    public 
+    view 
+    returns (uint256, uint256) {
+        uint256 fee = exitFee[_sourceChainId];
+        
+        if (fee == 0) {
+            return (_amount, 0);
+        }
+
+        /// As fee is in basis points so dividing by 10^4 can give actual percentage of fee.
+        uint256 _fee = _amount * fee / 10000; 
+        uint256 _amountAfterFee = _amount - _fee;
+        
+        return (_amountAfterFee, _fee);
+    }
+    
+
+    /**
      * @dev Accepts a list of Disbursements and forwards the amount paid to
      * the contract to each recipient. The method reverts if there are zero
      * disbursements, the total amount to forward differs from the amount sent
@@ -310,7 +334,7 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
         uint256 remainingValue = msg.value;
         for (uint256 i = 0; i < _numDisbursements; i++) {
 
-            uint256 _amount = _disbursements[i].amount;
+            uint256 _amountBeforeFee = _disbursements[i].amount;
             address _addr = _disbursements[i].addr;
             uint32 _sourceChainId = _disbursements[i].sourceChainId;
             uint256 _depositId = _disbursements[i].depositId;
@@ -322,7 +346,13 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
             // Ensure the depositId matches our expected value.
             require(_depositId == totalDisbursements[_sourceChainId], "Unexpected next deposit id");
             totalDisbursements[_sourceChainId] += 1;
-
+            
+            // calculate amount after deducting fee
+            (uint256 _amount, uint256 fee) = calculateAmountAfterFee(_amountBeforeFee, _sourceChainId);
+            
+            // update record of fee collected
+            feeCollected += fee;
+            
             // ensure amount sent in the tx is equal to disbursement (moved into loop to ensure token flexibility)
             if (_token == address(0)) {
                 require(_amount <= remainingValue, "Disbursement total != amount sent");
@@ -514,17 +544,19 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     }
     
     /**
-     * @dev Sets exit fee (in percentage 1 - 100) to be used to calculate the fee to deduct while exit or withdrawal of asset
+     * @dev Sets exit fee (in basis points 1% = 100) used to calculate the fee to deduct while withdrawal of asset
      *
-     * @param _exitFee The exit in fee in percentage
+     * @param _exitFee The exit in the form of basis point (0.1)
+     * @param _sourceChainId sourceChainId for which the exitFee need to set.
      */
-    function setExitFee(uint256 _exitFee) external onlyOwner() {
-        require(_exitFee > 0, "Exit fee cannot less than or equal to zero"); // should be more than 0
-        require(_exitFee <= 100, "Exit fee too high"); // Max 100%
+    function setExitFee(uint256 _exitFee, uint32 _sourceChainId) external onlyOwner() {
+        require(_exitFee <= 10000, "Exit fee too high"); // Max 100%
         
-        emit ExitFeeSet(exitFee, _exitFee);
+        uint256 previousFee = exitFee[_sourceChainId];
         
-        exitFee = _exitFee;
+        exitFee[_sourceChainId] = _exitFee;
+        
+        emit ExitFeeSet(previousFee, _exitFee, _sourceChainId);
     }
-
+    
 }
