@@ -1,6 +1,7 @@
 FROM node:20
 COPY package.json .
-RUN npm i
+RUN npm i -g pnpm
+RUN pnpm install
 COPY . .
-CMD ["npm", "run", "start"]
+CMD ["pnpm", "run", "start"]
 
