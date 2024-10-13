@@ -13,12 +13,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build Docker images
-      run: docker-compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml -f docker-compose.test.par.yml build
+      run: docker compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml -f docker-compose.test.par.yml build
 
     - uses: actions/checkout@v3
     - name: Run unit & integration tests
-      run: docker-compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml up --abort-on-container-exit
+      run: docker compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml up --abort-on-container-exit
 
     - uses: actions/checkout@v3
     - name: Run parallel tests
-      run:  docker container prune -f && docker volume prune -f && docker-compose -f docker-compose.test.base.yml -f docker-compose.test.par.yml up --abort-on-container-exit
+      run:  docker container prune -f && docker volume prune -f && docker compose -f docker-compose.test.base.yml -f docker-compose.test.par.yml up --abort-on-container-exit
