@@ -781,7 +781,14 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         lastDisbursement?.toString() // should reduce amount of invalid events
       )
     } catch (err) {
-      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err, sourceChainId, targetChainId, fromBlock, toBlock })
+      this.logger.warn(`Caught GraphQL error!`, {
+        errMsg: err?.message,
+        err,
+        sourceChainId,
+        targetChainId,
+        fromBlock,
+        toBlock,
+      })
       if (contract) {
         events = await this._getAssetReceivedEventsViaQueryFilter(
           contract,
