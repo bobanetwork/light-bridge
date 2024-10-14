@@ -1898,7 +1898,9 @@ describe('Asset Teleportation Tests', async () => {
       })
 
       it('should have default percent exit fee as zero', async () => {
-        const percentExitFee = await Proxy__Teleportation.percentExitFee(chainId4)
+        const percentExitFee = await Proxy__Teleportation.percentExitFee(
+          chainId4
+        )
         expect(percentExitFee.toString()).to.be.eq('0')
       })
 
@@ -1910,7 +1912,9 @@ describe('Asset Teleportation Tests', async () => {
 
       it('should allow only owner to set percent exit fee', async () => {
         await Proxy__Teleportation.setPercentExitFee(500, chainId4)
-        expect(await Proxy__Teleportation.percentExitFee(chainId4)).to.be.eq(500)
+        expect(await Proxy__Teleportation.percentExitFee(chainId4)).to.be.eq(
+          500
+        )
       })
 
       it('should set percent exit fee and emit the event PercentExitFeeSet', async () => {
@@ -1925,7 +1929,6 @@ describe('Asset Teleportation Tests', async () => {
           Proxy__Teleportation.setPercentExitFee(10100, chainId4)
         ).to.be.revertedWith('Exit fee too high')
       })
-
     })
   })
 })
