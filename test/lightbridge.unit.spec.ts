@@ -1896,6 +1896,36 @@ describe('Asset Teleportation Tests', async () => {
           )
         ).to.be.revertedWith('Caller is not the owner')
       })
+
+      it('should have default percent exit fee as zero', async () => {
+        const percentExitFee = await Proxy__Teleportation.percentExitFee(chainId4)
+        expect(percentExitFee.toString()).to.be.eq('0')
+      })
+
+      it('should not set percent exit fee if caller is not owner', async () => {
+        await expect(
+          Proxy__Teleportation.connect(signer2).setPercentExitFee(200, chainId4)
+        ).to.be.revertedWith('Caller is not the owner')
+      })
+
+      it('should allow only owner to set percent exit fee', async () => {
+        await Proxy__Teleportation.setPercentExitFee(500, chainId4)
+        expect(await Proxy__Teleportation.percentExitFee(chainId4)).to.be.eq(500)
+      })
+
+      it('should set percent exit fee and emit the event PercentExitFeeSet', async () => {
+        // as earlier exit fee is 500 from previous test.
+        await expect(Proxy__Teleportation.setPercentExitFee(600, chainId4))
+          .to.emit(Proxy__Teleportation, 'PercentExitFeeSet')
+          .withArgs(500, 600, chainId4)
+      })
+
+      it('should not set percent exit fee if more than 100%', async () => {
+        await expect(
+          Proxy__Teleportation.setPercentExitFee(10100, chainId4)
+        ).to.be.revertedWith('Exit fee too high')
+      })
+
     })
   })
 })
