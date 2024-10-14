@@ -465,7 +465,7 @@ describe('Asset Teleportation Tests', async () => {
         expect(postSignerBalance).to.be.eq(preSignerBalance)
       })
 
-      it('should disburse BOBA tokens amount after fee correctly incase exit fee is 0.5% with record', async () => {
+      it('should disburse BOBA tokens amount after fee correctly incase exit fee is 0.5% with record fee deducted', async () => {
         // add token support and chainId support
         await Proxy__Teleportation.addSupportedToken(
           L2Boba.address,
