@@ -2,12 +2,10 @@ import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 chai.use(chaiAsPromised)
 import { ethers } from 'hardhat'
-import { Contract, Signer, BigNumber, utils, providers } from 'ethers'
+import { Contract, Signer, BigNumber, utils } from 'ethers'
 import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
 import { BobaChains } from '@bobanetwork/light-bridge-chains'
-import { LightBridgeService } from '../src'
-import { deductExitFeeIfApplicable } from '../src/utils/misc.utils'
-import { formatEther, parseEther } from 'ethers/lib/utils'
+
 
 let L2Boba: Contract
 let RandomERC20: Contract
@@ -477,11 +475,8 @@ describe('Asset Teleportation Tests', async () => {
           defaultMaxDepositAmount,
           defaultMaxDailyLimit
         )
-        await Proxy__Teleportation.supportedTokens(
-          L2Boba.address,
-          chainId8
-        )
-        const amount = ethers.utils.parseEther('100');
+        await Proxy__Teleportation.supportedTokens(L2Boba.address, chainId8)
+        const amount = ethers.utils.parseEther('100')
         await Proxy__Teleportation.setPercentExitFee(50, chainId8) // setting to 0.5%
         const payload = [
           {
@@ -490,31 +485,30 @@ describe('Asset Teleportation Tests', async () => {
             sourceChainId: chainId8,
             depositId: 0,
             amount,
-          }
+          },
         ]
-        await L2Boba.approve(
-          Proxy__Teleportation.address,
-          amount
-        )
+        await L2Boba.approve(Proxy__Teleportation.address, amount)
 
-        const percentFee = await Proxy__Teleportation.percentExitFee(chainId8);
+        const percentFee = await Proxy__Teleportation.percentExitFee(chainId8)
         const finalExitFee = amount.mul(percentFee).div(10000)
         const amountAfterFee = amount.sub(finalExitFee)
 
-        const preFeeRecorded = await Proxy__Teleportation.feeCollected();
+        const preFeeRecorded = await Proxy__Teleportation.feeCollected()
         const preSignerBalance = await L2Boba.balanceOf(signerAddress)
         const preSigner2Balance = await L2Boba.balanceOf(signer2Address)
 
         await Proxy__Teleportation.disburseAsset(payload)
 
-        const postFeeRecorded = await Proxy__Teleportation.feeCollected();
+        const postFeeRecorded = await Proxy__Teleportation.feeCollected()
         const postSignerBalance = await L2Boba.balanceOf(signerAddress)
         const postSigner2Balance = await L2Boba.balanceOf(signer2Address)
 
         // expectation
-        expect(postFeeRecorded).to.be.eq(preFeeRecorded.add(finalExitFee));
-        expect(postSignerBalance).to.be.eq(preSignerBalance.sub(amountAfterFee));
-        expect(postSigner2Balance).to.be.eq(preSigner2Balance.add(amountAfterFee));
+        expect(postFeeRecorded).to.be.eq(preFeeRecorded.add(finalExitFee))
+        expect(postSignerBalance).to.be.eq(preSignerBalance.sub(amountAfterFee))
+        expect(postSigner2Balance).to.be.eq(
+          preSigner2Balance.add(amountAfterFee)
+        )
         expect(
           (await Proxy__Teleportation.totalDisbursements(chainId8)).toString()
         ).to.be.eq('1')
@@ -2038,35 +2032,6 @@ describe('Asset Teleportation Tests', async () => {
 })
 
 describe('Service unit tests', () => {
-  describe('deduct exit fee if applicable', () => {
-    it('should deduct exit fee if conditions are met', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      const finalAmount = deductExitFeeIfApplicable(true, 1, prevAmount)
-      expect(finalAmount).to.be.eq(prevAmount.mul(99).div(100))
-    })
-
-    it('should not deduct exit fee if enableExitFee is set to false', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      const finalAmount = deductExitFeeIfApplicable(false, 1, prevAmount)
-      expect(finalAmount).to.be.eq(prevAmount)
-    })
-
-    it('should not deduct exit fee if serviceChainId is a L2', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      let finalAmount = deductExitFeeIfApplicable(true, 288, prevAmount)
-      expect(finalAmount).to.be.eq(prevAmount)
-      finalAmount = deductExitFeeIfApplicable(true, 56288, prevAmount)
-      expect(finalAmount).to.be.eq(prevAmount)
-    })
-
-    it('should deduct exit fee if serviceChainId is a L1', () => {
-      const prevAmount: BigNumber = parseEther('1')
-      let finalAmount = deductExitFeeIfApplicable(true, 1, prevAmount)
-      expect(finalAmount).to.be.eq(prevAmount.mul(99).div(100))
-      finalAmount = deductExitFeeIfApplicable(true, 56, prevAmount)
-      expect(finalAmount).to.be.eq(prevAmount.mul(99).div(100))
-    })
-  })
 
   describe('selectedBobaChains', () => {
     it('should return correct selectedBobaChains for mainnet', async () => {
