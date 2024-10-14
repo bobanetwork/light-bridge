@@ -21,6 +21,7 @@ let signer2Address: string
 
 const chainId31337 = 31337
 const chainId4 = 4
+const chainId8 = 8
 const initialSupply = utils.parseEther('10000000000')
 const tokenName = 'BOBA'
 const tokenSymbol = 'BOBA'
@@ -1928,6 +1929,51 @@ describe('Asset Teleportation Tests', async () => {
         await expect(
           Proxy__Teleportation.setPercentExitFee(10100, chainId4)
         ).to.be.revertedWith('Exit fee too high')
+      })
+
+      // spec for calculateAmountAfterFee
+      describe('calculateAmountAfterFee', () => {
+        it('should return full amount and 0 fee if percentExitFee is 0', async () => {
+          // no exit fee set for source chainid, default percentExitFee is 0
+          const _amount = ethers.utils.parseEther('100')
+          const [amountAfterFee, fee] =
+            await Proxy__Teleportation.calculateAmountAfterFee(_amount, chainId8)
+          expect(amountAfterFee).to.be.eq(_amount)
+          expect(fee).to.be.eq(0)
+        })
+
+        it('should calculate amountAfterFee correctly when percentExitFee is set to 250 aka (2.5%)', async () => {
+          const exitFee = 250 // as 2.5%
+          const _amount = ethers.utils.parseEther('100')
+          await Proxy__Teleportation.setPercentExitFee(exitFee, chainId8)
+
+          const expectedFee = _amount.mul(exitFee).div(10000) // 2.5% of 100 tokens
+          const expectedAmountAfterFee = _amount.sub(expectedFee) // 100 tokens - 2.5% fee
+
+          const chainId8PercentExitFee = await Proxy__Teleportation.percentExitFee(chainId8)
+
+          expect(chainId8PercentExitFee).to.be.equal(exitFee)
+
+          const [amountAfterExitFee, fee] =
+            await Proxy__Teleportation.calculateAmountAfterFee(_amount, chainId8)
+
+          expect(amountAfterExitFee).to.be.eq(expectedAmountAfterFee)
+          expect(fee).to.be.eq(expectedFee)
+        })
+
+
+        it('should calculate fee as zero if amount is zero', async function () {
+          const exitFee = 500 // 5% fee in basis points
+          await Proxy__Teleportation.setPercentExitFee(exitFee, chainId8)
+
+          const amount = ethers.utils.parseEther('0') // 0 tokens
+          const [amountAfterFee, fee] =
+            await Proxy__Teleportation.calculateAmountAfterFee(amount, chainId8)
+
+          expect(amountAfterFee).to.equal(amount) // Amount should be zero
+          expect(fee).to.equal(0) // Fee should also be zero when amount is zero
+        })
+
       })
     })
   })
