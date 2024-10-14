@@ -6,7 +6,6 @@ import { Contract, Signer, BigNumber, utils } from 'ethers'
 import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
 import { BobaChains } from '@bobanetwork/light-bridge-chains'
 
-
 let L2Boba: Contract
 let RandomERC20: Contract
 let LightBridge: Contract
@@ -2032,7 +2031,6 @@ describe('Asset Teleportation Tests', async () => {
 })
 
 describe('Service unit tests', () => {
-
   describe('selectedBobaChains', () => {
     it('should return correct selectedBobaChains for mainnet', async () => {
       const { selectedBobaChains, originSupportedAssets } =
