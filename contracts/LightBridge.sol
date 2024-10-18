@@ -78,7 +78,7 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     mapping(uint32 => uint256) public percentExitFee;
 
     /// @dev amount of token collected as fee for disbursement of asset.
-    uint256 public feeCollected;
+    mapping(address => uint256) public feeCollectRecord;
 
     /********************
      *       Events     *
@@ -350,8 +350,8 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
             // calculate amount after deducting fee
             (uint256 _amount, uint256 fee) = calculateAmountAfterFee(_amountBeforeFee, _sourceChainId);
 
-            // update record of fee collected
-            feeCollected += fee;
+            // update record of fee collected for token.
+            feeCollectRecord[_token] += fee;
             
             // ensure amount sent in the tx is equal to disbursement (moved into loop to ensure token flexibility)
             if (_token == address(0)) {

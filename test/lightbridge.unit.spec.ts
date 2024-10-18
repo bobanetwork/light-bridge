@@ -492,13 +492,17 @@ describe('Asset Teleportation Tests', async () => {
         const finalExitFee = amount.mul(percentFee).div(10000)
         const amountAfterFee = amount.sub(finalExitFee)
 
-        const preFeeRecorded = await Proxy__Teleportation.feeCollected()
+        const preFeeRecorded = await Proxy__Teleportation.feeCollectRecord(
+          L2Boba.address
+        )
         const preSignerBalance = await L2Boba.balanceOf(signerAddress)
         const preSigner2Balance = await L2Boba.balanceOf(signer2Address)
 
         await Proxy__Teleportation.disburseAsset(payload)
 
-        const postFeeRecorded = await Proxy__Teleportation.feeCollected()
+        const postFeeRecorded = await Proxy__Teleportation.feeCollectRecord(
+          L2Boba.address
+        )
         const postSignerBalance = await L2Boba.balanceOf(signerAddress)
         const postSigner2Balance = await L2Boba.balanceOf(signer2Address)
 
@@ -563,6 +567,32 @@ describe('Asset Teleportation Tests', async () => {
         await expect(
           Proxy__Teleportation.disburseAsset(payload)
         ).to.be.revertedWith('Disbursement total != amount sent')
+      })
+
+      it('should not disburse Boba Tokens & Update fee record for native if disbursement is native/zero address', async () => {
+        await Proxy__Teleportation.setPercentExitFee(50, chainId4) // setting to back to 0.5%
+        const _amount = ethers.utils.parseEther('100')
+        const payload = [
+          {
+            token: ethers.constants.AddressZero,
+            amount: _amount,
+            addr: signerAddress,
+            sourceChainId: chainId4,
+            depositId: 3,
+          },
+        ]
+        await L2Boba.approve(Proxy__Teleportation.address, _amount)
+        const preFeeRecorded = await Proxy__Teleportation.feeCollectRecord(
+          ethers.constants.AddressZero
+        )
+        await expect(
+          Proxy__Teleportation.disburseAsset(payload)
+        ).to.be.revertedWith('Disbursement total != amount sent')
+        const postFeeRecorded = await Proxy__Teleportation.feeCollectRecord(
+          ethers.constants.AddressZero
+        )
+        expect(preFeeRecorded).to.be.eq(postFeeRecorded)
+        await Proxy__Teleportation.setPercentExitFee(0, chainId4) // setting to back to 0%
       })
 
       it('should not disburse ERC20 tokens if any disbursement is native/zero address', async () => {
