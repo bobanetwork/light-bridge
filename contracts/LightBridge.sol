@@ -73,8 +73,8 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     mapping(uint256 => FailedNativeDisbursement) public failedNativeDisbursements;
     
     /// @dev exit fee (in percentage) to deduct fee while disbursement of asset.
-    /// where 1% = 100 and 100% = 10000
-    /// {sourceChainId} => {exitFee}
+    /// where 1% = 100 and 100% = 10_000
+    /// {destinationChainId} => {exitFee}
     mapping(uint32 => uint256) public percentExitFee;
 
     /// @dev amount of token collected as fee for disbursement of asset.
@@ -304,7 +304,7 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
         }
 
         /// As fee is in basis points so dividing by 10^4 can give actual percentage of fee.
-        uint256 _fee = _amount * percentFee / 10000; 
+        uint256 _fee = _amount * percentFee / 10_000; 
         uint256 _amountAfterFee = _amount - _fee;
 
         return (_amountAfterFee, _fee);
@@ -547,15 +547,15 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
      * @dev Sets percentExitFee (in basis points 1% = 100) used to calculate the fee to deduct while withdrawal of asset
      *
      * @param _percentExitFee The exit in the form of basis point (0.1)
-     * @param _sourceChainId sourceChainId for which the exitFee need to set.
+     * @param _destinationChainId destinationChainId for which the exitFee need to set.
      */
-    function setPercentExitFee(uint256 _percentExitFee, uint32 _sourceChainId) external onlyOwner() {
-        require(_percentExitFee <= 10000, "Exit fee too high"); // Max 100%
+    function setPercentExitFee(uint256 _percentExitFee, uint32 _destinationChainId) external onlyOwner() {
+        require(_percentExitFee <= 10_000, "Exit fee too high"); // Max 100%
 
-        uint256 _previousPercentExitFee = percentExitFee[_sourceChainId];
+        uint256 _previousPercentExitFee = percentExitFee[_destinationChainId];
 
-        percentExitFee[_sourceChainId] = _percentExitFee;
+        percentExitFee[_destinationChainId] = _percentExitFee;
 
-        emit PercentExitFeeSet(_previousPercentExitFee, _percentExitFee, _sourceChainId);
+        emit PercentExitFeeSet(_previousPercentExitFee, _percentExitFee, _destinationChainId);
     }
 }
