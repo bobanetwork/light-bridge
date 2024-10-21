@@ -470,9 +470,9 @@ describe('lightbridge', () => {
     it('Should teleport asset and send disbursment after exit fee correctly', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
-      let _amount = utils.parseEther('10');
+      let _amount = utils.parseEther('10')
       // setting up fee of 0.5% to chainId
-      await LightBridge.setPercentExitFee(500, chainId);
+      await LightBridge.setPercentExitFee(500, chainId)
 
       // deposit token
       const lastDisbursement = await LightBridge.connect(
@@ -532,20 +532,17 @@ describe('lightbridge', () => {
       const postBlockNumber = await provider.getBlockNumber()
 
       // calculating exit fee.
-      const fee = _amount.mul(500).div(10000);
+      const fee = _amount.mul(500).div(10000)
 
-      expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
-        _amount.sub(fee)
-      )
+      expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(_amount.sub(fee))
       expect(postSignerBOBABalance.sub(preSignerBOBABalance)).to.be.eq(
         _amount.sub(fee)
       )
       expect(postBlockNumber).to.be.not.eq(preBlockNumber)
 
       // reset exit fee 0.
-      await LightBridge.setPercentExitFee(0, chainId);
+      await LightBridge.setPercentExitFee(0, chainId)
     })
-
   })
 
   describe('global tests', () => {
@@ -2445,7 +2442,9 @@ describe.skip('service startup unit tests', () => {
     const networksToWatch = selectedNetworkFilter(chainIdToUse)
     const lbService = new LightBridgeService({
       // sometimes the same network with a different chain id is used
-      l2RpcProvider: new providers.JsonRpcProvider({ url: "https://boba-sepolia.gateway.tenderly.co/1clfZoq7qEGyF4SQvF8gvI" }),
+      l2RpcProvider: new providers.JsonRpcProvider({
+        url: 'https://boba-sepolia.gateway.tenderly.co/1clfZoq7qEGyF4SQvF8gvI',
+      }),
       chainId: chainIdToUse,
       lightBridgeAddress: BobaChains[chainIdToUse].teleportationAddress,
       selectedBobaChains: networksToWatch.selectedBobaChains,
