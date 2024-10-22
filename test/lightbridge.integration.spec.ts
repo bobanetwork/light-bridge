@@ -466,83 +466,6 @@ describe('lightbridge', () => {
       )
       expect(postBlockNumber).to.be.not.eq(preBlockNumber)
     })
-
-    it('Should teleport asset and send disbursment after exit fee correctly', async () => {
-      const teleportationService = await startLightBridgeService()
-      await teleportationService.init()
-      let _amount = utils.parseEther('10')
-      // setting up fee of 0.5% to chainId
-      await LightBridge.setPercentExitFee(500, chainId)
-
-      // deposit token
-      const lastDisbursement = await LightBridge.connect(
-        signer
-      ).totalDisbursements(chainId)
-
-      await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
-      const res = await LightBridge.connect(signer).teleportAsset(
-        L2BOBA.address,
-        _amount,
-        chainId
-      )
-      await res.wait()
-
-      await waitForSubgraph()
-
-      const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getAssetReceivedEvents(
-        chainId,
-        chainId,
-        0,
-        blockNumber
-      )
-
-      let disbursement = []
-      for (const event of events) {
-        const token = event.token
-        const sourceChainId = event.sourceChainId
-        const depositId = event.depositId
-        const amount = event.amount
-        const emitter = event.emitter
-
-        if (!parseInt(depositId.toString()) < lastDisbursement.toNumber()) {
-          disbursement = [
-            ...disbursement,
-            {
-              token,
-              amount: amount.toString(),
-              addr: emitter,
-              depositId: parseInt(depositId.toString()),
-              sourceChainId: sourceChainId.toString(),
-            },
-          ]
-        }
-      }
-
-      disbursement = orderBy(disbursement, ['depositId'], ['asc'])
-
-      const preBOBABalance = await L2BOBA.balanceOf(address1)
-      const preSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-      const preBlockNumber = await provider.getBlockNumber()
-
-      await teleportationService._disburseTx(disbursement, chainId, blockNumber)
-
-      const postBOBABalance = await L2BOBA.balanceOf(address1)
-      const postSignerBOBABalance = await L2BOBA.balanceOf(signerAddr)
-      const postBlockNumber = await provider.getBlockNumber()
-
-      // calculating exit fee.
-      const fee = _amount.mul(500).div(10000)
-
-      expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(_amount.sub(fee))
-      expect(postSignerBOBABalance.sub(preSignerBOBABalance)).to.be.eq(
-        _amount.sub(fee)
-      )
-      expect(postBlockNumber).to.be.not.eq(preBlockNumber)
-
-      // reset exit fee 0.
-      await LightBridge.setPercentExitFee(0, chainId)
-    })
   })
 
   describe('global tests', () => {
@@ -580,7 +503,7 @@ describe('lightbridge', () => {
       )
       expect(events[0].sourceChainId.toString()).to.be.eq(chainId.toString())
       expect(events[0].toChainId.toString()).to.be.eq(chainId.toString())
-      expect(events[0].depositId.toString()).to.be.eq('17')
+      expect(events[0].depositId.toString()).to.be.eq('16')
       expect(events[0].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
       expect(events[0].amount).to.be.eq(utils.parseEther('11'))
     })
@@ -700,6 +623,65 @@ describe('lightbridge', () => {
       const storedBlock = await teleportationService._getDepositInfo(chainId)
       expect(storedBlock).to.be.eq(latestBlock)
     }).retries(3)
+
+    it('should get all AssetReceived events & disburse with exit fee percentage', async () => {
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
+
+      await LightBridge.setPercentExitFee(500, chainId);
+      // deposit token
+      await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
+
+      const res = await LightBridge.connect(signer).teleportAsset(
+        L2BOBA.address,
+        utils.parseEther('10'),
+        chainId
+      )
+
+      await res.wait()
+      await waitForSubgraph()
+
+      // check events
+      const latestBlock = await provider.getBlockNumber()
+      const depositTeleportations = {
+        Teleportation: LightBridge,
+        chainId,
+        totalDeposits: BigNumber.from('0'),
+        totalDisbursements: BigNumber.from('0'),
+        height: 0,
+      }
+      const events = await teleportationService._watchTeleportation(
+        depositTeleportations,
+        latestBlock
+      )
+      expect(events.length).to.be.eq(1)
+
+      const preBOBABalance = await L2BOBA.balanceOf(address1)
+      await teleportationService._disburseTeleportation(
+        depositTeleportations,
+        events,
+        0
+      )
+      const fee = utils.parseEther('10').mul(500).div(10000)
+      const postBOBABalance = await L2BOBA.balanceOf(address1)
+      expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
+        utils.parseEther('10').sub(fee)
+      )
+
+      // should not relay twice
+      await teleportationService._disburseTeleportation(
+        depositTeleportations,
+        events,
+        latestBlock
+      )
+      const BOBABalance = await L2BOBA.balanceOf(address1)
+      expect(BOBABalance).to.be.eq(postBOBABalance)
+
+      // should store the latest block
+      const storedBlock = await teleportationService._getDepositInfo(chainId)
+      expect(storedBlock).to.be.eq(latestBlock)
+      await LightBridge.setPercentExitFee(0, chainId);
+    })
 
     it('should not disburse BOBA token if the data is reset', async () => {
       const teleportationService = await startLightBridgeService()
