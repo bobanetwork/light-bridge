@@ -73,10 +73,8 @@ describe('lightbridge', () => {
     }
     await AppDataSource.synchronize(true) // drops database and recreates
 
-    // providerUrl = 'http://anvil_eth:8545'
-    // providerBnbUrl = 'http://anvil_bnb:8545'
-    providerUrl = 'http://localhost:8545'
-    providerBnbUrl = 'http://localhost:8546'
+    providerUrl = 'http://anvil_eth:8545'
+    providerBnbUrl = 'http://anvil_bnb:8545'
     provider = new providers.JsonRpcProvider(providerUrl)
     providerBnb = new providers.JsonRpcProvider(providerBnbUrl)
     console.warn('Using provider: ', providerUrl)
@@ -219,7 +217,7 @@ describe('lightbridge', () => {
         awsKmsKeyId:
           process.env.LIGHTBRIDGE_AWS_KMS_KEY_ID ?? 'lb_disburser_pk',
         awsKmsEndpoint:
-          process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://localhost:8888/',
+          process.env.LIGHTBRIDGE_AWS_KMS_ENDPOINT ?? 'http://kms:8888/',
         awsKmsRegion: process.env.LIGHTBRIDGE_AWS_KMS_REGION ?? 'us-east-1',
         disableDisburserCheck: true,
       },
