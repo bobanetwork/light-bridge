@@ -628,7 +628,7 @@ describe('lightbridge', () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
-      await LightBridge.setPercentExitFee(500, chainId);
+      await LightBridge.setPercentExitFee(500, chainId)
       // deposit token
       await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
 
@@ -680,7 +680,7 @@ describe('lightbridge', () => {
       // should store the latest block
       const storedBlock = await teleportationService._getDepositInfo(chainId)
       expect(storedBlock).to.be.eq(latestBlock)
-      await LightBridge.setPercentExitFee(0, chainId);
+      await LightBridge.setPercentExitFee(0, chainId)
     })
 
     it('should not disburse BOBA token if the data is reset', async () => {
