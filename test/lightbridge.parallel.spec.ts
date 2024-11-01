@@ -413,6 +413,7 @@ describe('lightbridge parallel', () => {
       chainId
     )
     const hashUnderTest = bridgeTx.hash
+    await bridgeTx.wait()
 
     await delay(20_000)
 
@@ -424,7 +425,7 @@ describe('lightbridge parallel', () => {
 
     const toBlock = 500 // NOTE: Increase this if it suddenly doesn't find events anymore
     const originEvents = await LightBridgeBNB.queryFilter(
-      'AssetReceived',
+      LightBridgeBNB.filters.AssetReceived(),
       0,
       toBlock
     )
