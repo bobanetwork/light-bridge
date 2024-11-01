@@ -1373,9 +1373,8 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getAssetReceivedEvents(
-        chainId,
-        chainIdBobaBnb,
+      const events = await teleportationService._getAssetReceivedEventsViaQueryFilter(
+        LightBridge,
         preBlockNumber,
         blockNumber
       )
