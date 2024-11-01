@@ -2423,9 +2423,7 @@ describe.skip('service startup unit tests', () => {
     const networksToWatch = selectedNetworkFilter(chainIdToUse)
     const lbService = new LightBridgeService({
       // sometimes the same network with a different chain id is used
-      l2RpcProvider: new providers.JsonRpcProvider({
-        url: 'https://boba-sepolia.gateway.tenderly.co/1clfZoq7qEGyF4SQvF8gvI',
-      }),
+      l2RpcProvider: new providers.JsonRpcProvider(BobaChains[chainIdToUse]),
       chainId: chainIdToUse,
       lightBridgeAddress: BobaChains[chainIdToUse].teleportationAddress,
       selectedBobaChains: networksToWatch.selectedBobaChains,
