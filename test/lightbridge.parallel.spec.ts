@@ -416,6 +416,12 @@ describe('lightbridge parallel', () => {
 
     await delay(20_000)
 
+    const randomTx = await wallet1Bnb.sendTransaction({
+      to: ethers.Wallet.createRandom().address,
+      value: utils.parseEther('0.1'),
+    })
+    await randomTx.wait()
+
     const toBlock = 500 // NOTE: Increase this if it suddenly doesn't find events anymore
     const originEvents = await LightBridgeBNB.queryFilter(
       'AssetReceived',
