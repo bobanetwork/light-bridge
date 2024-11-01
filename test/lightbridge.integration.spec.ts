@@ -1373,11 +1373,12 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationService._getAssetReceivedEventsViaQueryFilter(
-        LightBridge,
-        preBlockNumber,
-        blockNumber
-      )
+      const events =
+        await teleportationService._getAssetReceivedEventsViaQueryFilter(
+          LightBridge,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridge.address)
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -1608,11 +1609,12 @@ describe('lightbridge', () => {
       })
 
       // subgraph is unstable, so we use contract to get events
-      const events = await teleportationService._getAssetReceivedEventsViaQueryFilter(
-        LightBridgeBNB,
-        preBlockNumber,
-        blockNumber,
-      )
+      const events =
+        await teleportationService._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
       expect(events.length).to.be.eq(1, 'Event length must be 1')
@@ -1843,11 +1845,12 @@ describe('lightbridge', () => {
       })
 
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
-        LightBridgeBNB,
-        preBlockNumber,
-        blockNumber
-      )
+      const events =
+        await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -2083,11 +2086,12 @@ describe('lightbridge', () => {
       })
 
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
-        LightBridgeBNB,
-        preBlockNumber,
-        blockNumber
-      )
+      const events =
+        await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
       console.log('events.length', events.length)
@@ -2424,7 +2428,7 @@ describe('lightbridge', () => {
   })
 })
 
-describe.skip('service startup unit tests', () => {
+describe('service startup unit tests', () => {
   const createTestnetLightBridgeService = async () => {
     const chainIdToUse = 28882
     const networksToWatch = selectedNetworkFilter(chainIdToUse)

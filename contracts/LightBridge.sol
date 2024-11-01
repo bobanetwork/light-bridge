@@ -74,7 +74,7 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
     
     /// @dev exit fee (in percentage) to deduct fee while disbursement of asset.
     /// where 1% = 100 and 100% = 10_000
-    /// {destinationChainId} => {exitFee}
+    /// {sourceChainId} => {exitFee}
     mapping(uint32 => uint256) public percentExitFee;
 
     /// @dev amount of token collected as fee for disbursement of asset.
@@ -547,15 +547,15 @@ contract LightBridge is PausableUpgradeable, MulticallUpgradeable {
      * @dev Sets percentExitFee (in basis points 1% = 100) used to calculate the fee to deduct while withdrawal of asset
      *
      * @param _percentExitFee The exit in the form of basis point (0.1)
-     * @param _destinationChainId destinationChainId for which the exitFee need to set.
+     * @param _sourceChainId destinationChainId for which the exitFee need to set.
      */
-    function setPercentExitFee(uint256 _percentExitFee, uint32 _destinationChainId) external onlyOwner() {
+    function setPercentExitFee(uint256 _percentExitFee, uint32 _sourceChainId) external onlyOwner() {
         require(_percentExitFee <= 10_000, "Exit fee too high"); // Max 100%
 
-        uint256 _previousPercentExitFee = percentExitFee[_destinationChainId];
+        uint256 _previousPercentExitFee = percentExitFee[_sourceChainId];
 
-        percentExitFee[_destinationChainId] = _percentExitFee;
+        percentExitFee[_sourceChainId] = _percentExitFee;
 
-        emit PercentExitFeeSet(_previousPercentExitFee, _percentExitFee, _destinationChainId);
+        emit PercentExitFeeSet(_previousPercentExitFee, _percentExitFee, _sourceChainId);
     }
 }
