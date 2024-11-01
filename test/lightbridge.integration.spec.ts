@@ -1583,13 +1583,8 @@ describe('lightbridge', () => {
     })
 
     it('should not airdrop if user has gas on destination network', async () => {
-      const teleportationServiceBnb = await startLightBridgeService(
-        true,
-        null,
-        null,
-        providerBnb
-      )
-      await teleportationServiceBnb.init()
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
 
       // deposit token
       const preBlockNumber = await providerBnb.getBlockNumber()
@@ -1607,11 +1602,19 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEvents(
+
+      await wallet1Bnb.sendTransaction({
+        to: ethers.Wallet.createRandom().address,
+        value: utils.parseEther('10'),
+      })
+
+      // subgraph is unstable, so we use contract to get events
+      const events = await teleportationService._getAssetReceivedEvents(
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber
+        blockNumber,
+        LightBridgeBNB
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
