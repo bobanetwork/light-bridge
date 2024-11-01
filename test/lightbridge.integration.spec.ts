@@ -1609,12 +1609,10 @@ describe('lightbridge', () => {
       })
 
       // subgraph is unstable, so we use contract to get events
-      const events = await teleportationService._getAssetReceivedEvents(
-        chainIdBobaBnb,
-        chainId,
+      const events = await teleportationService._getAssetReceivedEventsViaQueryFilter(
+        LightBridgeBNB,
         preBlockNumber,
         blockNumber,
-        LightBridgeBNB
       )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
