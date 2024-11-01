@@ -445,7 +445,7 @@ describe('lightbridge parallel', () => {
     )
     expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
     const specificDestinationEvent = destinationEvents.find(
-      (event) => event.args.amount.toString() === BigNumber.from('12000000000000000000')
+      (event) => event.args.amount.toString() === '12000000000000000000'
     )
     expect(specificDestinationEvent.args.token).to.eq(L2BOBA_BNB.address)
     expect(specificDestinationEvent.args.sourceChainId).to.eq(chainIdBnb)
