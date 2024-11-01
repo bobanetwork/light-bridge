@@ -1837,6 +1837,11 @@ describe('lightbridge', () => {
       await res.wait()
       await waitForSubgraph()
 
+      await wallet1Bnb.sendTransaction({
+        to: ethers.Wallet.createRandom().address,
+        value: utils.parseEther('10'),
+      })
+
       const blockNumber = await providerBnb.getBlockNumber()
       const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
         L2BNBOnBobaBnb,
@@ -2071,6 +2076,11 @@ describe('lightbridge', () => {
       )
       await res.wait()
       await waitForSubgraph()
+
+      await wallet1Bnb.sendTransaction({
+        to: ethers.Wallet.createRandom().address,
+        value: utils.parseEther('10'),
+      })
 
       const blockNumber = await providerBnb.getBlockNumber()
       const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
