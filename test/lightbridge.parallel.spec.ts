@@ -412,8 +412,8 @@ describe('lightbridge parallel', () => {
       amount,
       chainId
     )
-    const hashUnderTest = bridgeTx.hash
-    await bridgeTx.wait()
+    const tx = await bridgeTx.wait()
+    const hashUnderTest = tx.transactionHash
 
     await delay(20_000)
 
