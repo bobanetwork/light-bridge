@@ -1353,7 +1353,7 @@ describe('lightbridge', () => {
     })
 
     it('should not airdrop if user bridges asset that is native on destination network', async () => {
-      const teleportationService = await startLightBridgeService(true)
+      const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
       // deposit token
