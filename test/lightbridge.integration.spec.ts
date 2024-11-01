@@ -1353,8 +1353,8 @@ describe('lightbridge', () => {
     })
 
     it('should not airdrop if user bridges asset that is native on destination network', async () => {
-      const teleportationServiceETH = await startLightBridgeService(false)
-      await teleportationServiceETH.init()
+      const teleportationService = await startLightBridgeService(true)
+      await teleportationService.init()
 
       // deposit token
       const amountToBridge = utils.parseEther('10')
@@ -1373,7 +1373,7 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceETH._getAssetReceivedEvents(
+      const events = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
         preBlockNumber,
