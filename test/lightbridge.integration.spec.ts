@@ -1844,7 +1844,7 @@ describe('lightbridge', () => {
 
       const blockNumber = await providerBnb.getBlockNumber()
       const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
-        L2BNBOnBobaBnb,
+        LightBridgeBNB,
         preBlockNumber,
         blockNumber
       )
@@ -2084,7 +2084,7 @@ describe('lightbridge', () => {
 
       const blockNumber = await providerBnb.getBlockNumber()
       const events = await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
-        L2BNBOnBobaBnb,
+        LightBridgeBNB,
         preBlockNumber,
         blockNumber
       )
