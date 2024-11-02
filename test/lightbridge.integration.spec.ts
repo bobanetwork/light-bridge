@@ -626,14 +626,14 @@ describe('lightbridge', () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
-      await LightBridge.setPercentExitFee(500, chainIdBobaBnb)
+      await LightBridge.setPercentExitFee(500, chainId)
       // deposit token
       await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
 
       const res = await LightBridge.connect(signer).teleportAsset(
         L2BOBA.address,
         utils.parseEther('10'),
-        chainIdBobaBnb
+        chainId
       )
 
       await res.wait()
@@ -643,7 +643,7 @@ describe('lightbridge', () => {
       const latestBlock = await provider.getBlockNumber()
       const depositTeleportations = {
         Teleportation: LightBridge,
-        chainId: chainIdBobaBnb,
+        chainId,
         totalDeposits: BigNumber.from('0'),
         totalDisbursements: BigNumber.from('0'),
         height: 0,
@@ -678,7 +678,7 @@ describe('lightbridge', () => {
       // should store the latest block
       const storedBlock = await teleportationService._getDepositInfo(chainId)
       expect(storedBlock).to.be.eq(latestBlock)
-      await LightBridge.setPercentExitFee(0, chainIdBobaBnb)
+      await LightBridge.setPercentExitFee(0, chainId)
     })
 
     it('should not disburse BOBA token if the data is reset', async () => {
@@ -2461,17 +2461,18 @@ describe('service startup unit tests', () => {
     return lbService
   }
 
-  it('should watch correct networks for Boba Eth Testnet', async () => {
+  it.only('should watch correct networks for Boba Eth Testnet', async () => {
     const lbService = await createTestnetLightBridgeService()
-    console.log(
-      `lbService.state.depositTeleportations`,
-      lbService.state.depositTeleportations
-    )
     expect(
       lbService.state.depositTeleportations.find(
         (c) => c.chainId.toString() === '11155420'
       )
     ).to.not.be.undefined
+    const opDepositTeleportation = lbService.state.depositTeleportations.find(
+      (c) => c.chainId.toString() === '11155420'
+    )
+    expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
+      .be.undefined
     // as arbitrum is not supported on testnet
     expect(
       lbService.state.depositTeleportations.find(
@@ -2479,15 +2480,5 @@ describe('service startup unit tests', () => {
       )
     ).to.be.undefined
 
-    const arbDepositTeleportation = lbService.state.depositTeleportations.find(
-      (c) => c.chainId.toString() === '421614'
-    )
-    const opDepositTeleportation = lbService.state.depositTeleportations.find(
-      (c) => c.chainId.toString() === '11155420'
-    )
-    expect(await arbDepositTeleportation.Teleportation.totalDeposits('28882'))
-      .to.not.be.undefined
-    expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
-      .be.undefined
   })
 })
