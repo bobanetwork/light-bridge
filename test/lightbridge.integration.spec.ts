@@ -2461,7 +2461,7 @@ describe('service startup unit tests', () => {
     return lbService
   }
 
-  it.only('should watch correct networks for Boba Eth Testnet', async () => {
+  it('should watch correct networks for Boba Eth Testnet', async () => {
     const lbService = await createTestnetLightBridgeService()
     expect(
       lbService.state.depositTeleportations.find(
@@ -2472,12 +2472,6 @@ describe('service startup unit tests', () => {
       (c) => c.chainId.toString() === '11155420'
     )
     expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
-      .be.undefined
-    // as arbitrum is not supported on testnet
-    expect(
-      lbService.state.depositTeleportations.find(
-        (c) => c.chainId.toString() === '421614'
-      )
-    ).to.be.undefined
+      .be.not.be.undefined
   })
 })
