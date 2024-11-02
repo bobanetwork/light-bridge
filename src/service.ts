@@ -39,7 +39,6 @@ import {
   LightBridgeAssetReceivedEvent,
   lightBridgeGraphQLService,
 } from '@bobanetwork/graphql-utils'
-import { deductExitFeeIfApplicable } from './utils/misc.utils'
 
 interface LightBridgeOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -327,7 +326,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
           const depositId: BigNumber = BigNumber.from(
             event.depositId.toString()
           )
-          const amount: BigNumber = BigNumber.from(event.amount.toString())
+          const amount = event.amount.toString()
           const sourceChainTokenAddr = event.token
           const emitter = event.emitter
           const destChainId: BigNumber = BigNumber.from(
@@ -363,12 +362,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
               disbursement = [
                 ...disbursement,
                 {
+                  amount,
                   token: destChainTokenAddr, // token mapping for correct routing as addresses different on every network
-                  amount: deductExitFeeIfApplicable(
-                    this.options.enableExitFee,
-                    this.options.chainId,
-                    amount
-                  ).toString(),
                   addr: emitter,
                   depositId: depositId.toNumber(),
                   sourceChainId: sourceChainId.toString(),

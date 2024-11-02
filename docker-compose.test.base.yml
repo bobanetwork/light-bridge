@@ -80,6 +80,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 2m
+    ports:
+      - "8100:8000"
+      - "8101:8001"
+      - "8120:8020"
+      - "8130:8030"
+      - "8140:8040"
     environment:
       postgres_host: postgres_bnb
       postgres_user: graph-node
