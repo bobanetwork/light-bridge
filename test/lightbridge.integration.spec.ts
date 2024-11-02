@@ -2479,6 +2479,5 @@ describe('service startup unit tests', () => {
         (c) => c.chainId.toString() === '421614'
       )
     ).to.be.undefined
-
   })
 })
