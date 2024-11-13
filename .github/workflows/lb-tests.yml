@@ -12,6 +12,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+   # Set up Docker Compose
+    - name: Set up Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose-plugin
+   
     - name: Build Docker images
       run: docker-compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml -f docker-compose.test.par.yml build
 
