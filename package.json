@@ -50,7 +50,7 @@
    },
    "dependencies": {
       "@bobanetwork/aws-kms": "^2.0.0",
-      "@bobanetwork/graphql-utils": "^1.1.17",
+      "@bobanetwork/graphql-utils": "1.1.10",
       "@bobanetwork/light-bridge-chains": "^1.1.2",
       "@eth-optimism/common-ts": "0.2.2",
       "@openzeppelin/contracts": "4.3.2",
