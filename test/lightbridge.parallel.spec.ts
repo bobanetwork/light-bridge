@@ -412,13 +412,20 @@ describe('lightbridge parallel', () => {
       amount,
       chainId
     )
-    const hashUnderTest = bridgeTx.hash
+    const tx = await bridgeTx.wait()
+    const hashUnderTest = tx.transactionHash
 
     await delay(20_000)
 
+    const randomTx = await wallet1Bnb.sendTransaction({
+      to: ethers.Wallet.createRandom().address,
+      value: utils.parseEther('0.1'),
+    })
+    await randomTx.wait()
+
     const toBlock = 500 // NOTE: Increase this if it suddenly doesn't find events anymore
     const originEvents = await LightBridgeBNB.queryFilter(
-      'AssetReceived',
+      LightBridgeBNB.filters.AssetReceived(),
       0,
       toBlock
     )
@@ -437,12 +444,8 @@ describe('lightbridge parallel', () => {
       toBlock
     )
     expect(destinationEvents.length).to.be.greaterThanOrEqual(1)
-    const feeDeductedAmount = BigNumber.from('12000000000000000000')
-      .mul(99)
-      .div(100)
-      .toString()
     const specificDestinationEvent = destinationEvents.find(
-      (event) => event.args.amount.toString() === feeDeductedAmount
+      (event) => event.args.amount.toString() === '12000000000000000000'
     )
     expect(specificDestinationEvent.args.token).to.eq(L2BOBA_BNB.address)
     expect(specificDestinationEvent.args.sourceChainId).to.eq(chainIdBnb)
