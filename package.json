@@ -49,9 +49,8 @@
       "typescript": "^4.5.2"
    },
    "dependencies": {
-      "@bobanetwork/aws-kms": "^1.0.1",
-      "@bobanetwork/core_contracts": "0.5.12",
-      "@bobanetwork/graphql-utils": "^1.1.6",
+      "@bobanetwork/aws-kms": "^2.0.0",
+      "@bobanetwork/graphql-utils": "1.1.6",
       "@bobanetwork/light-bridge-chains": "^1.1.2",
       "@eth-optimism/common-ts": "0.2.2",
       "@openzeppelin/contracts": "4.3.2",

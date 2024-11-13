@@ -4,7 +4,6 @@ import {
   constants as ethersConstants,
   Contract,
   ethers,
-  EventFilter,
   PopulatedTransaction,
   providers,
 } from 'ethers'
@@ -14,7 +13,6 @@ import 'reflect-metadata'
 /* Imports: Internal */
 import { sleep } from '@eth-optimism/core-utils'
 import { BaseService } from '@eth-optimism/common-ts'
-import { getContractFactory } from '@bobanetwork/core_contracts'
 import { getBobaContractAt } from '@bobanetwork/contracts'
 
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
@@ -781,7 +779,14 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         lastDisbursement?.toString() // should reduce amount of invalid events
       )
     } catch (err) {
-      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err, sourceChainId, targetChainId, fromBlock, toBlock })
+      this.logger.warn(`Caught GraphQL error!`, {
+        errMsg: err?.message,
+        err,
+        sourceChainId,
+        targetChainId,
+        fromBlock,
+        toBlock,
+      })
       if (contract) {
         events = await this._getAssetReceivedEventsViaQueryFilter(
           contract,
