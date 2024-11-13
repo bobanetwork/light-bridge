@@ -12,6 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+   
     - name: Build Docker images
       run: docker compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml -f docker-compose.test.par.yml build
 
