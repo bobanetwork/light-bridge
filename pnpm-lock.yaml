@@ -12,8 +12,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(@babel/core@7.24.4)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.4))(bufferutil@4.0.8)(encoding@0.1.13)(jest@29.7.0(@types/node@16.18.90)(ts-node@10.9.2(@types/node@16.18.90)(typescript@4.9.5)))(typescript@4.9.5)(utf-8-validate@5.0.10)
       '@bobanetwork/graphql-utils':
-        specifier: ^1.1.16
-        version: 1.1.16(@babel/core@7.24.4)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.4))(bufferutil@4.0.8)(encoding@0.1.13)(jest@29.7.0(@types/node@16.18.90)(ts-node@10.9.2(@types/node@16.18.90)(typescript@4.9.5)))(typescript@4.9.5)(utf-8-validate@5.0.10)
+        specifier: ^1.1.17
+        version: 1.1.17(@babel/core@7.24.4)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.4))(bufferutil@4.0.8)(encoding@0.1.13)(jest@29.7.0(@types/node@16.18.90)(ts-node@10.9.2(@types/node@16.18.90)(typescript@4.9.5)))(typescript@4.9.5)(utf-8-validate@5.0.10)
       '@bobanetwork/light-bridge-chains':
         specifier: ^1.1.2
         version: 1.1.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -428,8 +428,8 @@ packages:
     peerDependencies:
       ethers: ^5
 
-  '@bobanetwork/graphql-utils@1.1.16':
-    resolution: {integrity: sha512-jJA1JA2cf0iHI6qulZD65KpVuPo+rGCnxzSc+rfEaRLgjOr7TuIdqv/aYy5Lr/p2g+m1Gx0lAHWZQ5148HzvPw==}
+  '@bobanetwork/graphql-utils@1.1.17':
+    resolution: {integrity: sha512-YS1pfIvuusz2zfWu27qXsCmgP/B7+HfK/ioo1LJPbc1YIZ31RgBt6ZbkJqpKu/kqc6q+ZHpUa8j/Ia+T8UB6tw==}
 
   '@bobanetwork/light-bridge-chains@1.1.2':
     resolution: {integrity: sha512-0KhoHJhAcYPOutGJjE+wRv/ifHA5eakPbzar1q9BORv6g2nmKEjFe67VY6h27cuVe+1rV+BajxyzhaGBoiWpAA==}
@@ -6778,12 +6778,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@bobanetwork/graphql-utils@1.1.16(@babel/core@7.24.4)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.4))(bufferutil@4.0.8)(encoding@0.1.13)(jest@29.7.0(@types/node@16.18.90)(ts-node@10.9.2(@types/node@16.18.90)(typescript@4.9.5)))(typescript@4.9.5)(utf-8-validate@5.0.10)':
+  '@bobanetwork/graphql-utils@1.1.17(@babel/core@7.24.4)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.4))(bufferutil@4.0.8)(encoding@0.1.13)(jest@29.7.0(@types/node@16.18.90)(ts-node@10.9.2(@types/node@16.18.90)(typescript@4.9.5)))(typescript@4.9.5)(utf-8-validate@5.0.10)':
     dependencies:
       '@apollo/client': 3.5.10(graphql@16.9.0)
       '@ethersproject/providers': 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       '@types/jest': 29.5.12
-      dotenv: 16.4.5
       ethers: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       graphql: 16.9.0
       node-fetch: 2.7.0(encoding@0.1.13)
