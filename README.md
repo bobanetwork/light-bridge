@@ -145,7 +145,6 @@ Make sure disbursers have enough liquidity in form of the native asset (such as 
 ---
 
 ## User flow / Dev flow:
-![TeleportationFlow](https://github.com/bobanetwork/boba/assets/28724551/1c5fceb8-126d-42d1-92b4-59ec5ed9ad71)
 
 ### Wallet based overview
 ![WalletLiquidity](https://github.com/bobanetwork/light-bridge/assets/28724551/5a6f28e0-80e1-4e73-8125-b2a4301dd00d)
