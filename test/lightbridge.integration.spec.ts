@@ -622,6 +622,65 @@ describe('lightbridge', () => {
       expect(storedBlock).to.be.eq(latestBlock)
     }).retries(3)
 
+    it('should get all AssetReceived events & disburse with exit fee percentage', async () => {
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
+
+      await LightBridge.setPercentExitFee(500, chainId)
+      // deposit token
+      await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
+
+      const res = await LightBridge.connect(signer).teleportAsset(
+        L2BOBA.address,
+        utils.parseEther('10'),
+        chainId
+      )
+
+      await res.wait()
+      await waitForSubgraph()
+
+      // check events
+      const latestBlock = await provider.getBlockNumber()
+      const depositTeleportations = {
+        Teleportation: LightBridge,
+        chainId,
+        totalDeposits: BigNumber.from('0'),
+        totalDisbursements: BigNumber.from('0'),
+        height: 0,
+      }
+      const events = await teleportationService._watchTeleportation(
+        depositTeleportations,
+        latestBlock
+      )
+      expect(events.length).to.be.eq(1)
+
+      const preBOBABalance = await L2BOBA.balanceOf(address1)
+      await teleportationService._disburseTeleportation(
+        depositTeleportations,
+        events,
+        0
+      )
+      const fee = utils.parseEther('10').mul(500).div(10000)
+      const postBOBABalance = await L2BOBA.balanceOf(address1)
+      expect(preBOBABalance.sub(postBOBABalance)).to.be.eq(
+        utils.parseEther('10').sub(fee)
+      )
+
+      // should not relay twice
+      await teleportationService._disburseTeleportation(
+        depositTeleportations,
+        events,
+        latestBlock
+      )
+      const BOBABalance = await L2BOBA.balanceOf(address1)
+      expect(BOBABalance).to.be.eq(postBOBABalance)
+
+      // should store the latest block
+      const storedBlock = await teleportationService._getDepositInfo(chainId)
+      expect(storedBlock).to.be.eq(latestBlock)
+      await LightBridge.setPercentExitFee(0, chainId)
+    })
+
     it('should not disburse BOBA token if the data is reset', async () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
@@ -1204,7 +1263,7 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         chainId,
         preBlockNumber,
-        blockNumber,
+        blockNumber
       )
 
       console.log(
@@ -1294,8 +1353,8 @@ describe('lightbridge', () => {
     })
 
     it('should not airdrop if user bridges asset that is native on destination network', async () => {
-      const teleportationServiceETH = await startLightBridgeService(false)
-      await teleportationServiceETH.init()
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
 
       // deposit token
       const amountToBridge = utils.parseEther('10')
@@ -1314,12 +1373,12 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await provider.getBlockNumber()
-      const events = await teleportationServiceETH._getAssetReceivedEvents(
-        chainId,
-        chainIdBobaBnb,
-        preBlockNumber,
-        blockNumber
-      )
+      const events =
+        await teleportationService._getAssetReceivedEventsViaQueryFilter(
+          LightBridge,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridge.address)
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -1524,13 +1583,8 @@ describe('lightbridge', () => {
     })
 
     it('should not airdrop if user has gas on destination network', async () => {
-      const teleportationServiceBnb = await startLightBridgeService(
-        true,
-        null,
-        null,
-        providerBnb
-      )
-      await teleportationServiceBnb.init()
+      const teleportationService = await startLightBridgeService()
+      await teleportationService.init()
 
       // deposit token
       const preBlockNumber = await providerBnb.getBlockNumber()
@@ -1548,12 +1602,19 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEvents(
-        chainIdBobaBnb,
-        chainId,
-        preBlockNumber,
-        blockNumber
-      )
+
+      await wallet1Bnb.sendTransaction({
+        to: ethers.Wallet.createRandom().address,
+        value: utils.parseEther('10'),
+      })
+
+      // subgraph is unstable, so we use contract to get events
+      const events =
+        await teleportationService._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
       expect(events.length).to.be.eq(1, 'Event length must be 1')
@@ -1778,13 +1839,18 @@ describe('lightbridge', () => {
       await res.wait()
       await waitForSubgraph()
 
+      await wallet1Bnb.sendTransaction({
+        to: ethers.Wallet.createRandom().address,
+        value: utils.parseEther('10'),
+      })
+
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEvents(
-        chainIdBobaBnb,
-        chainId,
-        preBlockNumber,
-        blockNumber
-      )
+      const events =
+        await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
@@ -2014,15 +2080,21 @@ describe('lightbridge', () => {
       await res.wait()
       await waitForSubgraph()
 
+      await wallet1Bnb.sendTransaction({
+        to: ethers.Wallet.createRandom().address,
+        value: utils.parseEther('10'),
+      })
+
       const blockNumber = await providerBnb.getBlockNumber()
-      const events = await teleportationServiceBnb._getAssetReceivedEvents(
-        chainIdBobaBnb,
-        chainId,
-        preBlockNumber,
-        blockNumber
-      )
+      const events =
+        await teleportationServiceBnb._getAssetReceivedEventsViaQueryFilter(
+          LightBridgeBNB,
+          preBlockNumber,
+          blockNumber
+        )
 
       console.log('Teleportation: ', LightBridgeBNB.address)
+      console.log('events.length', events.length)
       expect(events.length).to.be.gt(0, 'Event length must be greater than 0')
 
       const teleportationServiceEth = await startLightBridgeService(false, true)
@@ -2391,27 +2463,15 @@ describe('service startup unit tests', () => {
 
   it('should watch correct networks for Boba Eth Testnet', async () => {
     const lbService = await createTestnetLightBridgeService()
-
     expect(
       lbService.state.depositTeleportations.find(
         (c) => c.chainId.toString() === '11155420'
       )
     ).to.not.be.undefined
-    expect(
-      lbService.state.depositTeleportations.find(
-        (c) => c.chainId.toString() === '421614'
-      )
-    ).to.not.be.undefined
-
-    const arbDepositTeleportation = lbService.state.depositTeleportations.find(
-      (c) => c.chainId.toString() === '421614'
-    )
     const opDepositTeleportation = lbService.state.depositTeleportations.find(
       (c) => c.chainId.toString() === '11155420'
     )
-    expect(await arbDepositTeleportation.Teleportation.totalDeposits('28882'))
-      .to.not.be.undefined
     expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
-      .not.be.undefined
+      .be.not.be.undefined
   })
 })

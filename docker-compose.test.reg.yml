@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: bash -c "sleep 60; npm test"
+    command: bash -c "sleep 60; pnpm test"
     environment:
       LIGHTBRIDGE_MODE: "testnets"
       LIGHTBRIDGE_REJECT_UNAUTHORIZED: "true"

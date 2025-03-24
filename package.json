@@ -9,15 +9,17 @@
    "scripts": {
       "start": "ts-node  ./src/exec/run.ts",
       "start:prod": "node ./build/src/exec/run.js",
-      "build": "yarn build:contracts && yarn build:typescript",
+      "build": "pnpm build:contracts && pnpm build:typescript",
       "build:contracts": "hardhat compile",
       "build:typescript": "tsc -p ./tsconfig.json",
       "clean": "rimraf  dist/ ./tsconfig.tsbuildinfo",
-      "lint": "yarn lint:fix && yarn lint:check",
+      "lint": "pnpm lint:fix && pnpm lint:check",
       "lint:fix": "prettier --config .prettierrc.json --write \"{src,exec,test}/**/*.ts\"",
       "lint:check": "tslint --format stylish --project .",
       "db:start": "docker run -e POSTGRES_DB=lightbridge -e POSTGRES_PASSWORD=abcdef -p 5432:5432 postgres",
-      "test": "hardhat test test/lightbridge.integration.spec.ts test/lightbridge.unit.spec.ts --show-stack-traces",
+      "test": "pnpm test:unit && pnpm test:e2e",
+      "test:unit": "hardhat test test/lightbridge.unit.spec.ts --show-stack-traces",
+      "test:e2e": "hardhat test test/lightbridge.integration.spec.ts --show-stack-traces",
       "test:paralell": "hardhat test test/lightbridge.parallel.spec.ts --show-stack-traces",
       "test:docker": "docker-compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml up --abort-on-container-exit",
       "test:docker:paralell": "docker-compose -f docker-compose.test.base.yml -f docker-compose.test.par.yml up --abort-on-container-exit",
@@ -51,7 +53,7 @@
    "dependencies": {
       "@bobanetwork/aws-kms": "^1.0.1",
       "@bobanetwork/core_contracts": "0.5.12",
-      "@bobanetwork/graphql-utils": "^1.1.6",
+      "@bobanetwork/graphql-utils": "1.1.10",
       "@bobanetwork/light-bridge-chains": "^1.1.2",
       "@eth-optimism/common-ts": "0.2.2",
       "@openzeppelin/contracts": "4.3.2",
@@ -66,7 +68,7 @@
    },
    "husky": {
       "hooks": {
-         "pre-commit": "yarn build && yarn lint && yarn depcheck"
+         "pre-commit": "pnpm build && pnpm lint && pnpm depcheck"
       }
    }
 }
