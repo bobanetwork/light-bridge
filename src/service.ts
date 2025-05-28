@@ -307,8 +307,26 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     const depositChainId = depositTeleportation.chainId
     // parse events
     if (events.length === 0) {
-      // update the deposit info if no events are found
-      await this._putDepositInfo(depositChainId, latestBlock)
+      // Don't advance too close to latest block to account for subgraph lag
+      // Leave a buffer of blocks to ensure subgraph has time to index new transactions
+      
+      // current buffer in blocks (safety margin)
+      const BLOCK_CONFIRMATION_BUFFER = 25
+      const safeBlockToAdvanceTo = Math.max(
+        latestBlock - BLOCK_CONFIRMATION_BUFFER,
+        await this._getDepositInfo(depositChainId.toString())
+      )
+      
+      if (safeBlockToAdvanceTo > await this._getDepositInfo(depositChainId.toString())) {
+        await this._putDepositInfo(depositChainId, safeBlockToAdvanceTo)
+        this.logger.debug(`Advanced block pointer to ${safeBlockToAdvanceTo} (${BLOCK_CONFIRMATION_BUFFER} blocks behind latest ${latestBlock})`, {
+          depositChainId, serviceChainId: this.options.chainId
+        })
+      } else {
+        this.logger.debug(`Skipping block advancement - too close to latest block (${latestBlock})`, {
+          depositChainId, serviceChainId: this.options.chainId
+        })
+      }
     } else {
       const lastDisbursement =
         await this.state.Teleportation.totalDisbursements(depositChainId)
