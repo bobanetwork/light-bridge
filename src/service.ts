@@ -781,13 +781,39 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         lastDisbursement?.toString() // should reduce amount of invalid events
       )
     } catch (err) {
-      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err, sourceChainId, targetChainId, fromBlock, toBlock })
+      /***
+       * On error, replicate the graphql query and only return unprocessed events (depositId >= lastDisbursement)
+       */
+      this.logger.warn(`Caught GraphQL error!`, {
+        errMsg: err?.message,
+        err,
+        sourceChainId,
+        targetChainId,
+        fromBlock,
+        toBlock,
+      })
       if (contract) {
         events = await this._getAssetReceivedEventsViaQueryFilter(
           contract,
           fromBlock,
           toBlock
         )
+        if (lastDisbursement) {
+          events = events.filter(
+            (e) =>
+              BigNumber.from(e.depositId).gte(lastDisbursement) &&
+              e.toChainId.toString() === targetChainId.toString()
+          )
+          this.logger.info(
+            `Filtered contract events by lastDisbursement ${lastDisbursement.toString()}: ${
+              events.length
+            } events`,
+            {
+              sourceChainId,
+              targetChainId,
+            }
+          )
+        }
       } else {
         throw new Error(
           `GraphQL error and queryFilter not available: ${err?.message}, sourceChain: ${sourceChainId}, targetChain: ${targetChainId}, fromBlock: ${fromBlock}, toBlock: ${toBlock}`
