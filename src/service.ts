@@ -34,7 +34,7 @@ import {
   LightBridgeAssetReceivedEvent,
   lightBridgeGraphQLService,
 } from '@bobanetwork/graphql-utils'
-import { deductExitFeeIfApplicable } from './utils/misc.utils'
+import { deductExitFeeIfApplicable, hasRecentAirdrop } from './utils/misc.utils'
 
 interface LightBridgeOptions {
   l2RpcProvider: providers.StaticJsonRpcProvider
@@ -641,40 +641,54 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     return true
   }
 
-  async _airdropGas(disbursements: Disbursement[], latestBlock: number) {
+  async _airdropGas(disbursements: Disbursement[], latestBlock: number) {  
     for (const disbursement of disbursements) {
       if (await this._fulfillsAirdropConditions(disbursement)) {
-        const nativeAmount = ethers.utils.parseEther('0.0005') // Default amount
-
-        this.logger.info(
-          `Airdropping gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
-          { serviceChainId: this.options.chainId }
+        
+        const recentAirdrop = await hasRecentAirdrop(
+          disbursement.addr,
+          this.options.chainId,
+          Number(this.getAirdropConfig()?.airdropCooldownSeconds ?? 86400)
         )
-
-        try {
-          const unsignedTx: PopulatedTransaction = {
-            to: disbursement.addr,
-            value: nativeAmount,
-            gasLimit: BigNumber.from('21000'),
-          }
-          const airdropTx = await this.state.KMSSigner.sendTxViaKMS(
-            this.state.Teleportation.provider,
-            disbursement.addr,
-            nativeAmount,
-            unsignedTx
-          )
-          await airdropTx.wait()
+        
+        if (!recentAirdrop) {
+          const nativeAmount = ethers.utils.parseEther('0.0005') // Default amount
 
           this.logger.info(
-            `Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
+            `Airdropping gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
             { serviceChainId: this.options.chainId }
           )
-        } catch (error) {
-          this.logger.error(
-            `Failed to airdrop gas to ${disbursement.addr}: ${error}`,
-            {
-              serviceChainId: this.options.chainId,
+
+          try {
+            const unsignedTx: PopulatedTransaction = {
+              to: disbursement.addr,
+              value: nativeAmount,
+              gasLimit: BigNumber.from('21000'),
             }
+            const airdropTx = await this.state.KMSSigner.sendTxViaKMS(
+              this.state.Teleportation.provider,
+              disbursement.addr,
+              nativeAmount,
+              unsignedTx
+            )
+            await airdropTx.wait()
+
+            this.logger.info(
+              `Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
+              { serviceChainId: this.options.chainId }
+            )
+          } catch (error) {
+            this.logger.error(
+              `Failed to airdrop gas to ${disbursement.addr}: ${error}`,
+              {
+                serviceChainId: this.options.chainId,
+              }
+            )
+          }
+        } else {
+          this.logger.info(
+            `Cooldown active: ${disbursement.addr} has received recent activity, skipping airdrop.`,
+            { serviceChainId: this.options.chainId }
           )
         }
       } else {
