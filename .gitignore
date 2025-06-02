@@ -14,3 +14,4 @@ local-subgraphs/**/data
 local-subgraphs/**/generated
 local-subgraphs/**/build
 data/
+**/.DS_Store

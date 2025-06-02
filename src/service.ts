@@ -4,7 +4,6 @@ import {
   constants as ethersConstants,
   Contract,
   ethers,
-  EventFilter,
   PopulatedTransaction,
   providers,
 } from 'ethers'
@@ -14,7 +13,6 @@ import 'reflect-metadata'
 /* Imports: Internal */
 import { sleep } from '@eth-optimism/core-utils'
 import { BaseService } from '@eth-optimism/common-ts'
-import { getContractFactory } from '@bobanetwork/core_contracts'
 import { getBobaContractAt } from '@bobanetwork/contracts'
 
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
@@ -30,11 +28,8 @@ import {
   SupportedAssets,
   IKMSSignerConfig,
 } from '@bobanetwork/light-bridge-chains'
-import { HistoryData } from './entities/HistoryData.entity'
-import { historyDataRepository, lastAirdropRepository } from './data-source'
 import { KMSSigner } from '@bobanetwork/aws-kms'
 import { Asset, BobaChains } from '@bobanetwork/light-bridge-chains'
-import { LastAirdrop } from './entities/LastAirdrop.entity'
 import {
   LightBridgeAssetReceivedEvent,
   lightBridgeGraphQLService,
@@ -272,30 +267,27 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     depositTeleportation: DepositTeleportations,
     latestBlock: number
   ): Promise<LightBridgeAssetReceivedEvent[]> {
-    let lastBlock: number
     const depositChainId = depositTeleportation.chainId.toString()
-    try {
-      lastBlock = await this._getDepositInfo(depositChainId)
-    } catch (e) {
-      this.logger.warn(`No deposit info found in chainId - ${depositChainId}`, {
-        serviceChainId: this.options.chainId,
-      })
-      lastBlock = depositTeleportation.height
-      // store the new deposit info
-      await this._putDepositInfo(depositChainId, lastBlock)
-    }
 
+    // Get the last disbursement count from the smart contract instead of using database
     const lastDisbursement = await this.state.Teleportation.totalDisbursements(
       depositChainId
+    )
+
+    this.logger.info(
+      `Getting events for chain ${depositChainId}, lastDisbursement: ${lastDisbursement.toString()}`,
+      {
+        serviceChainId: this.options.chainId,
+      }
     )
 
     return this._getAssetReceivedEvents(
       depositTeleportation.chainId,
       this.options.chainId,
-      lastBlock,
+      depositTeleportation.height,
       latestBlock,
-      depositTeleportation.Teleportation,
-      lastDisbursement
+      lastDisbursement,
+      depositTeleportation.Teleportation
     )
   }
 
@@ -307,8 +299,10 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     const depositChainId = depositTeleportation.chainId
     // parse events
     if (events.length === 0) {
-      // update the deposit info if no events are found
-      await this._putDepositInfo(depositChainId, latestBlock)
+      this.logger.info('No events found for disbursement', {
+        depositChainId,
+        serviceChainId: this.options.chainId,
+      })
     } else {
       const lastDisbursement =
         await this.state.Teleportation.totalDisbursements(depositChainId)
@@ -390,7 +384,6 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
             'No suitable disbursement event for current network',
             { depositChainId, serviceChainId: this.options.chainId }
           )
-          await this._putDepositInfo(depositChainId, latestBlock)
         }
       } catch (e) {
         // Catch outside loop to stop at first failing depositID as all subsequent disbursements as depositId = amountDisbursements and would fail when disbursing
@@ -514,8 +507,6 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         { serviceChainId: this.options.chainId }
       )
 
-      await this._putDepositInfo(depositChainId, latestBlock)
-
       // Only do on boba l2
       if (this.getAirdropConfig()?.airdropEnabled) {
         await this._airdropGas(disbursement, latestBlock)
@@ -576,19 +567,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       )
       if (disbursements.length > 0 && !nextDisbursement) {
         this.logger.error(
-          `Could NOT recover DB state, RESETTING block number for next startup to get system back up running.`,
+          `Could NOT recover state, continuing with available disbursements.`,
           { disbursements, nextDepositIds }
         )
-        await this._putDepositInfo(
-          sourceChainId,
-          BobaChains[sourceChainId]?.height ?? 0 // for local
-        )
-        this.logger.warn(
-          `Deposit info has been RESET back to block: ${
-            BobaChains[sourceChainId]?.height ?? 0
-          } for chainId ${sourceChainId}`
-        )
-        throw new Error('Could not recover DB state, service reset initiated..')
       } else {
         this.logger.info(`Found correct disbursement to be used next: `, {
           nextDisbursement,
@@ -661,56 +642,39 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
   }
 
   async _airdropGas(disbursements: Disbursement[], latestBlock: number) {
-    const provider = this.state.Teleportation.provider
-
     for (const disbursement of disbursements) {
       if (await this._fulfillsAirdropConditions(disbursement)) {
-        const lastAirdrop = await lastAirdropRepository.findOneBy({
-          walletAddr: disbursement.addr,
-          serviceChainId: this.options.chainId,
-        })
-        const unixTimestamp = Math.floor(Date.now() / 1000)
+        const nativeAmount = ethers.utils.parseEther('0.0005') // Default amount
 
-        const airdropCooldownSeconds =
-          this.getAirdropConfig()?.airdropCooldownSeconds ?? '86400'
-        if (
-          !lastAirdrop ||
-          BigNumber.from(airdropCooldownSeconds).lt(
-            unixTimestamp - lastAirdrop.blockTimestamp
-          )
-        ) {
-          let nativeAmount = this.getAirdropConfig()?.airdropAmountWei
-          if (!nativeAmount) {
-            // default
-            nativeAmount = ethers.utils.parseEther('0.0005')
+        this.logger.info(
+          `Airdropping gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
+          { serviceChainId: this.options.chainId }
+        )
+
+        try {
+          const unsignedTx: PopulatedTransaction = {
+            to: disbursement.addr,
+            value: nativeAmount,
+            gasLimit: BigNumber.from('21000'),
           }
-
           const airdropTx = await this.state.KMSSigner.sendTxViaKMS(
-            provider,
+            this.state.Teleportation.provider,
             disbursement.addr,
-            BigNumber.from(nativeAmount.toString()), // native amount, converge types
-            { data: '0x' } as PopulatedTransaction // native transfer
+            nativeAmount,
+            unsignedTx
           )
           await airdropTx.wait()
-
-          // Save to db
-          const blockNumber = (
-            await this.state.Teleportation.provider.getBlock('latest')
-          )?.timestamp
-          const newAirdrop = new LastAirdrop()
-          newAirdrop.serviceChainId = this.options.chainId
-          newAirdrop.blockTimestamp = blockNumber
-          newAirdrop.walletAddr = disbursement.addr
-          await lastAirdropRepository.save(newAirdrop)
 
           this.logger.info(
             `Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
             { serviceChainId: this.options.chainId }
           )
-        } else {
-          this.logger.info(
-            `Cool down, user already got an airdrop within the cool down period with this wallet: ${disbursement.addr}.`,
-            { serviceChainId: this.options.chainId }
+        } catch (error) {
+          this.logger.error(
+            `Failed to airdrop gas to ${disbursement.addr}: ${error}`,
+            {
+              serviceChainId: this.options.chainId,
+            }
           )
         }
       } else {
@@ -766,8 +730,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     targetChainId: number,
     fromBlock: number,
     toBlock: number,
-    contract?: Contract,
-    lastDisbursement?: BigNumber
+    lastDisbursement: BigNumber,
+    contract?: Contract
   ): Promise<LightBridgeAssetReceivedEvent[]> {
     let events: LightBridgeAssetReceivedEvent[]
 
@@ -776,12 +740,19 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         sourceChainId,
         targetChainId,
         null,
-        lastDisbursement ? null : fromBlock, // prefer lastDisbursement over blockRange
-        lastDisbursement ? null : toBlock, // prefer lastDisbursement over blockRange
-        lastDisbursement?.toString() // should reduce amount of invalid events
+        null,
+        null,
+        lastDisbursement.toString() // use lastDisbursement for filtering
       )
     } catch (err) {
-      this.logger.warn(`Caught GraphQL error!`, { errMsg: err?.message, err, sourceChainId, targetChainId, fromBlock, toBlock })
+      this.logger.warn(`Caught GraphQL error!`, {
+        errMsg: err?.message,
+        err,
+        sourceChainId,
+        targetChainId,
+        fromBlock,
+        toBlock,
+      })
       if (contract) {
         events = await this._getAssetReceivedEventsViaQueryFilter(
           contract,
@@ -845,47 +816,5 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       )
     }
     return supportedAsset[0] // return only address
-  }
-
-  async _putDepositInfo(
-    depositChainId: number | string,
-    latestBlock: number
-  ): Promise<void> {
-    try {
-      const historyData = new HistoryData()
-      historyData.serviceChainId = this.options.chainId
-      historyData.depositChainId = depositChainId
-      historyData.depositBlockNo = latestBlock
-      if (
-        await historyDataRepository.findOneBy({
-          depositChainId,
-          serviceChainId: this.options.chainId,
-        })
-      ) {
-        await historyDataRepository.update(
-          { depositChainId, serviceChainId: this.options.chainId },
-          historyData
-        )
-      } else {
-        await historyDataRepository.save(historyData)
-      }
-    } catch (error) {
-      this.logger.error(`Failed to put depositInfo! - ${error}`, {
-        serviceChainId: this.options.chainId,
-      })
-    }
-  }
-
-  async _getDepositInfo(chainId: number | string): Promise<number> {
-    const historyData = await historyDataRepository.findOneBy({
-      serviceChainId: this.options.chainId,
-      depositChainId: chainId,
-    })
-
-    if (historyData) {
-      return historyData.depositBlockNo
-    } else {
-      throw new Error("Can't find latestBlock in depositInfo")
-    }
   }
 }

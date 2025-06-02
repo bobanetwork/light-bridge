@@ -16,7 +16,6 @@
       "lint": "yarn lint:fix && yarn lint:check",
       "lint:fix": "prettier --config .prettierrc.json --write \"{src,exec,test}/**/*.ts\"",
       "lint:check": "tslint --format stylish --project .",
-      "db:start": "docker run -e POSTGRES_DB=lightbridge -e POSTGRES_PASSWORD=abcdef -p 5432:5432 postgres",
       "test": "hardhat test test/lightbridge.integration.spec.ts test/lightbridge.unit.spec.ts --show-stack-traces",
       "test:paralell": "hardhat test test/lightbridge.parallel.spec.ts --show-stack-traces",
       "test:docker": "docker-compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml up --abort-on-container-exit",
