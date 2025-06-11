@@ -671,7 +671,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
             }
             const airdropTx = await this.state.KMSSigner.sendTxViaKMS(
               this.state.Teleportation.provider,
-              disbursement.addr,
+              null,
               nativeAmount,
               unsignedTx
             )
