@@ -520,9 +520,9 @@ describe('lightbridge', () => {
       )
       expect(events[0].sourceChainId.toString()).to.be.eq(chainId.toString())
       expect(events[0].toChainId.toString()).to.be.eq(chainId.toString())
-      expect(events[0].depositId.toString()).to.be.gte('0') // Use gte since depositId may vary
+      expect(parseInt(events[0].depositId.toString())).to.be.gte(0) // Fix: Parse string to number for comparison
       expect(events[0].emitter.toLowerCase()).to.be.eq(signerAddr.toLowerCase())
-      expect(events[0].amount).to.be.eq(utils.parseEther('11'))
+      expect(BigNumber.from(events[0].amount)).to.be.eq(utils.parseEther('11')) // Fix: Compare as BigNumber
     })
 
     it('should disburse BOBA token for a single event', async () => {
