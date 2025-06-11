@@ -29,7 +29,6 @@ import {
 import dotenv from 'dotenv'
 import { delay } from '../src/utils/misc.utils'
 import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
-import { log } from 'console'
 
 dotenv.config()
 
