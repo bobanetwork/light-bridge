@@ -8,7 +8,6 @@ import {
   providers,
 } from 'ethers'
 import { orderBy } from 'lodash'
-import 'reflect-metadata'
 
 /* Imports: Internal */
 import { sleep } from '@eth-optimism/core-utils'

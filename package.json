@@ -21,7 +21,6 @@
       "test:docker": "docker-compose -f docker-compose.test.base.yml -f docker-compose.test.reg.yml up --abort-on-container-exit",
       "test:docker:paralell": "docker-compose -f docker-compose.test.base.yml -f docker-compose.test.par.yml up --abort-on-container-exit",
       "test:coverage": "nyc hardhat test && nyc merge .nyc_output coverage.json",
-      "typeorm": "typeorm-ts-node-commonjs",
       "depcheck": "npx depcheck",
       "prepare": "husky install"
    },
@@ -58,10 +57,7 @@
       "bcfg": "^0.2.1",
       "dotenv": "^8.6.0",
       "ethers": "^5.5.4",
-      "lodash": "^4.17.21",
-      "pg": "^8.4.0",
-      "reflect-metadata": "^0.1.13",
-      "typeorm": "0.3.16"
+      "lodash": "^4.17.21"
    },
    "husky": {
       "hooks": {
