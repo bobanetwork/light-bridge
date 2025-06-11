@@ -613,8 +613,6 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
       )?.layer ?? BobaChains[disbursement.sourceChainId]?.layer
       
-    console.log(`AIRDROP CHECK: addr=${disbursement.addr}, nativeBalance=${nativeBalance.toString()}, token=${disbursement.token}, sourceLayer=${sourceLayer}`)
-    
     if (sourceLayer === EAirdropSource.PROHIBIT) {
       this.logger.info(`Not airdropping as sourceNetwork is prohibited.`, {
         sourceChainId: disbursement.sourceChainId,
@@ -624,7 +622,6 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     }
 
     if (nativeBalance.gt(this.getAirdropConfig()?.airdropAmountWei)) {
-      console.log(`AIRDROP: Skipping - user has balance ${nativeBalance.toString()} > ${this.getAirdropConfig()?.airdropAmountWei}`)
       this.logger.info(
         `Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`,
         { serviceChainId: this.options.chainId }
@@ -632,14 +629,12 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       return false
     }
     if (disbursement.token === ethers.constants.AddressZero) {
-      console.log(`AIRDROP: Skipping - bridging native asset`)
       this.logger.info(
         `Not airdropping as wallet is briding asset that is used to pay for gas on the destination network: ${disbursement.token}, wallet: ${disbursement.addr}`,
         { serviceChainId: this.options.chainId }
       )
       return false
     }
-    console.log(`AIRDROP: Conditions met!`)
     this.logger.info(`Airdropping for: ${JSON.stringify(disbursement)}`, {
       serviceChainId: this.options.chainId,
     })
@@ -664,16 +659,11 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
           )
 
           try {
-            const unsignedTx: PopulatedTransaction = {
-              to: disbursement.addr,
-              value: nativeAmount,
-              gasLimit: BigNumber.from('21000'),
-            }
             const airdropTx = await this.state.KMSSigner.sendTxViaKMS(
               this.state.Teleportation.provider,
-              null,
+              disbursement.addr,
               nativeAmount,
-              unsignedTx
+              { data: '0x' } as PopulatedTransaction // minimal transaction for native transfer
             )
             await airdropTx.wait()
 
