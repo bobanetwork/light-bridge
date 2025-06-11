@@ -69,8 +69,19 @@ export async function hasRecentAirdrop(
       EGraphQLService.LightBridge
     )
 
+    // Check if we have valid data
+    if (!result || !result.data || !Array.isArray(result.data.disbursementSuccesses)) {
+      console.warn(
+        `GraphQL query returned invalid data for airdrop cooldown check: ${walletAddress}. Assuming no recent activity.`
+      )
+      console.log(
+        `Airdrop cooldown check completed for ${walletAddress} - no recent activity, allowing airdrop`
+      )
+      return false
+    }
+
     const recentDisbursements =
-      result?.data?.disbursementSuccesses?.filter((event: any) => {
+      result.data.disbursementSuccesses.filter((event: any) => {
         const eventTimestamp = parseInt(event.timestamp_?.toString() || '0')
         return eventTimestamp >= cooldownStartTimestamp
       }) || []
@@ -92,6 +103,9 @@ export async function hasRecentAirdrop(
       error.message
     )
     // On error, be conservative and assume no recent airdrop (allow airdrop)
+    console.log(
+      `Airdrop cooldown check completed for ${walletAddress} - error occurred, allowing airdrop`
+    )
     return false
   }
 }

@@ -63,6 +63,8 @@ interface LightBridgeOptions {
 const optionSettings = {}
 
 export class LightBridgeService extends BaseService<LightBridgeOptions> {
+  private recentAirdrops: Map<string, number> = new Map() // walletAddress -> timestamp
+
   constructor(options: LightBridgeOptions) {
     super('Teleportation', options, optionSettings)
   }
@@ -641,16 +643,54 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     return true
   }
 
+  /** @dev Helper function to check if an address has received recent airdrops using in-memory tracking */
+  private hasRecentAirdropInMemory(
+    walletAddress: string,
+    cooldownSeconds: number
+  ): boolean {
+    const currentTimestamp = Math.floor(Date.now() / 1000)
+    const lastAirdropTime = this.recentAirdrops.get(walletAddress.toLowerCase())
+    
+    if (!lastAirdropTime) {
+      return false
+    }
+    
+    const timeSinceLastAirdrop = currentTimestamp - lastAirdropTime
+    return timeSinceLastAirdrop < cooldownSeconds
+  }
+
+  /** @dev Helper function to record an airdrop in memory */
+  private recordAirdrop(walletAddress: string): void {
+    const currentTimestamp = Math.floor(Date.now() / 1000)
+    this.recentAirdrops.set(walletAddress.toLowerCase(), currentTimestamp)
+    
+    // Clean up old entries (older than 24 hours) to prevent memory bloat
+    const cutoffTime = currentTimestamp - 86400
+    for (const [address, timestamp] of this.recentAirdrops.entries()) {
+      if (timestamp < cutoffTime) {
+        this.recentAirdrops.delete(address)
+      }
+    }
+  }
+
   async _airdropGas(disbursements: Disbursement[], latestBlock: number) {
     for (const disbursement of disbursements) {
       if (await this._fulfillsAirdropConditions(disbursement)) {
-        const recentAirdrop = await hasRecentAirdrop(
+        const cooldownSeconds = Number(this.getAirdropConfig()?.airdropCooldownSeconds ?? 86400)
+        
+        // Check both GraphQL and in-memory cache for recent airdrops
+        const recentAirdropGraphQL = await hasRecentAirdrop(
           disbursement.addr,
           this.options.chainId,
-          Number(this.getAirdropConfig()?.airdropCooldownSeconds ?? 86400)
+          cooldownSeconds
+        )
+        
+        const recentAirdropInMemory = this.hasRecentAirdropInMemory(
+          disbursement.addr,
+          cooldownSeconds
         )
 
-        if (!recentAirdrop) {
+        if (!recentAirdropGraphQL && !recentAirdropInMemory) {
           const nativeAmount = BigNumber.from(this.getAirdropConfig()?.airdropAmountWei ?? ethers.utils.parseEther('0.0005'))
 
           this.logger.info(
@@ -666,6 +706,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
               { data: '0x' } as PopulatedTransaction // minimal transaction for native transfer
             )
             await airdropTx.wait()
+
+            // Record the airdrop in memory to enforce cooldown
+            this.recordAirdrop(disbursement.addr)
 
             this.logger.info(
               `Successfully airdropped gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
