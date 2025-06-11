@@ -60,7 +60,9 @@ describe('lightbridge', () => {
   const defaultMaxTransferPerDay = utils.parseEther('100000')
 
   // Use localhost when running locally, Docker hostnames when in container environment
-  const isInDocker = process.env.LIGHTBRIDGE_MODE === 'testnets' || process.env.NODE_ENV === 'docker'
+  const isInDocker =
+    process.env.LIGHTBRIDGE_MODE === 'testnets' ||
+    process.env.NODE_ENV === 'docker'
 
   after(async () => {
     // Reset blockchain state
@@ -72,7 +74,7 @@ describe('lightbridge', () => {
   before(async () => {
     providerUrl = 'http://anvil_eth:8545'
     providerBnbUrl = 'http://anvil_bnb:8545'
-    
+
     provider = new providers.JsonRpcProvider(providerUrl)
     providerBnb = new providers.JsonRpcProvider(providerBnbUrl)
     console.warn('Using provider: ', providerUrl)
@@ -2408,10 +2410,12 @@ describe('service startup unit tests', () => {
   const createTestnetLightBridgeService = async () => {
     const chainIdToUse = 28882
     const networksToWatch = selectedNetworkFilter(chainIdToUse)
-    
+
     // Use localhost when running locally, Docker hostnames when in container environment
-    const isInDocker = process.env.LIGHTBRIDGE_MODE === 'testnets' || process.env.NODE_ENV === 'docker'
-    
+    const isInDocker =
+      process.env.LIGHTBRIDGE_MODE === 'testnets' ||
+      process.env.NODE_ENV === 'docker'
+
     const lbService = new LightBridgeService({
       // sometimes the same network with a different chain id is used
       l2RpcProvider: new providers.JsonRpcProvider(BobaChains[chainIdToUse]),

@@ -640,16 +640,15 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     return true
   }
 
-  async _airdropGas(disbursements: Disbursement[], latestBlock: number) {  
+  async _airdropGas(disbursements: Disbursement[], latestBlock: number) {
     for (const disbursement of disbursements) {
       if (await this._fulfillsAirdropConditions(disbursement)) {
-        
         const recentAirdrop = await hasRecentAirdrop(
           disbursement.addr,
           this.options.chainId,
           Number(this.getAirdropConfig()?.airdropCooldownSeconds ?? 86400)
         )
-        
+
         if (!recentAirdrop) {
           const nativeAmount = ethers.utils.parseEther('0.0005') // Default amount
 

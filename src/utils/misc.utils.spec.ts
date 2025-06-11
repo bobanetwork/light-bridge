@@ -18,11 +18,7 @@ describe('hasRecentAirdrop', () => {
     it('should handle different wallet addresses', async () => {
       const walletAddress = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'
 
-      const result = await hasRecentAirdrop(
-        walletAddress,
-        56288,
-        3600 
-      )
+      const result = await hasRecentAirdrop(walletAddress, 56288, 3600)
 
       expect(result).to.be.false
     })
@@ -64,11 +60,7 @@ describe('hasRecentAirdrop', () => {
       expect(result).to.be.false
     })
     it('should handle empty string addresses gracefully', async () => {
-      const result = await hasRecentAirdrop(
-        '',
-        288,
-        86400
-      )
+      const result = await hasRecentAirdrop('', 288, 86400)
 
       expect(result).to.be.false
     })
@@ -121,12 +113,12 @@ describe('hasRecentAirdrop', () => {
             {
               id: '0x123',
               to: '0x1234567890123456789012345678901234567890',
-              timestamp_: recentTimestamp.toString()
-            }
-          ]
+              timestamp_: recentTimestamp.toString(),
+            },
+          ],
         },
         loading: false,
-        networkStatus: 7
+        networkStatus: 7,
       }
 
       lightBridgeGraphQLService.conductQuery = async () => mockResponse
@@ -149,12 +141,12 @@ describe('hasRecentAirdrop', () => {
             {
               id: '0x456',
               to: '0x1234567890123456789012345678901234567890',
-              timestamp_: oldTimestamp.toString()
-            }
-          ]
+              timestamp_: oldTimestamp.toString(),
+            },
+          ],
         },
         loading: false,
-        networkStatus: 7
+        networkStatus: 7,
       }
 
       lightBridgeGraphQLService.conductQuery = async () => mockResponse
@@ -170,10 +162,10 @@ describe('hasRecentAirdrop', () => {
     it('should return false when no disbursements exist', async () => {
       const mockResponse = {
         data: {
-          disbursementSuccesses: []
+          disbursementSuccesses: [],
         },
         loading: false,
-        networkStatus: 7
+        networkStatus: 7,
       }
 
       lightBridgeGraphQLService.conductQuery = async () => mockResponse
@@ -210,17 +202,17 @@ describe('hasRecentAirdrop', () => {
             {
               id: '0x789',
               to: '0x1234567890123456789012345678901234567890',
-              timestamp_: recentTimestamp.toString()
+              timestamp_: recentTimestamp.toString(),
             },
             {
               id: '0xabc',
               to: '0x1234567890123456789012345678901234567890',
-              timestamp_: oldTimestamp.toString()
-            }
-          ]
+              timestamp_: oldTimestamp.toString(),
+            },
+          ],
         },
         loading: false,
-        networkStatus: 7
+        networkStatus: 7,
       }
 
       lightBridgeGraphQLService.conductQuery = async () => mockResponse

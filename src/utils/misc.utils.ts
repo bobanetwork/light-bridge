@@ -38,15 +38,17 @@ export async function hasRecentAirdrop(
   try {
     const currentTimestamp = Math.floor(Date.now() / 1000)
     const cooldownStartTimestamp = currentTimestamp - cooldownSeconds
-    
-    console.log(`Checking airdrop cooldown for ${walletAddress} - querying disbursements`)
-  
+
+    console.log(
+      `Checking airdrop cooldown for ${walletAddress} - querying disbursements`
+    )
+
     const query = gql`
       query GetDisbursements($toAddr: String!) {
         disbursementSuccesses(
-          where: { to: $toAddr },
-          first: 10,
-          orderBy: timestamp_,
+          where: { to: $toAddr }
+          first: 10
+          orderBy: timestamp_
           orderDirection: desc
         ) {
           id
@@ -57,7 +59,7 @@ export async function hasRecentAirdrop(
     `
 
     const variables = {
-      toAddr: walletAddress.toLowerCase()
+      toAddr: walletAddress.toLowerCase(),
     }
 
     const result = await lightBridgeGraphQLService.conductQuery(
@@ -67,19 +69,28 @@ export async function hasRecentAirdrop(
       EGraphQLService.LightBridge
     )
 
-    const recentDisbursements = result?.data?.disbursementSuccesses?.filter((event: any) => {
-      const eventTimestamp = parseInt(event.timestamp_?.toString() || '0')
-      return eventTimestamp >= cooldownStartTimestamp
-    }) || []
+    const recentDisbursements =
+      result?.data?.disbursementSuccesses?.filter((event: any) => {
+        const eventTimestamp = parseInt(event.timestamp_?.toString() || '0')
+        return eventTimestamp >= cooldownStartTimestamp
+      }) || []
 
     const hasRecentDisbursement = recentDisbursements.length > 0
 
-    console.log(`Airdrop cooldown check completed for ${walletAddress} - ${hasRecentDisbursement ? 'recent activity found, blocking airdrop' : 'no recent activity, allowing airdrop'}`)
-    
+    console.log(
+      `Airdrop cooldown check completed for ${walletAddress} - ${
+        hasRecentDisbursement
+          ? 'recent activity found, blocking airdrop'
+          : 'no recent activity, allowing airdrop'
+      }`
+    )
+
     return hasRecentDisbursement
-    
   } catch (error) {
-    console.warn(`Error checking airdrop cooldown for ${walletAddress}:`, error.message)
+    console.warn(
+      `Error checking airdrop cooldown for ${walletAddress}:`,
+      error.message
+    )
     // On error, be conservative and assume no recent airdrop (allow airdrop)
     return false
   }

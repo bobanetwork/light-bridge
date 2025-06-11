@@ -51,8 +51,10 @@ describe('lightbridge parallel', () => {
 
   before(async () => {
     // Use localhost when running locally, Docker hostnames when in container environment
-    const isInDocker = process.env.LIGHTBRIDGE_MODE === 'testnets' || process.env.NODE_ENV === 'docker'
-    
+    const isInDocker =
+      process.env.LIGHTBRIDGE_MODE === 'testnets' ||
+      process.env.NODE_ENV === 'docker'
+
     providerUrl = 'http://anvil_eth:8545'
     provider = new providers.StaticJsonRpcProvider(providerUrl)
 
