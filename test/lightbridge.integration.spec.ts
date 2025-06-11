@@ -29,6 +29,7 @@ import {
 import dotenv from 'dotenv'
 import { delay } from '../src/utils/misc.utils'
 import { selectedNetworkFilter } from '../src/exec/lightbridge-instance'
+import { log } from 'console'
 
 dotenv.config()
 
@@ -2479,6 +2480,9 @@ describe('service startup unit tests', () => {
     const opDepositTeleportation = lbService.state.depositTeleportations.find(
       (c) => c.chainId.toString() === '11155420'
     )
+
+    console.log('arbDepositTeleportation', arbDepositTeleportation)
+    console.log('opDepositTeleportation', opDepositTeleportation)
 
     // Only test Arbitrum Sepolia if it successfully initialized
     if (arbDepositTeleportation) {
