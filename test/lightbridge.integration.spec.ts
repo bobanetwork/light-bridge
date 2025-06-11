@@ -251,7 +251,8 @@ describe('lightbridge', () => {
         chainId,
         0,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
       expect(events.length).to.be.eq(0)
 
@@ -275,7 +276,8 @@ describe('lightbridge', () => {
         chainId,
         0,
         latestBlockNumber,
-        latestLastDisbursement
+        latestLastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
 
       expect(latestEvents.length).to.be.eq(1)
@@ -344,7 +346,8 @@ describe('lightbridge', () => {
         chainId,
         0,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
 
       let disbursement = []
@@ -411,7 +414,8 @@ describe('lightbridge', () => {
         chainId,
         startBlockNumber,
         endBlockNumber,
-        latestLastDisbursement
+        latestLastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
 
       expect(latestEvents.length).to.be.eq(15)
@@ -430,7 +434,8 @@ describe('lightbridge', () => {
         chainId,
         0,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
 
       let disbursement = []
@@ -784,7 +789,8 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridgeBNB // Add contract parameter for fallback
       )
 
       console.log(
@@ -882,7 +888,8 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridgeBNB // Add contract parameter for fallback
       )
 
       console.log(
@@ -988,7 +995,8 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
 
       console.log(
@@ -1232,7 +1240,8 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridgeBNB // Add contract parameter for fallback
       )
 
       console.log(
@@ -1350,7 +1359,8 @@ describe('lightbridge', () => {
         chainIdBobaBnb,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridge // Add contract parameter for fallback
       )
 
       console.log('Teleportation: ', LightBridge.address)
@@ -1586,7 +1596,8 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridgeBNB // Add contract parameter for fallback
       )
 
       console.log(
@@ -1823,7 +1834,8 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridgeBNB // Add contract parameter for fallback
       )
 
       console.log(
@@ -2065,7 +2077,8 @@ describe('lightbridge', () => {
         chainId,
         preBlockNumber,
         blockNumber,
-        lastDisbursement
+        lastDisbursement,
+        LightBridgeBNB // Add contract parameter for fallback
       )
 
       console.log(
