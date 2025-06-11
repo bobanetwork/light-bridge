@@ -786,7 +786,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         depositId: e.depositId.toString(),
         amount: e.amount.toString(),
         block_number: e.block_number.toString(),
-        timestamp_: e.timestamp_.toString(),
+        timestamp_: e.timestamp_?.toString() || '0', // Handle undefined timestamp_ safely
       }
     })
   }
