@@ -154,18 +154,24 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
           chainId,
           bobaTokenContractAddr: defaultAssetAddr,
           serviceChainId: this.options.chainId,
+          chainUrl: chain.url,
+          chainName: chain.name,
         })
 
+        this.logger.info(`Attempting to connect to chain ${chainId} at ${chain.url}`)
         const depositTeleportation = await getBobaContractAt(
           'Teleportation',
           chain.teleportationAddress,
           new providers.StaticJsonRpcProvider(chain.url)
         )
+        this.logger.info(`Successfully connected to chain ${chainId}`)
 
+        this.logger.info(`Checking if tokens are supported on chain ${chainId}`)
         const isSupported = await this.state.Teleportation.supportedTokens(
           defaultAssetAddr,
           chainId
         )
+        this.logger.info(`Support check result for chain ${chainId}:`, { isSupported })
 
         let noDefaultAssetSupported = !isSupported || !isSupported[0]
         if (
@@ -229,10 +235,17 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       } catch (err) {
         this.logger.error(
           `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`,
-          { serviceChainId: this.options.chainId, err }
+          { serviceChainId: this.options.chainId, err: err.message, fullError: err }
         )
       }
     }
+    
+    this.logger.info('Final getSupportedNetworks results:', {
+      supportedChainsCount: this.state.supportedChains.length,
+      supportedChainIds: this.state.supportedChains.map(c => c.chainId),
+      depositTeleportationsCount: this.state.depositTeleportations.length,
+      depositTeleportationChainIds: this.state.depositTeleportations.map(d => d.chainId),
+    })
   }
 
   protected async _start(): Promise<void> {
