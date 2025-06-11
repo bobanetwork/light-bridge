@@ -650,7 +650,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         )
 
         if (!recentAirdrop) {
-          const nativeAmount = ethers.utils.parseEther('0.0005') // Default amount
+          const nativeAmount = BigNumber.from(this.getAirdropConfig()?.airdropAmountWei ?? ethers.utils.parseEther('0.0005')) // Use configured amount
 
           this.logger.info(
             `Airdropping gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
