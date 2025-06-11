@@ -612,6 +612,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       this.state.supportedChains.find(
         (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
       )?.layer ?? BobaChains[disbursement.sourceChainId]?.layer
+      
+    console.log(`AIRDROP CHECK: addr=${disbursement.addr}, nativeBalance=${nativeBalance.toString()}, token=${disbursement.token}, sourceLayer=${sourceLayer}`)
+    
     if (sourceLayer === EAirdropSource.PROHIBIT) {
       this.logger.info(`Not airdropping as sourceNetwork is prohibited.`, {
         sourceChainId: disbursement.sourceChainId,
@@ -621,6 +624,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     }
 
     if (nativeBalance.gt(this.getAirdropConfig()?.airdropAmountWei)) {
+      console.log(`AIRDROP: Skipping - user has balance ${nativeBalance.toString()} > ${this.getAirdropConfig()?.airdropAmountWei}`)
       this.logger.info(
         `Not airdropping as wallet has native balance on destination network: ${nativeBalance}, wallet: ${disbursement.addr}`,
         { serviceChainId: this.options.chainId }
@@ -628,12 +632,14 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       return false
     }
     if (disbursement.token === ethers.constants.AddressZero) {
+      console.log(`AIRDROP: Skipping - bridging native asset`)
       this.logger.info(
         `Not airdropping as wallet is briding asset that is used to pay for gas on the destination network: ${disbursement.token}, wallet: ${disbursement.addr}`,
         { serviceChainId: this.options.chainId }
       )
       return false
     }
+    console.log(`AIRDROP: Conditions met!`)
     this.logger.info(`Airdropping for: ${JSON.stringify(disbursement)}`, {
       serviceChainId: this.options.chainId,
     })
@@ -650,10 +656,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
         )
 
         if (!recentAirdrop) {
-          const airdropConfig = this.getAirdropConfig()
-          console.log('DEBUG: airdropConfig:', JSON.stringify(airdropConfig))
-          console.log('DEBUG: airdropAmountWei:', airdropConfig?.airdropAmountWei?.toString())
-          const nativeAmount = BigNumber.from(airdropConfig?.airdropAmountWei ?? ethers.utils.parseEther('0.0005')) // Use configured amount
+          const nativeAmount = BigNumber.from(this.getAirdropConfig()?.airdropAmountWei ?? ethers.utils.parseEther('0.0005'))
 
           this.logger.info(
             `Airdropping gas to ${disbursement.addr}, amount: ${nativeAmount}.`,
