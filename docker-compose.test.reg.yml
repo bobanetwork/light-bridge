@@ -3,7 +3,6 @@ version: "3.8"
 services:
   lightbridge:
     depends_on:
-      - lightbridge_db
       - kms
       - anvil_eth
       - anvil_bnb
@@ -24,6 +23,3 @@ services:
       LIGHTBRIDGE_AWS_KMS_KEY_ID: "lb_disburser_pk"
       LIGHTBRIDGE_AWS_KMS_REGION: "us-east-1"
       LIGHTBRIDGE_AWS_KMS_ENDPOINT: "http://kms:8888/"
-      # DB
-      LIGHTBRIDGE_POSTGRES_PASSWORD: "abcdef"
-      LIGHTBRIDGE_POSTGRES_DB_HOST: "lightbridge_db" # always use local instance for tests

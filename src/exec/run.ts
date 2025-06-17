@@ -12,28 +12,11 @@ import {
 } from '@bobanetwork/light-bridge-chains'
 
 /* Imports: Interface */
-import { AppDataSource } from '../data-source'
-import { HistoryData } from '../entities/HistoryData.entity'
-import { Init1687802800701 } from '../migrations/1687802800701-00_Init'
-import { LastAirdrop } from '../entities/LastAirdrop.entity'
-import { LastAirdrop1687802800701 } from '../migrations/1687802800701-01_LastAirdrop'
 import { startLightBridgeForNetwork } from './lightbridge-instance'
 
 dotenv.config()
 
 const main = async () => {
-  if (!AppDataSource.isInitialized) {
-    AppDataSource.setOptions({
-      migrationsRun: true,
-      logging: false,
-      synchronize: false,
-      entities: [HistoryData, LastAirdrop],
-      migrations: [Init1687802800701, LastAirdrop1687802800701],
-    })
-    await AppDataSource.initialize() // initialize DB connection
-  }
-  console.log('Database initialized: ', AppDataSource.isInitialized)
-
   const config: Bcfg = new Config('teleportation')
   config.load({
     env: true,

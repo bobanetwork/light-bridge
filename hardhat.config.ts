@@ -53,7 +53,7 @@ const config: HardhatUserConfig & {etherscan: {apiKey: any, customChains: any}} 
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     arb_sepolia: {
-      url: 'https://public.stackup.sh/api/v1/node/arbitrum-sepolia',
+      url: 'https://arbitrum-sepolia.gateway.tenderly.co',
       accounts: [process.env.DEPLOYER_PK ?? LOCAL_PK],
     },
     bsc_testnet: {

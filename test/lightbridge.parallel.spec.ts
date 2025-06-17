@@ -13,7 +13,6 @@ import {
   EAirdropSource,
 } from '@bobanetwork/light-bridge-chains'
 import { delay } from '../src/utils/misc.utils'
-import { AppDataSource } from '../src/data-source'
 import { ethers } from 'hardhat'
 import LightBridgeJson from '../artifacts/contracts/LightBridge.sol/LightBridge.json'
 import L1ERC20Json from '../artifacts/contracts/test-helpers/L1ERC20.sol/L1ERC20.json'
@@ -51,12 +50,10 @@ describe('lightbridge parallel', () => {
   }
 
   before(async () => {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize()
-    } else {
-      await AppDataSource.dropDatabase()
-    }
-    await AppDataSource.synchronize(true) // drops database and recreates
+    // Use localhost when running locally, Docker hostnames when in container environment
+    const isInDocker =
+      process.env.LIGHTBRIDGE_MODE === 'testnets' ||
+      process.env.NODE_ENV === 'docker'
 
     providerUrl = 'http://anvil_eth:8545'
     provider = new providers.StaticJsonRpcProvider(providerUrl)
@@ -243,7 +240,7 @@ describe('lightbridge parallel', () => {
       LIGHTBRIDGE_AWS_KMS_ACCESS_KEY: '1',
       LIGHTBRIDGE_AWS_KMS_SECRET_KEY: '2',
       LIGHTBRIDGE_AWS_KMS_KEY_ID: 'lb_disburser_pk_2',
-      LIGHTBRIDGE_AWS_KMS_ENDPOINT: 'http://kms:8888',
+      LIGHTBRIDGE_AWS_KMS_ENDPOINT: 'http://kms:8888/',
       LIGHTBRIDGE_AWS_KMS_REGION: 'us-east-1',
       __LOCAL_NETWORKS: JSON.stringify(__LOCAL_NETWORKS),
     }
