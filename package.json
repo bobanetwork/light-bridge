@@ -9,11 +9,11 @@
    "scripts": {
       "start": "ts-node  ./src/exec/run.ts",
       "start:prod": "node ./build/src/exec/run.js",
-      "build": "yarn build:contracts && yarn build:typescript",
+      "build": "pnpm build:contracts && pnpm build:typescript",
       "build:contracts": "hardhat compile",
       "build:typescript": "tsc -p ./tsconfig.json",
       "clean": "rimraf  dist/ ./tsconfig.tsbuildinfo",
-      "lint": "yarn lint:fix && yarn lint:check",
+      "lint": "pnpm lint:fix && pnpm lint:check",
       "lint:fix": "prettier --config .prettierrc.json --write \"{src,exec,test}/**/*.ts\"",
       "lint:check": "tslint --format stylish --project .",
       "test": "hardhat test test/lightbridge.integration.spec.ts test/lightbridge.unit.spec.ts --show-stack-traces",
@@ -41,14 +41,15 @@
       "hardhat": "^2.19.1",
       "husky": "^8.0.3",
       "mocha": "^8.3.1",
+      "prettier": "^3.5.3",
       "prompt-sync": "^4.2.0",
       "ts-node": "^10.9.1",
       "tslint": "^6.1.3",
       "typescript": "^4.5.2"
    },
    "dependencies": {
+      "@apollo/client": "^3.13.8",
       "@bobanetwork/aws-kms": "^1.0.1",
-      "@bobanetwork/core_contracts": "0.5.12",
       "@bobanetwork/graphql-utils": "^1.1.6",
       "@bobanetwork/light-bridge-chains": "^1.1.2",
       "@eth-optimism/common-ts": "0.2.2",
@@ -61,7 +62,8 @@
    },
    "husky": {
       "hooks": {
-         "pre-commit": "yarn build && yarn lint && yarn depcheck"
+         "pre-commit": "pnpm build && pnpm lint && pnpm depcheck"
       }
-   }
+   },
+   "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
 }

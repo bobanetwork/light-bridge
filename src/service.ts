@@ -158,7 +158,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
           chainName: chain.name,
         })
 
-        this.logger.info(`Attempting to connect to chain ${chainId} at ${chain.url}`)
+        this.logger.info(
+          `Attempting to connect to chain ${chainId} at ${chain.url}`
+        )
         const depositTeleportation = await getBobaContractAt(
           'Teleportation',
           chain.teleportationAddress,
@@ -171,7 +173,9 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
           defaultAssetAddr,
           chainId
         )
-        this.logger.info(`Support check result for chain ${chainId}:`, { isSupported })
+        this.logger.info(`Support check result for chain ${chainId}:`, {
+          isSupported,
+        })
 
         let noDefaultAssetSupported = !isSupported || !isSupported[0]
         if (
@@ -235,16 +239,22 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       } catch (err) {
         this.logger.error(
           `Could not initialize network to disburse on: ${chain.chainId}, ${chain.url}, ${chain.name}`,
-          { serviceChainId: this.options.chainId, err: err.message, fullError: err }
+          {
+            serviceChainId: this.options.chainId,
+            err: err.message,
+            fullError: err,
+          }
         )
       }
     }
-    
+
     this.logger.info('Final getSupportedNetworks results:', {
       supportedChainsCount: this.state.supportedChains.length,
-      supportedChainIds: this.state.supportedChains.map(c => c.chainId),
+      supportedChainIds: this.state.supportedChains.map((c) => c.chainId),
       depositTeleportationsCount: this.state.depositTeleportations.length,
-      depositTeleportationChainIds: this.state.depositTeleportations.map(d => d.chainId),
+      depositTeleportationChainIds: this.state.depositTeleportations.map(
+        (d) => d.chainId
+      ),
     })
   }
 
@@ -284,9 +294,8 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
     const depositChainId = depositTeleportation.chainId.toString()
 
     // Get the last disbursement count from the smart contract instead of using database
-    const lastDisbursement = await this.state.Teleportation.totalDisbursements(
-      depositChainId
-    )
+    const lastDisbursement =
+      await this.state.Teleportation.totalDisbursements(depositChainId)
 
     this.logger.info(
       `Getting events for chain ${depositChainId}, lastDisbursement: ${lastDisbursement.toString()}`,
@@ -627,7 +636,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
       this.state.supportedChains.find(
         (c) => c.chainId.toString() === disbursement.sourceChainId.toString()
       )?.layer ?? BobaChains[disbursement.sourceChainId]?.layer
-      
+
     if (sourceLayer === EAirdropSource.PROHIBIT) {
       this.logger.info(`Not airdropping as sourceNetwork is prohibited.`, {
         sourceChainId: disbursement.sourceChainId,
@@ -663,11 +672,11 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
   ): boolean {
     const currentTimestamp = Math.floor(Date.now() / 1000)
     const lastAirdropTime = this.recentAirdrops.get(walletAddress.toLowerCase())
-    
+
     if (!lastAirdropTime) {
       return false
     }
-    
+
     const timeSinceLastAirdrop = currentTimestamp - lastAirdropTime
     return timeSinceLastAirdrop < cooldownSeconds
   }
@@ -676,7 +685,7 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
   private recordAirdrop(walletAddress: string): void {
     const currentTimestamp = Math.floor(Date.now() / 1000)
     this.recentAirdrops.set(walletAddress.toLowerCase(), currentTimestamp)
-    
+
     // Clean up old entries (older than 24 hours) to prevent memory bloat
     const cutoffTime = currentTimestamp - 86400
     for (const [address, timestamp] of this.recentAirdrops.entries()) {
@@ -689,22 +698,27 @@ export class LightBridgeService extends BaseService<LightBridgeOptions> {
   async _airdropGas(disbursements: Disbursement[], latestBlock: number) {
     for (const disbursement of disbursements) {
       if (await this._fulfillsAirdropConditions(disbursement)) {
-        const cooldownSeconds = Number(this.getAirdropConfig()?.airdropCooldownSeconds ?? 86400)
-        
+        const cooldownSeconds = Number(
+          this.getAirdropConfig()?.airdropCooldownSeconds ?? 86400
+        )
+
         // Check both GraphQL and in-memory cache for recent airdrops
         const recentAirdropGraphQL = await hasRecentAirdrop(
           disbursement.addr,
           this.options.chainId,
           cooldownSeconds
         )
-        
+
         const recentAirdropInMemory = this.hasRecentAirdropInMemory(
           disbursement.addr,
           cooldownSeconds
         )
 
         if (!recentAirdropGraphQL && !recentAirdropInMemory) {
-          const nativeAmount = BigNumber.from(this.getAirdropConfig()?.airdropAmountWei ?? ethers.utils.parseEther('0.0005'))
+          const nativeAmount = BigNumber.from(
+            this.getAirdropConfig()?.airdropAmountWei ??
+              ethers.utils.parseEther('0.0005')
+          )
 
           this.logger.info(
             `Airdropping gas to ${disbursement.addr}, amount: ${nativeAmount}.`,

@@ -268,9 +268,8 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const latestBlockNumber = await provider.getBlockNumber()
-      const latestLastDisbursement = await LightBridge.totalDisbursements(
-        chainId
-      )
+      const latestLastDisbursement =
+        await LightBridge.totalDisbursements(chainId)
       const latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainId,
@@ -328,9 +327,8 @@ describe('lightbridge', () => {
         utils.parseEther('10')
       )
 
-      const amountDisbursements = await LightBridge.connect(
-        signer
-      ).totalDisbursements(chainId)
+      const amountDisbursements =
+        await LightBridge.connect(signer).totalDisbursements(chainId)
 
       expect(amountDisbursements).to.be.eq(1)
     })
@@ -391,9 +389,8 @@ describe('lightbridge', () => {
       const startBlockNumber = await provider.getBlockNumber()
 
       // deposit token
-      const lastDisbursement = await LightBridge.connect(
-        signer
-      ).totalDisbursements(chainId)
+      const lastDisbursement =
+        await LightBridge.connect(signer).totalDisbursements(chainId)
       for (let i = 0; i < 15; i++) {
         await L2BOBA.approve(LightBridge.address, utils.parseEther('10'))
         const res = await LightBridge.connect(signer).teleportAsset(
@@ -406,9 +403,8 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const endBlockNumber = await provider.getBlockNumber()
-      const latestLastDisbursement = await LightBridge.totalDisbursements(
-        chainId
-      )
+      const latestLastDisbursement =
+        await LightBridge.totalDisbursements(chainId)
       const latestEvents = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainId,
@@ -567,7 +563,7 @@ describe('lightbridge', () => {
       const teleportationService = await startLightBridgeService()
       await teleportationService.init()
 
-      // Get starting block before creating any events  
+      // Get starting block before creating any events
       const startBlock = await provider.getBlockNumber()
 
       // deposit token
@@ -993,9 +989,8 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await provider.getBlockNumber()
-      const lastDisbursement = await LightBridge.totalDisbursements(
-        chainIdBobaBnb
-      )
+      const lastDisbursement =
+        await LightBridge.totalDisbursements(chainIdBobaBnb)
       const events = await teleportationService._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
@@ -1060,9 +1055,8 @@ describe('lightbridge', () => {
       }
 
       const preBNBBalance = await bnbChainInfo.provider.getBalance(address1)
-      const preSignerBNBBalance = await bnbChainInfo.provider.getBalance(
-        signerAddr
-      )
+      const preSignerBNBBalance =
+        await bnbChainInfo.provider.getBalance(signerAddr)
 
       await teleportationServiceBnb._disburseTx(
         disbursement,
@@ -1071,9 +1065,8 @@ describe('lightbridge', () => {
       )
 
       const postBNBBalance = await bnbChainInfo.provider.getBalance(address1)
-      const postSignerBNBBalance = await bnbChainInfo.provider.getBalance(
-        signerAddr
-      )
+      const postSignerBNBBalance =
+        await bnbChainInfo.provider.getBalance(signerAddr)
 
       expect(preBNBBalance.sub(postBNBBalance)).to.be.closeTo(
         utils.parseEther('9.08'),
@@ -1357,9 +1350,8 @@ describe('lightbridge', () => {
       await waitForSubgraph()
 
       const blockNumber = await provider.getBlockNumber()
-      const lastDisbursement = await LightBridge.totalDisbursements(
-        chainIdBobaBnb
-      )
+      const lastDisbursement =
+        await LightBridge.totalDisbursements(chainIdBobaBnb)
       const events = await teleportationServiceETH._getAssetReceivedEvents(
         chainId,
         chainIdBobaBnb,
@@ -2493,7 +2485,7 @@ describe('service startup unit tests', () => {
       expect(await arbDepositTeleportation.Teleportation.totalDeposits('28882'))
         .to.not.be.undefined
     }
-    
+
     expect(await opDepositTeleportation.Teleportation.totalDeposits('28882')).to
       .not.be.undefined
   })

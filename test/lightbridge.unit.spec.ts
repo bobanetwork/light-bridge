@@ -144,9 +144,8 @@ describe('Asset Teleportation Tests', async () => {
           await ethers.getContractFactory('L1ERC20')
         ).deploy(initialSupply, 'Random Token', 'RTN', 9)
 
-        const Factory__Teleportation = await ethers.getContractFactory(
-          'LightBridge'
-        )
+        const Factory__Teleportation =
+          await ethers.getContractFactory('LightBridge')
         LightBridge = await Factory__Teleportation.deploy()
         await LightBridge.deployTransaction.wait()
         const Factory__Proxy__Teleportation = await ethers.getContractFactory(
@@ -977,9 +976,8 @@ describe('Asset Teleportation Tests', async () => {
           await ethers.getContractFactory('L1ERC20')
         ).deploy(initialSupply, tokenName, tokenSymbol, 18)
 
-        const Factory__LightBridge = await ethers.getContractFactory(
-          'LightBridge'
-        )
+        const Factory__LightBridge =
+          await ethers.getContractFactory('LightBridge')
         LightBridge = await Factory__LightBridge.deploy()
         await LightBridge.deployTransaction.wait()
         const Factory__Proxy__LightBridge = await ethers.getContractFactory(
@@ -1170,9 +1168,8 @@ describe('Asset Teleportation Tests', async () => {
         const postBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
         )
-        const postSignerBalance = await ethers.provider.getBalance(
-          signerAddress
-        )
+        const postSignerBalance =
+          await ethers.provider.getBalance(signerAddress)
         const gasFee = await getGasFeeFromLastestBlock(ethers.provider)
 
         expect(
@@ -1297,9 +1294,8 @@ describe('Asset Teleportation Tests', async () => {
         const postBalance = await ethers.provider.getBalance(
           Proxy__Teleportation.address
         )
-        const postSignerBalance = await ethers.provider.getBalance(
-          signerAddress
-        )
+        const postSignerBalance =
+          await ethers.provider.getBalance(signerAddress)
         const gasFee = await getGasFeeFromLastestBlock(ethers.provider)
         expect(preBalance.sub(postBalance)).to.be.closeTo(
           postSignerBalance.sub(preSignerBalance),
@@ -1477,9 +1473,8 @@ describe('Asset Teleportation Tests', async () => {
           await ethers.getContractFactory('L1ERC20')
         ).deploy(initialSupply, tokenName, tokenSymbol, 18)
 
-        const Factory__Teleportation = await ethers.getContractFactory(
-          'LightBridge'
-        )
+        const Factory__Teleportation =
+          await ethers.getContractFactory('LightBridge')
         LightBridge = await Factory__Teleportation.deploy()
         await LightBridge.deployTransaction.wait()
         const Factory__Proxy__Teleportation = await ethers.getContractFactory(
@@ -1498,9 +1493,8 @@ describe('Asset Teleportation Tests', async () => {
       })
 
       it('should emit events when disbursement of BOBA tokens fail', async () => {
-        const Factory__PausedReceiver = await ethers.getContractFactory(
-          'PausedReceiver'
-        )
+        const Factory__PausedReceiver =
+          await ethers.getContractFactory('PausedReceiver')
         PausedReceiver = await Factory__PausedReceiver.deploy()
         await PausedReceiver.setPauseStatus(true)
         expect(
@@ -1694,9 +1688,8 @@ describe('Asset Teleportation Tests', async () => {
           await ethers.getContractFactory('L1ERC20')
         ).deploy(initialSupply, tokenName, tokenSymbol, 18)
 
-        const Factory__Teleportation = await ethers.getContractFactory(
-          'LightBridge'
-        )
+        const Factory__Teleportation =
+          await ethers.getContractFactory('LightBridge')
         LightBridge = await Factory__Teleportation.deploy()
         await LightBridge.deployTransaction.wait()
         const Factory__Proxy__Teleportation = await ethers.getContractFactory(

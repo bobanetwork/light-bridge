@@ -70,7 +70,11 @@ export async function hasRecentAirdrop(
     )
 
     // Check if we have valid data
-    if (!result || !result.data || !Array.isArray(result.data.disbursementSuccesses)) {
+    if (
+      !result ||
+      !result.data ||
+      !Array.isArray(result.data.disbursementSuccesses)
+    ) {
       console.warn(
         `GraphQL query returned invalid data for airdrop cooldown check: ${walletAddress}. Assuming no recent activity.`
       )
