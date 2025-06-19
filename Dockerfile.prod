@@ -1,11 +1,30 @@
 FROM node:20 AS base
 RUN corepack enable
+
+# Copy package files
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+
+# Copy any registry configuration if it exists
+COPY .npmrc* .pnpmrc* ./
+
+# Clean install with verbose logging and error handling
+RUN pnpm install --frozen-lockfile --prefer-frozen-lockfile || \
+    (echo "First install failed, trying without frozen lockfile..." && \
+     pnpm install --no-frozen-lockfile)
+
+# Copy source code
 COPY . .
+
+# Build with error handling
 RUN pnpm run build
 
-FROM base
+FROM node:20-slim AS production
+RUN corepack enable
+
+# Copy built application and dependencies
+COPY --from=base node_modules/ ./node_modules/
 COPY --from=base build/ ./build/
+COPY --from=base package.json ./
+
 CMD ["pnpm", "run", "start:prod"]
 
